@@ -1,0 +1,35 @@
+﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <DebugType>portable</DebugType>
+    <AssemblyName>HttpClient</AssemblyName>
+    <PackageId>HttpClient</PackageId>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Types\Types.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.1-beta1" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
+    <PackageReference Include="FSharp.Core" Version="4.1.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Http.fs" />
+    <Compile Include="SensorStatusesClient.fs" />
+    <Compile Include="KeyServiceClient.fs" />
+    <Compile Include="MeasurementsToSensorDataMapping.fs" />
+    <Compile Include="SensorDataServiceClient.fs" />
+    <Compile Include="DeviceSettingsClient.fs" />
+    <Compile Include="TokenServiceClient.fs" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,50 @@
+﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <DebugType>portable</DebugType>
+    <AssemblyName>Application</AssemblyName>
+    <PackageId>Application</PackageId>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Utility\Utility.fsproj" />
+    <ProjectReference Include="..\Types\Types.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.1-beta1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.1.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.4.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
+    <PackageReference Include="FSharp.Core" Version="4.1.*" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Include="Storage/StorableTypes.fs" />
+    <Compile Include="Storage/BsonStorage.fs" />
+    <Compile Include="Storage/SensorHistoryBsonStorage.fs" />
+    <Compile Include="Storage/SensorStatusBsonStorage.fs" />
+    <Compile Include="Storage/PushNotificationSubscriptionBsonStorage.fs" />
+    <Compile Include="Storage/KeyStorage.fs" /> 
+    <Compile Include="PushNotifications/PushNotificationSubscriptions.fs" />
+    <Compile Include="PushNotifications/PushNotificationSubscriptionQuery.fs" />
+    <Compile Include="PushNotifications/PushNotificationSubscriptionCommand.fs" />
+    <Compile Include="PushNotifications/PushNotifications.fs" />
+    <Compile Include="Sensors/SensorStatusQuery.fs" />
+    <Compile Include="Sensors/SensorStatusCommand.fs" />
+    <Compile Include="Sensors/SensorHistoryQuery.fs" />
+    <Compile Include="Sensors/SensorHistoryCommand.fs" />
+    <Compile Include="Sensors/SensorSettingsCommand.fs" /> 
+    <Compile Include="Storage/SensorEventStorage.fs" />  
+    <Compile Include="SensorDataApi/Sensors.fs" />
+    <Compile Include="SensorDataApi/SensorDataToMeasurementsMapping.fs" />
+    <Compile Include="Application.fs" />
+  </ItemGroup>
+
+</Project>
