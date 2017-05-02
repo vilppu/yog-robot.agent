@@ -3,7 +3,7 @@ dist: trusty
 sudo: required
 mono: none
 dotnet: 1.0.1
-solution: Bot/YogRobot.Bot.sln
+solution: YogRobot.Agent.sln
 services:
   - mongodb
 script: ./build.sh
@@ -11,7 +11,7 @@ deploy:
   provider: releases
   api_key: $GitHubReleasesKey
   file:
-    - YogRobot.Bot.zip
+    - yog-robot.agent.zip
   skip_cleanup: true
   on:
     all_branches: true
