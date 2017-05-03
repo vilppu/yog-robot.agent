@@ -43,7 +43,7 @@
     <Compile Include="Sensors/SensorSettingsCommand.fs" /> 
     <Compile Include="Storage/SensorEventStorage.fs" />  
     <Compile Include="SensorDataApi/Sensors.fs" />
-    <Compile Include="SensorDataApi/SensorDataToMeasurementsMapping.fs" />
+    <Compile Include="SensorDataApi/SensorDataToEventsMapping.fs" />
     <Compile Include="Application.fs" />
   </ItemGroup>
 

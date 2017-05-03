@@ -1,7 +1,7 @@
 ﻿namespace YogRobot
 
 [<AutoOpen>]
-module SensorDataToMeasurementsMapping =
+module SensorDataToEventsMapping =
     open System
     open System.Text.RegularExpressions
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
