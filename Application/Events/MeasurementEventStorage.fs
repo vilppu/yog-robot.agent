@@ -79,7 +79,7 @@ module MeasurementEventStorage =
               DeviceId = event.DeviceId.AsString
               MeasuredProperty = measurement.Name
               MeasuredValue = measurement.Value
-              Timestamp = event.Timestamp.AsDateTime }
+              Timestamp = event.Timestamp }
         measurementEvents.InsertOneAsync(eventToBeStored)
         
     

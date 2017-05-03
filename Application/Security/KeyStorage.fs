@@ -59,7 +59,7 @@ module KeyStorage =
         let keyToBeStored : StorableMasterKey =
             { Id = ObjectId.Empty
               Key = key.Token.AsString
-              ValidThrough = key.ValidThrough.AsDateTime
+              ValidThrough = key.ValidThrough
               Timestamp = Now().AsDateTime }
         masterKeys.InsertOneAsync(keyToBeStored)
     
@@ -68,7 +68,7 @@ module KeyStorage =
             { Id = ObjectId.Empty
               Key = key.Token.AsString
               DeviceGroupId = key.DeviceGroupId.AsString
-              ValidThrough = key.ValidThrough.AsDateTime
+              ValidThrough = key.ValidThrough
               Timestamp = Now().AsDateTime }
         botKeys.InsertOneAsync(keyToBeStored)
     
@@ -77,13 +77,13 @@ module KeyStorage =
             { Id = ObjectId.Empty
               Key = key.Token.AsString
               DeviceGroupId = key.DeviceGroupId.AsString
-              ValidThrough = key.ValidThrough.AsDateTime
+              ValidThrough = key.ValidThrough
               Timestamp = Now().AsDateTime }
         sensorKeys.InsertOneAsync(keyToBeStored)
     
     let IsValidMasterKeyToken (token : MasterKeyToken) (validationTime : Timestamp) =
         let token = token.AsString
-        let validationTime = validationTime.AsDateTime
+        let validationTime = validationTime
         
         let configuredKeys = 
             match StoredMasterKey() with
@@ -102,7 +102,7 @@ module KeyStorage =
     let IsValidDeviceGroupKeyToken (deviceGroupId : DeviceGroupId) (token : DeviceGroupKeyToken) (validationTime : Timestamp) =
         let deviceGroupId = deviceGroupId.AsString
         let token = token.AsString
-        let validationTime = validationTime.AsDateTime
+        let validationTime = validationTime
 
         let keys = 
             botKeys.Find<StorableDeviceGroupKey>(fun k ->
@@ -113,7 +113,7 @@ module KeyStorage =
     let IsValidSensorKeyToken (deviceGroupId : DeviceGroupId) (token : SensorKeyToken) (validationTime : Timestamp) =
         let deviceGroupId = deviceGroupId.AsString
         let token = token.AsString
-        let validationTime = validationTime.AsDateTime
+        let validationTime = validationTime
 
         let valueFactory() = 
             let keys = 

@@ -24,17 +24,17 @@ module Security =
     
     type MasterKey = 
         { Token : MasterKeyToken
-          ValidThrough : Timestamp }
+          ValidThrough : DateTime }
     
     type SensorKey = 
         { Token : SensorKeyToken
           DeviceGroupId : DeviceGroupId
-          ValidThrough : Timestamp }
+          ValidThrough : DateTime }
     
     type DeviceGroupKey = 
         { Token : DeviceGroupKeyToken
           DeviceGroupId : DeviceGroupId
-          ValidThrough : Timestamp }
+          ValidThrough : DateTime }
      
     let StoredMasterKey() = Environment.GetEnvironmentVariable("YOG_MASTER_KEY")
     let StoredTokenSecret() =

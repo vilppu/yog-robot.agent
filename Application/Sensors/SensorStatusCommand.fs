@@ -22,8 +22,8 @@ module SensorStatusesCommand =
               MeasuredValue = measurement.Value
               BatteryVoltage = (float)event.BatteryVoltage
               SignalStrength = (float)event.SignalStrength
-              LastUpdated = event.Timestamp.AsDateTime
-              LastActive = event.Timestamp.AsDateTime }
+              LastUpdated = event.Timestamp
+              LastActive = event.Timestamp }
         let result = SensorsCollection.InsertOneAsync(storable)
         result
 
@@ -35,7 +35,7 @@ module SensorStatusesCommand =
         let hasChanged = measurement.Value <> toBeUpdated.MeasuredValue
         let sensorId = event.SensorId.AsString
         let deviceGroupId = event.DeviceGroupId.AsString
-        let lastActive = event.Timestamp.AsDateTime
+        let lastActive = event.Timestamp
         let lastUpdated =
                     if hasChanged
                     then lastActive

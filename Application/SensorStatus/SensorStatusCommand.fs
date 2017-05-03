@@ -38,7 +38,7 @@ module SensorStatusesCommand =
     //                  MeasuredProperty = measurement.Name
     //                  MeasuredValue = measurement.Value
     //                  LastUpdated = updated
-    //                  LastActive = event.Timestamp.AsDateTime }
+    //                  LastActive = event.Timestamp }
 
     // let private updateStatuses deviceGroupId event entries =
     //     let measurement = StorableMeasurement event.Measurement
@@ -62,12 +62,12 @@ module SensorStatusesCommand =
 
     //     let updated =
     //         if measurement.Value <> status.MeasuredValue
-    //         then event.Timestamp.AsDateTime
+    //         then event.Timestamp
     //         else status.LastUpdated 
         
     //     let updated =
     //         if hasChanged
-    //         then event.Timestamp.AsDateTime
+    //         then event.Timestamp
     //         else statusToBeUpdated.LastUpdated
         
     //     let updatedStatus = 
@@ -105,8 +105,8 @@ module SensorStatusesCommand =
               MeasuredValue = measurement.Value
               BatteryVoltage = (float)event.Sensor.BatteryVoltage
               SignalStrength = (float)event.Sensor.SignalStrength
-              LastUpdated = event.Timestamp.AsDateTime
-              LastActive = event.Timestamp.AsDateTime }
+              LastUpdated = event.Timestamp
+              LastActive = event.Timestamp }
         let result = SensorsCollection.InsertOneAsync(storable)
         result
 
@@ -118,7 +118,7 @@ module SensorStatusesCommand =
         let hasChanged = measurement.Value <> toBeUpdated.MeasuredValue
         let sensorId = event.Sensor.SensorId.AsString
         let filter = Builders<StorableSensorStatus>.Filter.Eq((fun s -> s.SensorId), sensorId)
-        let lastActive = event.Timestamp.AsDateTime
+        let lastActive = event.Timestamp
         let lastUpdated =
                     if hasChanged
                     then lastActive

@@ -1,28 +1,29 @@
 ﻿namespace YogRobot
 
 module Service =
+    open System
     open System.Threading.Tasks
-    
-    let Handshake() = "Hello"
         
+    let Handshake() = "Hello"
+
     let SaveMasterKey token = 
         let key : MasterKey = 
             { Token = token
-              ValidThrough = FarInTheFuture() }
+              ValidThrough = DateTime.UtcNow.AddYears(10) }
         StoreMasterKey key |> Then.Continue(fun () -> key.Token.AsString)
     
     let SaveDeviceGroupKey deviceGroupId token = 
         let key : DeviceGroupKey = 
             { Token = token
               DeviceGroupId = deviceGroupId
-              ValidThrough = FarInTheFuture() }
+              ValidThrough = DateTime.UtcNow.AddYears(10) }
         StoreDeviceGroupKey key |> Then.Continue(fun () -> key.Token.AsString)
     
     let SaveSensorKey deviceGroupId token = 
         let key : SensorKey = 
             { Token = token
               DeviceGroupId = deviceGroupId
-              ValidThrough = FarInTheFuture() }
+              ValidThrough = DateTime.UtcNow.AddYears(10) }
         StoreSensorKey key |> Then.Continue(fun () -> key.Token.AsString)
     
     let private saveSensorData deviceGroupId sensorEvents =

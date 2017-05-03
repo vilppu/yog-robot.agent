@@ -29,7 +29,7 @@ module Sensors =
           Measurement : Measurement
           BatteryVoltage : Voltage
           SignalStrength : Rssi
-          Timestamp : Timestamp }
+          Timestamp : DateTime }
 
     type SensorStatus = 
         { DeviceGroupId : string

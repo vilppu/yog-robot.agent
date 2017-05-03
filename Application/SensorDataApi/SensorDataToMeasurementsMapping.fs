@@ -105,7 +105,7 @@ module SensorDataToMeasurementsMapping =
         |> List.choose (id)
     
     let SensorDataEventToEvents (deviceGroupId : DeviceGroupId) (sensorData : SensorData) = 
-        let timestamp = Now()
+        let timestamp = DateTime.UtcNow
         let sensorData = ToSensorEvent sensorData
         match sensorData with
         | GatewayEvent.SensorDataEvent sensorData ->

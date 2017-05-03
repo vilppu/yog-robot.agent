@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Time.fs" />
     <Compile Include="Measurement.fs" />
     <Compile Include="Sensors.fs" />
     <Compile Include="Security.fs" />

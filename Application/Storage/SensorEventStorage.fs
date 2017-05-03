@@ -60,7 +60,7 @@ module SensorEventStorage =
                   Measurement = measurement
                   BatteryVoltage = event.Voltage * 1.0<V>
                   SignalStrength = event.SignalStrength
-                  Timestamp = event.Timestamp |> Timestamp }
+                  Timestamp = event.Timestamp }
             Some sensorEvent
         | None -> None
     
@@ -83,7 +83,7 @@ module SensorEventStorage =
               MeasuredValue = measurement.Value
               Voltage = (float)event.BatteryVoltage
               SignalStrength = (float)event.SignalStrength
-              Timestamp = event.Timestamp.AsDateTime }
+              Timestamp = event.Timestamp }
         sensorEvents.InsertOneAsync(eventToBeStored)
         
     

@@ -9,8 +9,7 @@ module Authorization =
     open System.Text
     open System.IdentityModel.Tokens.Jwt
     open System.IdentityModel.Tokens
-    open System.Security.Claims
-    
+    open System.Security.Claims    
     open Microsoft.AspNetCore.Authorization
     open Microsoft.AspNetCore.Mvc
     open Microsoft.AspNetCore.Http
@@ -48,7 +47,7 @@ module Authorization =
         let headers = request |> FindHeader "yog-robot-key"
         match headers with
         | key :: tail -> 
-            let now = Now()
+            let now = DateTime.UtcNow
             IsValidMasterKeyToken (MasterKeyToken key) now
         | [] -> false
     
@@ -62,7 +61,7 @@ module Authorization =
         match headers with
         | head :: tail -> 
             let (deviceGroupId, key) = head
-            let now = Now()
+            let now = DateTime.UtcNow
             IsValidDeviceGroupKeyToken (DeviceGroupId deviceGroupId) (DeviceGroupKeyToken key) now
         | [] -> false
 
@@ -76,7 +75,7 @@ module Authorization =
         match headers with
         | head :: tail -> 
             let (deviceGroupId, key) = head
-            let now = Now()
+            let now = DateTime.UtcNow
             IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
         | [] -> false
 
@@ -90,7 +89,7 @@ module Authorization =
         match headers with
         | head :: tail -> 
             let (deviceGroupId, key) = head
-            let now = Now()
+            let now = DateTime.UtcNow
             IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
         | [] -> false
         
@@ -153,7 +152,7 @@ module Authorization =
     let RegisterMasterKey() = 
         let key : MasterKey = 
             { Token = MasterKeyToken(GenerateSecureToken())
-              ValidThrough = FarInTheFuture() }
+              ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
             do! StoreMasterKey key |> Async.AwaitTask
             return key.Token
@@ -163,7 +162,7 @@ module Authorization =
         let key : DeviceGroupKey = 
             { Token = DeviceGroupKeyToken(GenerateSecureToken())
               DeviceGroupId = deviceGroupId
-              ValidThrough = FarInTheFuture() }
+              ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
             do! StoreDeviceGroupKey key |> Async.AwaitTask
             return key.Token
@@ -173,7 +172,7 @@ module Authorization =
         let key : SensorKey = 
             { Token = SensorKeyToken(GenerateSecureToken())
               DeviceGroupId = deviceGroupId
-              ValidThrough = FarInTheFuture() }
+              ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
             do! StoreSensorKey key |> Async.AwaitTask
             return key.Token

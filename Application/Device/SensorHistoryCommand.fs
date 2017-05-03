@@ -20,7 +20,7 @@ module SensorHistoryCommand =
         let measurement = StorableMeasurement event.Measurement
         let newEntry  = 
             { MeasuredValue = measurement.Value
-              Timestamp = event.Timestamp.AsDateTime }
+              Timestamp = event.Timestamp }
         let newHistory = newEntry :: history.Entries
         newHistory
         |> List.truncate maxNumberOfEntries

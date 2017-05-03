@@ -23,14 +23,14 @@ module GetChanges = ()
 //         let measurement = StorableMeasurement event.Measurement
 //         let lastUpdated = 
 //             if event |> measuredPropertyChanged entry
-//             then event.Timestamp.AsDateTime
+//             then event.Timestamp
 //             else entry.LastUpdated
         
 //         { entry with DeviceId = event.DeviceId.AsString
 //                                 MeasuredProperty = measurement.Name
 //                                 MeasuredValue = measurement.Value
 //                                 LastUpdated = lastUpdated
-//                                 LastActive = event.Timestamp.AsDateTime }
+//                                 LastActive = event.Timestamp }
 
 //     let AfterEvent (event : MeasurementEvent) (SensorStatus : UpdatedSensorStatuses) : UpdatedSensorStatuses =
 //         let measurement = StorableMeasurement event.Measurement

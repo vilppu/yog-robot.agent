@@ -58,8 +58,8 @@ module KeyStorage =
         let keyToBeStored : StorableMasterKey =
             { Id = ObjectId.Empty
               Key = key.Token.AsString
-              ValidThrough = key.ValidThrough.AsDateTime
-              Timestamp = Now().AsDateTime }
+              ValidThrough = key.ValidThrough
+              Timestamp = DateTime.UtcNow }
         masterKeys.InsertOneAsync(keyToBeStored)
     
     let StoreDeviceGroupKey(key : DeviceGroupKey) = 
@@ -67,8 +67,8 @@ module KeyStorage =
             { Id = ObjectId.Empty
               Key = key.Token.AsString
               DeviceGroupId = key.DeviceGroupId.AsString
-              ValidThrough = key.ValidThrough.AsDateTime
-              Timestamp = Now().AsDateTime }
+              ValidThrough = key.ValidThrough
+              Timestamp = DateTime.UtcNow }
         botKeys.InsertOneAsync(keyToBeStored)
     
     let StoreSensorKey(key : SensorKey) = 
@@ -76,13 +76,13 @@ module KeyStorage =
             { Id = ObjectId.Empty
               Key = key.Token.AsString
               DeviceGroupId = key.DeviceGroupId.AsString
-              ValidThrough = key.ValidThrough.AsDateTime
-              Timestamp = Now().AsDateTime }
+              ValidThrough = key.ValidThrough
+              Timestamp = DateTime.UtcNow }
         sensorKeys.InsertOneAsync(keyToBeStored)
     
-    let IsValidMasterKeyToken (token : MasterKeyToken) (validationTime : Timestamp) =
+    let IsValidMasterKeyToken (token : MasterKeyToken) (validationTime : DateTime) =
         let token = token.AsString
-        let validationTime = validationTime.AsDateTime
+        let validationTime = validationTime
         
         let configuredKeys = 
             match StoredMasterKey() with
@@ -98,10 +98,10 @@ module KeyStorage =
         
         keys.Length > 0
     
-    let IsValidDeviceGroupKeyToken (deviceGroupId : DeviceGroupId) (token : DeviceGroupKeyToken) (validationTime : Timestamp) =
+    let IsValidDeviceGroupKeyToken (deviceGroupId : DeviceGroupId) (token : DeviceGroupKeyToken) (validationTime : DateTime) =
         let deviceGroupId = deviceGroupId.AsString
         let token = token.AsString
-        let validationTime = validationTime.AsDateTime
+        let validationTime = validationTime
 
         let keys = 
             botKeys.Find<StorableDeviceGroupKey>(fun k ->
@@ -109,10 +109,10 @@ module KeyStorage =
         
         keys.Count > 0
     
-    let IsValidSensorKeyToken (deviceGroupId : DeviceGroupId) (token : SensorKeyToken) (validationTime : Timestamp) =
+    let IsValidSensorKeyToken (deviceGroupId : DeviceGroupId) (token : SensorKeyToken) (validationTime : DateTime) =
         let deviceGroupId = deviceGroupId.AsString
         let token = token.AsString
-        let validationTime = validationTime.AsDateTime
+        let validationTime = validationTime
 
         let valueFactory() = 
             let keys = 
