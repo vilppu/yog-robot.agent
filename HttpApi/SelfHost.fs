@@ -9,7 +9,7 @@ module SelfHost =
     open System
     open System.IO
     open System.Threading
-    open System.Threading.Tasks
+    open System.Threading.Tasks    
     open Microsoft.AspNetCore.Authorization
     open Microsoft.AspNetCore.Authentication.JwtBearer
     open Microsoft.AspNetCore.Builder

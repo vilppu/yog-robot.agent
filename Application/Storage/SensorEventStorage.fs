@@ -6,7 +6,7 @@ module SensorEventStorage =
     open System.Collections.Generic
     open System.Linq
     open System.Linq.Expressions
-    open System.Threading.Tasks
+    open System.Threading.Tasks    
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     open Microsoft.FSharp.Linq.RuntimeHelpers
     open Microsoft.FSharp.Reflection
@@ -91,10 +91,10 @@ module SensorEventStorage =
         let store event =
             let result =
                 HasChanges event
-                |> Then (fun hasChanges -> 
+                |> Then.Map (fun hasChanges -> 
                     if hasChanges then StoreSensorEvent event
-                    else Task.CompletedTask)
+                    else Then.Nothing)
             result.Unwrap()
         events
         |> Seq.map store
-        |> AfterAll
+        |> Then.Combine

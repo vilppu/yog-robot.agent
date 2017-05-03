@@ -4,7 +4,7 @@
 module DeviceSettingsCommand =
     open System
     open System.Collections.Generic
-    open System.Threading.Tasks
+    
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
     open MongoDB.Driver

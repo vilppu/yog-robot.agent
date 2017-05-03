@@ -15,7 +15,7 @@ module PushNotificationSubscriptionQuery =
         let deviceGroupId = deviceGroupId.AsString
         let subscriptions = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         subscriptions.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-        |> Then (fun subscriptionsForDeviceGroup ->
+        |> Then.Map (fun subscriptionsForDeviceGroup ->
             let result =
                 if subscriptionsForDeviceGroup :> obj |> isNull then new List<String>()
                 else subscriptionsForDeviceGroup.Tokens

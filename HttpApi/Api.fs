@@ -49,7 +49,7 @@ type ApiController() =
     member this.PostMasterKey() : Task<JsonResult> = 
         let token = MasterKeyToken(GenerateSecureToken())
         Service.SaveMasterKey token
-        |> Then (fun key -> this.Json(key))
+        |> Then.Map (fun key -> this.Json(key))
     
     [<Route("keys/device-group-keys/{deviceGroupId}")>]
     [<HttpPost>]
@@ -57,7 +57,7 @@ type ApiController() =
     member this.PostDeviceGroupKey(deviceGroupId : string) : Task<JsonResult> = 
         let token = DeviceGroupKeyToken(GenerateSecureToken())
         Service.SaveDeviceGroupKey (DeviceGroupId(deviceGroupId)) token
-        |> Then (fun key -> this.Json(key))
+        |> Then.Map (fun key -> this.Json(key))
     
     [<Route("keys/sensor-keys/{deviceGroupId}")>]
     [<HttpPost>]
@@ -65,7 +65,7 @@ type ApiController() =
     member this.PostSensorKey(deviceGroupId : string) : Task<JsonResult> = 
         let token = SensorKeyToken(GenerateSecureToken())
         Service.SaveSensorKey (DeviceGroupId(deviceGroupId)) token
-        |> Then (fun key -> this.Json(key))
+        |> Then.Map (fun key -> this.Json(key))
     
     
     [<Route("sensor/{sensorId}/name/{sensorName}")>]
@@ -104,5 +104,5 @@ type ApiController() =
         else
             let deviceGroupId = FindBotId this.Request
             Service.SaveSensorData (deviceGroupId) (sensorEvent)
-            |> Continue (fun () -> this.StatusCode(StatusCodes.Status201Created))
+            |> Then.Continue (fun () -> this.StatusCode(StatusCodes.Status201Created))
             

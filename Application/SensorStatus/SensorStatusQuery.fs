@@ -4,7 +4,7 @@ namespace YogRobot
 module SensorStatusesQuery =
     open System
     open System.Collections.Generic
-    open System.Threading.Tasks
+    
     open Microsoft.FSharp.Reflection
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
@@ -42,5 +42,5 @@ module SensorStatusesQuery =
         let deviceGroupId = deviceGroupId.AsString
         let storable = SensorsCollection.Find<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId)
         storable.ToListAsync<StorableSensorStatus>()
-        |> Then toSensorStatuses
+        |> Then.Map toSensorStatuses
     

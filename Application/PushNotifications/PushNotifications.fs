@@ -6,8 +6,7 @@ module PushNotification =
     open System.Net
     open System.Net.Http
     open System.Net.Http.Headers
-    open System.Text
-    open System.Threading.Tasks
+    open System.Text    
     open Newtonsoft.Json
 
     let StoredFcmKey() = Environment.GetEnvironmentVariable("YOG_FCM_KEY")
@@ -58,7 +57,7 @@ module PushNotification =
                 requestMessage.Headers.TryAddWithoutValidation("Authorization", token) |> ignore
                 let! response = httpClient.SendAsync(requestMessage) |> Async.AwaitTask
                 response |> ignore
-        } |> Async.StartAsTask
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task
 
     let private sendPushNotificationsForEntry (toBeUpdated : StorableSensorStatus) (event : SensorEvent) =
         let sensorName =
@@ -79,7 +78,7 @@ module PushNotification =
             else measurement.Value <> toBeUpdated.MeasuredValue 
         if hasChanged then
             match event.Measurement with
-            | Contact contact -> sendPushNotificationsForEntry toBeUpdated event :> Task
-            | _ -> Task.CompletedTask
+            | Contact contact -> sendPushNotificationsForEntry toBeUpdated event
+            | _ -> Then.Nothing
         else
-            Task.CompletedTask
+            Then.Nothing

@@ -4,8 +4,7 @@ namespace YogRobot
 module PushNotificationSubscriptionCommand =
     open System
     open System.Collections.Generic
-    open System.Linq
-    open System.Threading.Tasks
+    open System.Linq    
     open Microsoft.FSharp.Reflection
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
@@ -20,13 +19,13 @@ module PushNotificationSubscriptionCommand =
         let subscriptions = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         let command =
             subscriptions.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-            |> Then (fun subscriptions->
+            |> Then.Map (fun subscriptions->
                 subscriptions.Tokens.RemoveAll (fun token -> tokens.Contains(token)) |> ignore
                 let options = UpdateOptions()
                 options.IsUpsert <- true    
                 collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), subscriptions, options)
                 )
-        command.Unwrap() :> Task
+        command |> Then.IgnoreFlattened
     
     let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscription)=
         let collection = PushNotificationSubscriptionCollection
@@ -34,7 +33,7 @@ module PushNotificationSubscriptionCommand =
         let subscriptions = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         let command =
             subscriptions.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-            |> Then (fun subscriptions->
+            |> Then.Map (fun subscriptions->
                 let subscriptions =
                     if subscriptions :> obj |> isNull then
                         { Id = ObjectId.Empty
@@ -47,4 +46,4 @@ module PushNotificationSubscriptionCommand =
                 options.IsUpsert <- true    
                 collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), subscriptions, options)
                 )
-        command.Unwrap() :> Task
+        command |> Then.IgnoreFlattened

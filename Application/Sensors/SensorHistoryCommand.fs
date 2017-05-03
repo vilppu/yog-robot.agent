@@ -46,7 +46,7 @@ module SensorHistoryCommand =
         let measurement = StorableMeasurement event.Measurement
         let promise =
             ReadSensorHistory event.DeviceGroupId event.SensorId
-            |> Then (fun history ->
+            |> Then.Map (fun history ->
                 let changed =
                     match history.Entries with
                     | head::tail ->
@@ -55,5 +55,5 @@ module SensorHistoryCommand =
 
                 match changed with
                 | true -> upsertHistory event history
-                | false -> Task.CompletedTask)
+                | false -> Then.Nothing)
         promise.Unwrap()

@@ -4,7 +4,7 @@ namespace YogRobot
 module SensorHistoryCommand =
     open System
     open System.Collections.Generic
-    open System.Threading.Tasks
+    
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
     open MongoDB.Driver
@@ -48,7 +48,7 @@ module SensorHistoryCommand =
     let private upsertHistoryFromEvent event =
         let measurement = StorableMeasurement event.Measurement
         ReadSensorHistory event.Sensor.SensorId
-        |> Then (fun history ->
+        |> Then.Map (fun history ->
             let changed =
                 match history.Entries with
                 | head::tail ->
@@ -57,10 +57,10 @@ module SensorHistoryCommand =
 
             match changed with
             | true -> upsertHistory event history
-            | false -> Task.CompletedTask)
+            | false -> Then.Nothing)
         
     let UpdateSensorHistory measurementEvents =
         let operations =
             measurementEvents
-            |> List.map (fun event -> (upsertHistoryFromEvent event).Unwrap())            
-        Task.WhenAll operations      
+            |> List.map (fun event -> (upsertHistoryFromEvent event) |> Flatten)            
+        Then.Combine operations      

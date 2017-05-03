@@ -4,7 +4,7 @@
 module SensorHistoryQuery =
     open System
     open System.Collections.Generic
-    open System.Threading.Tasks
+    
     open MongoDB.Bson
     open MongoDB.Driver
 
@@ -31,4 +31,4 @@ module SensorHistoryQuery =
         let history = SensorHistoryCollection.Find<StorableSensorHistory>(filter)
 
         history.FirstOrDefaultAsync<StorableSensorHistory>()
-        |> Then toHistory
+        |> Then.Map toHistory

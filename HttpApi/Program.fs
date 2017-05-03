@@ -3,6 +3,7 @@
 module Program = 
     open System
     open System.Threading
+    open System.Threading.Tasks
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     open SelfHost
 

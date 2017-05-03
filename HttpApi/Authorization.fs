@@ -10,7 +10,7 @@ module Authorization =
     open System.IdentityModel.Tokens.Jwt
     open System.IdentityModel.Tokens
     open System.Security.Claims
-    open System.Threading.Tasks
+    
     open Microsoft.AspNetCore.Authorization
     open Microsoft.AspNetCore.Mvc
     open Microsoft.AspNetCore.Http
@@ -191,4 +191,4 @@ module Authorization =
             if isInRequiredRole then
                 context.Succeed requirement
                 
-            Task.CompletedTask
+            Then.Nothing

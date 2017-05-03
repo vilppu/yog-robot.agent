@@ -41,5 +41,5 @@ module SensorStatusesQuery =
         let deviceGroupId = deviceGroupId.AsString
         let storable = SensorsCollection.Find<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId)
         storable.ToListAsync<StorableSensorStatus>()
-        |> Then toSensorStatuses
+        |> Then.Map toSensorStatuses
     

@@ -4,7 +4,7 @@
 module SensorStatusesCommand =
     open System
     open System.Collections.Generic
-    open System.Threading.Tasks
+    
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
     open MongoDB.Driver
@@ -143,7 +143,7 @@ module SensorStatusesCommand =
         
         let result = 
             SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
-            |> Then (fun toBeUpdated ->
+            |> Then.Map (fun toBeUpdated ->
                 if toBeUpdated :> obj |> isNull then
                     event |> insertNew
                 else
@@ -154,6 +154,6 @@ module SensorStatusesCommand =
         let updatePromise = updateSensorStatus event
         let notifyPromise = 
             ReadSensorStatuses event.Sensor.DeviceGroupId
-            |> Then (fun statuses ->
+            |> Then.Map (fun statuses ->
                 SendPushNotificationsFor event.Sensor.DeviceGroupId statuses)
-        Task.WhenAll [updatePromise; notifyPromise.Unwrap()]
+        Then.Combine [updatePromise; notifyPromise.Unwrap()]
