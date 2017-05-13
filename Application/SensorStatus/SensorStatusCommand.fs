@@ -10,88 +10,6 @@ module SensorStatusesCommand =
     open MongoDB.Driver
     open Utility
 
-    // type UpdatedStatus = 
-    //     { Status : SensorStatus
-    //       HasChanged : bool }
-
-    // type UpdatedSensorStatuses = 
-    //     { Statuses : SensorStatus list
-    //       UpdatedStatus : UpdatedStatus }
-   
-    // let private toStorable (sensorStatus : SensorStatus) : StorableSensorStatus =
-    //     { Id = ObjectId.Empty
-    //       DeviceGroupId = sensorStatus.DeviceGroupId
-    //       DeviceId = sensorStatus.DeviceId
-    //       SensorId = sensorStatus.SensorId
-    //       SensorName = sensorStatus.SensorName
-    //       MeasuredProperty = sensorStatus.MeasuredProperty
-    //       MeasuredValue = sensorStatus.MeasuredValue
-    //       BatteryVoltage = sensorStatus.BatteryVoltage
-    //       SignalStrength = sensorStatus.SignalStrength
-    //       LastUpdated = sensorStatus.LastUpdated
-    //       LastActive = sensorStatus.LastActive }
-        
-    // let private updateStatus deviceGroupId (event : MeasurementEvent) (status : SensorStatus) =
-    //     let measurement = StorableMeasurement event.Measurement
-        
-    //     { status with DeviceId = event.DeviceId.AsString
-    //                  MeasuredProperty = measurement.Name
-    //                  MeasuredValue = measurement.Value
-    //                  LastUpdated = updated
-    //                  LastActive = event.Timestamp }
-
-    // let private updateStatuses deviceGroupId event entries =
-    //     let measurement = StorableMeasurement event.Measurement
-
-    //     let isFromSameSensor (sensorStatus : SensorStatus) =
-    //         (sensorStatus.DeviceId = event.DeviceId.AsString) && (sensorStatus.MeasuredProperty = measurement.Name)
-
-    //     let isFromDifferentSensor (sensorStatus : SensorStatus) =
-    //         not(isFromSameSensor sensorStatus)
-
-    //     let statusesToBeLeftIntact = entries |> List.filter isFromDifferentSensor
-    //     let statusToBeUpdaterOrEmpty = entries |> List.filter isFromSameSensor
-
-    //     let statusToBeUpdated =
-    //         match statusToBeUpdaterOrEmpty with
-    //         | head::tail -> head
-    //         | [] -> EmptySensorStatus
-    
-    //     let hasChanged = measurement.Value <> statusToBeUpdated.MeasuredValue
-
-
-    //     let updated =
-    //         if measurement.Value <> status.MeasuredValue
-    //         then event.Timestamp
-    //         else status.LastUpdated 
-        
-    //     let updated =
-    //         if hasChanged
-    //         then event.Timestamp
-    //         else statusToBeUpdated.LastUpdated
-        
-    //     let updatedStatus = 
-    //         { Status = statusToBeUpdated |> updateStatus deviceGroupId event
-    //           HasChanged = hasChanged }
-
-    //     { Statuses = statusesToBeLeftIntact |> List.append [updatedStatus.Status]
-    //       UpdatedStatus = updatedStatus }
-
-    // let rec private updateStatusesFromEvents events deviceGroupId entries =
-    //     match events with
-    //     | head::tail ->
-    //         let updated = entries |> updateStatuses deviceGroupId head
-    //         updateStatusesFromEvents tail deviceGroupId updated.Statuses
-    //     | [] -> entries
-    
-    // let private updateSensorStatuses (deviceGroupId : DeviceGroupId) (statuses : SensorStatus list)  =
-    //     let deviceGroupId = deviceGroupId.AsString
-    //     let storable = statuses |> List.map toStorable
-    //     let options = UpdateOptions()
-    //     options.IsUpsert <- true    
-    //     SensorsCollection.ReplaceOneAsync<StorableSensorStatus>((fun x -> x.DeviceGroupId = deviceGroupId), storable, options)
-    //     :> Task
-
     let private insertNew (event : MeasurementEvent) =
         let measurement = StorableMeasurement event.Measurement
 
@@ -155,5 +73,7 @@ module SensorStatusesCommand =
         let notifyPromise = 
             ReadSensorStatuses event.Sensor.DeviceGroupId
             |> Then.Map (fun statuses ->
-                SendPushNotificationsFor event.Sensor.DeviceGroupId statuses)
+                let promise = SendPushNotificationsFor event.Sensor.DeviceGroupId statuses
+                promise |> Async.Start
+                Then.Nothing)
         Then.Combine [updatePromise; notifyPromise.Unwrap()]
