@@ -14,36 +14,41 @@ module PushNotificationSubscriptionCommand =
         let deviceGroupId = deviceGroupId.AsString
         let tokens =
             subscriptions
-            |> List.map (fun subscription -> subscription.Token)        
+            |> Seq.map (fun subscription -> subscription.Token)        
         let collection = PushNotificationSubscriptionCollection
-        let subscriptions = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
+        let stored = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         let command =
-            subscriptions.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-            |> Then.Map (fun subscriptions->
-                subscriptions.Tokens.RemoveAll (fun token -> tokens.Contains(token)) |> ignore
+            stored.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
+            |> Then.Map (fun stored->
+                stored.Tokens.RemoveAll (fun token -> tokens.Contains(token)) |> ignore
+                let options = UpdateOptions()
+                options.IsUpsert <- true
+                collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
+                )
+        command |> Then.IgnoreFlattened
+    
+    let StorePushNotificationSubscriptions (deviceGroupId : DeviceGroupId) (subscriptions : PushNotificationSubscription list)=
+        let collection = PushNotificationSubscriptionCollection
+        let deviceGroupId = deviceGroupId.AsString
+        let stored = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
+        let command =
+            stored.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
+            |> Then.Map (fun stored->
+                let stored =
+                    if stored :> obj |> isNull then
+                        { Id = ObjectId.Empty
+                          DeviceGroupId = deviceGroupId
+                          Tokens = new List<string>() }
+                    else stored
+                let toBeAdded =
+                    subscriptions
+                    |> List.map (fun subscription -> subscription.Token)
+                    |> List.filter (fun token -> stored.Tokens.Contains(token))
                 let options = UpdateOptions()
                 options.IsUpsert <- true    
-                collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), subscriptions, options)
+                collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
                 )
         command |> Then.IgnoreFlattened
     
     let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscription)=
-        let collection = PushNotificationSubscriptionCollection
-        let deviceGroupId = deviceGroupId.AsString
-        let subscriptions = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
-        let command =
-            subscriptions.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-            |> Then.Map (fun subscriptions->
-                let subscriptions =
-                    if subscriptions :> obj |> isNull then
-                        { Id = ObjectId.Empty
-                          DeviceGroupId = deviceGroupId
-                          Tokens = new List<string>() }
-                    else subscriptions
-                if not(subscriptions.Tokens.Contains(subscription.Token)) then
-                    subscriptions.Tokens.Add subscription.Token
-                let options = UpdateOptions()
-                options.IsUpsert <- true    
-                collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), subscriptions, options)
-                )
-        command |> Then.IgnoreFlattened
+        StorePushNotificationSubscriptions deviceGroupId [subscription]

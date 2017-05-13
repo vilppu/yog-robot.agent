@@ -3,38 +3,69 @@ namespace YogRobot
 [<AutoOpen>]
 module PushNotification =
     open System
+    open System.Collections.Generic
     open System.Net
     open System.Net.Http
     open System.Net.Http.Headers
     open System.Text    
     open Newtonsoft.Json
 
-    let StoredFcmKey() = Environment.GetEnvironmentVariable("YOG_FCM_KEY")
+    let StoredFirebaseKey() = Environment.GetEnvironmentVariable("YOG_FCM_KEY")
 
     [<CLIMutable>]
-    type FcmDeviceNotificationContent = 
+    type FirebaseDeviceNotificationContent = 
         { deviceId : string
           sensorName : string
           measuredProperty : string
           measuredValue : obj }
 
     [<CLIMutable>]
-    type FcmPushNotificationRequestData = 
-        { deviceNotification : FcmDeviceNotificationContent }
+    type FirebasePushNotificationRequestData = 
+        { deviceNotification : FirebaseDeviceNotificationContent }
 
     [<CLIMutable>]
-    type FcmPushNotification = 
-        { data : FcmPushNotificationRequestData
+    type FirebasePushNotification = 
+        { data : FirebasePushNotificationRequestData
           registration_ids : string seq }
 
+    [<CLIMutable>]
+    type FirebaseResult = 
+        { message_id : string
+          error : string
+          registration_id : string }
+
+    [<CLIMutable>]
+    type FirebaseResponse = 
+        { multicast_id : int
+          success : int
+          failure : int
+          canonical_ids : int
+          results : List<FirebaseResult> }
+
     let httpClient = new HttpClient()
+
+    let private removeRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
+        if not(tokens.IsEmpty) then
+            let subscriptions = tokens |> List.map PushNotificationSubscription
+            RemovePushNotificationSubscriptions deviceGroupId subscriptions
+        else Then.Nothing
+
+    let private addRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
+        if not(tokens.IsEmpty) then
+            let subscriptions = tokens |> List.map PushNotificationSubscription
+            StorePushNotificationSubscriptions deviceGroupId subscriptions
+        else Then.Nothing
+
+    let private shouldBeRemoved (result : FirebaseResult * String) =
+        let (firebaseResult, subscription) = result
+        not(String.IsNullOrWhiteSpace(firebaseResult.registration_id)) || firebaseResult.error = "InvalidRegistration"
     
     let SendPushNotificationTo (deviceGroupId : DeviceGroupId) (pushNotification : DevicePushNotification) =
         async {
-            let storedFcmKey = StoredFcmKey()
-            if not(String.IsNullOrWhiteSpace(storedFcmKey)) then
+            let storedFirebaseKey = StoredFirebaseKey()
+            if not(String.IsNullOrWhiteSpace(storedFirebaseKey)) then
                 let url = "https://fcm.googleapis.com/fcm/send"
-                let token = "key=" + storedFcmKey
+                let token = "key=" + storedFirebaseKey
                 let! subscriptions = ReadPushNotificationSubscriptions deviceGroupId |> Async.AwaitTask
                 let notification =
                     { deviceId = pushNotification.DeviceId
@@ -56,6 +87,26 @@ module PushNotification =
                 requestMessage.Content <- content
                 requestMessage.Headers.TryAddWithoutValidation("Authorization", token) |> ignore
                 let! response = httpClient.SendAsync(requestMessage) |> Async.AwaitTask
+                let! responseJson = response.Content.ReadAsStringAsync() |> Async.AwaitTask
+                let firebaseResponse = JsonConvert.DeserializeObject<FirebaseResponse>(responseJson)
+                let firebaseResults = firebaseResponse.results |> Seq.toList
+                let results = subscriptions |> Seq.toList |> List.zip firebaseResults
+
+                let subscriptionsToBeRemoved =
+                    results
+                    |> List.filter shouldBeRemoved
+                    |> List.map (fun result ->                        
+                        let (firebaseResult, subscription) = result
+                        subscription)
+                
+                let subscriptionsToBeAdded =
+                    firebaseResults
+                    |> List.map (fun result -> result.registration_id)
+                    |> List.filter (fun registrationId -> not(String.IsNullOrWhiteSpace(registrationId)))
+                
+                do! removeRegistrations deviceGroupId subscriptionsToBeRemoved  |> Async.AwaitTask
+                do! addRegistrations deviceGroupId subscriptionsToBeAdded  |> Async.AwaitTask
+
                 response |> ignore
         } |> Async.StartAsTask :> System.Threading.Tasks.Task
 
