@@ -26,7 +26,7 @@ module SelfHost =
     type Startup(environment : IHostingEnvironment) =       
         
         let getConfiguration() =
-                (new ConfigurationBuilder())
+                (ConfigurationBuilder())
                  .SetBasePath(environment.ContentRootPath)
                  .AddEnvironmentVariables()
                  .Build()
@@ -38,7 +38,7 @@ module SelfHost =
                 |> ignore
                 
             let jwtBearerOptions =
-                let tokenValidationParameters = new TokenValidationParameters()
+                let tokenValidationParameters = TokenValidationParameters()
                 tokenValidationParameters.ValidateIssuerSigningKey <- true
                 tokenValidationParameters.IssuerSigningKey <- SigningKey
                 tokenValidationParameters.ClockSkew <- TimeSpan.Zero
@@ -47,7 +47,7 @@ module SelfHost =
                 tokenValidationParameters.ValidateAudience <- false
                 tokenValidationParameters.ValidAudience <- "NotUsed"
                 tokenValidationParameters.ValidateLifetime <- false
-                let options = new JwtBearerOptions()
+                let options = JwtBearerOptions()
                 options.AutomaticAuthenticate <- true
                 options.AutomaticChallenge <- true
                 options.TokenValidationParameters <- tokenValidationParameters
@@ -58,7 +58,7 @@ module SelfHost =
             
         member this.ConfigureServices(services : IServiceCollection) =
             let configureJson (options : MvcJsonOptions) = 
-                options.SerializerSettings.ContractResolver <- new CamelCasePropertyNamesContractResolver()
+                options.SerializerSettings.ContractResolver <- CamelCasePropertyNamesContractResolver()
             let configureJsonAction = new Action<MvcJsonOptions>(configureJson)
             services
                 .AddMvc()
@@ -68,19 +68,19 @@ module SelfHost =
             let configureAdminPolicy =
                 let builder =
                     fun (policy : AuthorizationPolicyBuilder) ->
-                        policy.Requirements.Add(new PermissionRequirement(Roles.Administrator))
+                        policy.Requirements.Add(PermissionRequirement(Roles.Administrator))
                 new Action<AuthorizationPolicyBuilder>(builder)
 
             let configureUserPolicy =
                 let builder =
                     fun (policy : AuthorizationPolicyBuilder) ->
-                        policy.Requirements.Add(new PermissionRequirement(Roles.User))
+                        policy.Requirements.Add(PermissionRequirement(Roles.User))
                 new Action<AuthorizationPolicyBuilder>(builder)
 
             let configureSensorPolicy =
                 let builder =
                     fun (policy : AuthorizationPolicyBuilder) ->
-                        policy.Requirements.Add(new PermissionRequirement(Roles.Sensor))
+                        policy.Requirements.Add(PermissionRequirement(Roles.Sensor))
                 new Action<AuthorizationPolicyBuilder>(builder)
 
             
@@ -101,7 +101,7 @@ module SelfHost =
             else url
 
         let host = 
-            (new WebHostBuilder())
+            WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>()

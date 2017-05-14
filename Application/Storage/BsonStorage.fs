@@ -11,7 +11,7 @@ module BsonStorage =
     open MongoDB.Driver
     
     let Database = 
-        let client = MongoClient()
+        let client = MongoClient("mongodb://localhost/?maxPoolSize=1024")
         let databaseNameOrNull = Environment.GetEnvironmentVariable "YOG_MONGODB_DATABASE"
         
         let databaseName = 

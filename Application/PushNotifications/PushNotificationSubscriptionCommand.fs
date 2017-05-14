@@ -43,12 +43,17 @@ module PushNotificationSubscriptionCommand =
                 let toBeAdded =
                     subscriptions
                     |> List.map (fun subscription -> subscription.Token)
-                    |> List.filter (fun token -> stored.Tokens.Contains(token))
-                let options = UpdateOptions()
-                options.IsUpsert <- true    
-                collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
+                    |> List.filter (fun token -> not(stored.Tokens.Contains(token)))
+                if toBeAdded |> List.isEmpty
+                then Then.Nothing
+                else
+                    stored.Tokens.AddRange toBeAdded
+                    let options = UpdateOptions()
+                    options.IsUpsert <- true    
+                    collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
+                    :> System.Threading.Tasks.Task
                 )
-        command |> Then.IgnoreFlattened
+        command |> Then.Flatten
     
     let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscription)=
         StorePushNotificationSubscriptions deviceGroupId [subscription]
