@@ -9,7 +9,17 @@ module BsonStorage =
     open Microsoft.FSharp.Reflection
     open MongoDB.Bson
     open MongoDB.Driver
+    open MongoDB.Bson.Serialization
+    open MongoDB.Bson.Serialization.Conventions
     
+    
+    type IgnoreBackingFieldsConvention() =
+        inherit ConventionBase()
+        interface IMemberMapConvention with
+            member this.Apply (memberMap : BsonMemberMap) =
+                if (memberMap.MemberName.EndsWith "@")
+                then memberMap.SetShouldSerializeMethod(fun o -> false) |> ignore
+
     let Database = 
         let client = MongoClient("mongodb://localhost/?maxPoolSize=1024")
         let databaseNameOrNull = Environment.GetEnvironmentVariable "YOG_MONGODB_DATABASE"
@@ -18,6 +28,11 @@ module BsonStorage =
             match databaseNameOrNull with
             | null -> "YogRobot"
             | databaseName -> databaseName
+
+        let conventionPack = new ConventionPack()
+        conventionPack.Add (IgnoreBackingFieldsConvention())
+        ConventionRegistry.Register("YogRobotConventions", conventionPack, (fun t -> true));
+
         client.GetDatabase databaseName
     
     let DropCollection(collection : IMongoCollection<'T>) = 
