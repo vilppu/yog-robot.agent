@@ -31,10 +31,11 @@
     <Compile Include="Storage/SensorHistoryBsonStorage.fs" />
     <Compile Include="Storage/SensorStatusBsonStorage.fs" />
     <Compile Include="Storage/PushNotificationSubscriptionBsonStorage.fs" />
-    <Compile Include="Storage/KeyStorage.fs" /> 
+    <Compile Include="Storage/KeyStorage.fs" />
     <Compile Include="PushNotifications/PushNotificationSubscriptions.fs" />
     <Compile Include="PushNotifications/PushNotificationSubscriptionQuery.fs" />
     <Compile Include="PushNotifications/PushNotificationSubscriptionCommand.fs" />
+    <Compile Include="PushNotifications/FirebaseMessaging.fs" />
     <Compile Include="PushNotifications/PushNotifications.fs" />
     <Compile Include="Sensors/SensorStatusQuery.fs" />
     <Compile Include="Sensors/SensorStatusCommand.fs" />

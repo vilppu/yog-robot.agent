@@ -16,6 +16,11 @@ module Promise =
         match promise with
         | Pending task -> task
 
+    let ToAsync promise = 
+        match promise with
+        | Pending task ->
+            Async.AwaitTask task
+
     let Many (tasks : Task<_> seq) = Pending (Task.WhenAll tasks)
 
     let UnwrapOne (task : Task<Task<_>>) = Pending (TaskExtensions.Unwrap task)
@@ -33,11 +38,6 @@ module Promise =
             let taskContinuation = Func<Task, _>(ignore)
             let next = task.ContinueWith<_>(taskContinuation, TaskContinuationOptions.OnlyOnRanToCompletion)
             Pending next
-
-    let AwaitTask promise = 
-        match promise with
-        | Pending task ->
-            Async.AwaitTask task
 
     let Fulfilled<'TResult> =
         let result = Task.FromResult(Unchecked.defaultof<'TResult>)

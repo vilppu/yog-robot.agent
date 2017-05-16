@@ -76,7 +76,7 @@ module SensorStatusesCommand =
                         event |> insertNew
                     else
                         event |> updateExisting toBeUpdated
-                let notifyPromise = event |> SendPushNotificationsFor toBeUpdated
+                let notifyPromise = event |> SendPushNotifications toBeUpdated
                 Then.Combine [updatePromise; notifyPromise]
                 )
         result |> Then.Flatten

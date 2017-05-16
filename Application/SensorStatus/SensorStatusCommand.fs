@@ -73,6 +73,6 @@ module SensorStatusesCommand =
         let notifyPromise = 
             ReadSensorStatuses event.Sensor.DeviceGroupId
             |> Then.Map (fun statuses ->
-                let promise = SendPushNotificationsFor event.Sensor.DeviceGroupId statuses
+                let promise = SendPushNotifications event.Sensor.DeviceGroupId statuses
                 promise)
         Then.Combine [updatePromise; notifyPromise.Unwrap()]
