@@ -49,13 +49,13 @@ module PushNotification =
         if not(tokens.IsEmpty) then
             let subscriptions = tokens |> List.map PushNotificationSubscription
             RemovePushNotificationSubscriptions deviceGroupId subscriptions
-        else Then.Nothing
+        else Promise.Empty
 
     let private addRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
         if not(tokens.IsEmpty) then
             let subscriptions = tokens |> List.map PushNotificationSubscription
             StorePushNotificationSubscriptions deviceGroupId subscriptions
-        else Then.Nothing
+        else Promise.Empty
 
     let private shouldBeRemoved (result : FirebaseResult * String) =
         let (firebaseResult, subscription) = result
@@ -104,10 +104,10 @@ module PushNotification =
                     let subscriptionsToBeAdded =
                         firebaseResults
                         |> List.map (fun result -> result.registration_id)
-                        |> List.filter (fun registrationId -> not(String.IsNullOrWhiteSpace(registrationId)))
+                        |> List.filter (String.IsNullOrWhiteSpace >> not)
                     
-                    do! removeRegistrations deviceGroupId subscriptionsToBeRemoved  |> Async.AwaitTask
-                    do! addRegistrations deviceGroupId subscriptionsToBeAdded  |> Async.AwaitTask
+                    do! removeRegistrations deviceGroupId subscriptionsToBeRemoved  |> Promise.AwaitTask
+                    do! addRegistrations deviceGroupId subscriptionsToBeAdded  |> Promise.AwaitTask
 
                     response |> ignore
         } |> Async.StartAsTask :> System.Threading.Tasks.Task

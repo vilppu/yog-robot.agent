@@ -19,13 +19,15 @@ module PushNotificationSubscriptionCommand =
         let stored = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         let command =
             stored.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-            |> Then.Map (fun stored->
+            |> Promise.One
+            |> Promise.Then (fun stored->
                 stored.Tokens.RemoveAll (fun token -> tokens.Contains(token)) |> ignore
                 let options = UpdateOptions()
                 options.IsUpsert <- true
                 collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
                 )
-        command |> Then.IgnoreFlattened
+            |> Promise.Ignore
+        command
     
     let StorePushNotificationSubscriptions (deviceGroupId : DeviceGroupId) (subscriptions : PushNotificationSubscription list)=
         let collection = PushNotificationSubscriptionCollection
@@ -33,7 +35,8 @@ module PushNotificationSubscriptionCommand =
         let stored = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         let command =
             stored.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-            |> Then.Map (fun stored->
+            |> Promise.One
+            |> Promise.Then (fun stored->
                 let stored =
                     if stored :> obj |> isNull then
                         { Id = ObjectId.Empty
@@ -53,7 +56,8 @@ module PushNotificationSubscriptionCommand =
                     collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
                     :> System.Threading.Tasks.Task
                 )
-        command |> Then.Flatten
+            |> Promise.Ignore
+        command
     
     let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscription)=
         StorePushNotificationSubscriptions deviceGroupId [subscription]
