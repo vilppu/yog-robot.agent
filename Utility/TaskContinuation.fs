@@ -24,4 +24,5 @@ module Then =
     let Flatten<'T> (task : Task<Task>) : Task =
         TaskExtensions.Unwrap task
 
+    let Ignore<'T> (task : Task<'T>) = task :> Task
     let Nothing = Task.CompletedTask

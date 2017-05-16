@@ -19,14 +19,13 @@ module PushNotificationSubscriptionCommand =
         let stored = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         let command =
             stored.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-            |> Promise.FromTask
-            |> Promise.Then (fun stored->
+            |> Then.Map (fun stored->
                 stored.Tokens.RemoveAll (fun token -> tokens.Contains(token)) |> ignore
                 let options = UpdateOptions()
                 options.IsUpsert <- true
                 collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
                 )
-            |> Promise.Ignore
+            |> Then.Ignore
         command
     
     let StorePushNotificationSubscriptions (deviceGroupId : DeviceGroupId) (subscriptions : PushNotificationSubscription list)=
@@ -35,8 +34,7 @@ module PushNotificationSubscriptionCommand =
         let stored = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         let command =
             stored.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-            |> Promise.FromTask
-            |> Promise.Then (fun stored->
+            |> Then.Map (fun stored->
                 let stored =
                     if stored :> obj |> isNull then
                         { Id = ObjectId.Empty
@@ -56,7 +54,7 @@ module PushNotificationSubscriptionCommand =
                     collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
                     :> System.Threading.Tasks.Task
                 )
-            |> Promise.Ignore
+            |> Then.Ignore
         command
     
     let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscription)=

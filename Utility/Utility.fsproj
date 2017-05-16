@@ -15,7 +15,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Compile Include="Promises.fs" />
     <Compile Include="TaskContinuation.fs" />
     <Compile Include="Expressions.fs" />
     <Compile Include="Http.fs" />
