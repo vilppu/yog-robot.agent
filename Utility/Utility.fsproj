@@ -17,6 +17,7 @@
   <ItemGroup>
     <Compile Include="TaskContinuation.fs" />
     <Compile Include="Expressions.fs" />
+    <Compile Include="Http.fs" />
   </ItemGroup>
 
 </Project>
