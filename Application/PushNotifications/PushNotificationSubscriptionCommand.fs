@@ -52,7 +52,7 @@ module PushNotificationSubscriptionCommand =
                     let options = UpdateOptions()
                     options.IsUpsert <- true    
                     collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
-                    :> System.Threading.Tasks.Task
+                    |> Then.AsUnit
                 )
             |> Then.Ignore
         command

@@ -190,4 +190,4 @@ module Authorization =
             if isInRequiredRole then
                 context.Succeed requirement
                 
-            Then.Nothing
+            Then.Nothing |> Then.Ignore

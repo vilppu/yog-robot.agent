@@ -85,14 +85,14 @@ module SensorEventStorage =
               SignalStrength = (float)event.SignalStrength
               Timestamp = event.Timestamp }
         sensorEvents.InsertOneAsync(eventToBeStored)
+         |> Then.AsUnit
         
-    
     let StoreSensorEvents events =
         let store event =
             let result =
                 HasChanges event
                 |> Then.Map (fun hasChanges -> 
-                    if hasChanges then StoreSensorEvent event
+                    if hasChanges then StoreSensorEvent event |> Then.AsUnit
                     else Then.Nothing)
             result.Unwrap()
         events

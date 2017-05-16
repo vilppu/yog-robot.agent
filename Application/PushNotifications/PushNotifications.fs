@@ -30,7 +30,9 @@ module PushNotification =
             else measurement.Value <> toBeUpdated.MeasuredValue 
         if hasChanged then
             match event.Measurement with
-            | Contact contact -> sendPushNotifications toBeUpdated event
+            | Contact contact ->
+                sendPushNotifications toBeUpdated event
+                |> Then.AsUnit
             | _ -> Then.Nothing
         else
             Then.Nothing

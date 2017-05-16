@@ -104,5 +104,5 @@ type ApiController() =
         else
             let deviceGroupId = FindBotId this.Request
             Service.SaveSensorData (deviceGroupId) (sensorEvent)
-            |> Then.Continue (fun () -> this.StatusCode(StatusCodes.Status201Created))
+            |> Then.AsUnit |> Then.Map (fun () -> this.StatusCode(StatusCodes.Status201Created))
             

@@ -54,6 +54,6 @@ module SensorHistoryCommand =
                     | _ -> true
 
                 match changed with
-                | true -> upsertHistory event history
+                | true -> upsertHistory event history |> Then.AsUnit
                 | false -> Then.Nothing)
         promise.Unwrap()

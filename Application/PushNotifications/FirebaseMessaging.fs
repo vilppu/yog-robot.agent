@@ -47,12 +47,14 @@ module FirebaseMessaging =
         if not(tokens.IsEmpty) then
             let subscriptions = tokens |> List.map PushNotificationSubscription
             RemovePushNotificationSubscriptions deviceGroupId subscriptions
+            |> Then.AsUnit
         else Then.Nothing
 
     let private addRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
         if not(tokens.IsEmpty) then
             let subscriptions = tokens |> List.map PushNotificationSubscription
             StorePushNotificationSubscriptions deviceGroupId subscriptions
+            |> Then.AsUnit
         else Then.Nothing
 
     let private shouldBeRemoved (result : FirebaseResult * String) =

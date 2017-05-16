@@ -10,33 +10,36 @@ module Service =
         let key : MasterKey = 
             { Token = token
               ValidThrough = DateTime.UtcNow.AddYears(10) }
-        StoreMasterKey key |> Then.Continue(fun () -> key.Token.AsString)
+        StoreMasterKey key |> Then.AsUnit |> Then.Map(fun x -> key.Token.AsString)
     
     let SaveDeviceGroupKey deviceGroupId token = 
         let key : DeviceGroupKey = 
             { Token = token
               DeviceGroupId = deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
-        StoreDeviceGroupKey key |> Then.Continue(fun () -> key.Token.AsString)
+        StoreDeviceGroupKey key |> Then.AsUnit |> Then.Map(fun x -> key.Token.AsString)
     
     let SaveSensorKey deviceGroupId token = 
         let key : SensorKey = 
             { Token = token
               DeviceGroupId = deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
-        StoreSensorKey key |> Then.Continue(fun () -> key.Token.AsString)
+        StoreSensorKey key |> Then.AsUnit |> Then.Map(fun x -> key.Token.AsString)
     
     let private saveSensorData deviceGroupId sensorEvents =
         
-        let storeSensorEventPromise = StoreSensorEvents sensorEvents
+        let storeSensorEventPromise =
+            StoreSensorEvents sensorEvents
+             |> Then.AsUnit
         let updatePromises =
             sensorEvents
             |> List.map (fun event ->
                 let updateSensorStatusesPromise = UpdateSensorStatuses event
                 let updateSensorHistoryPromise = UpdateSensorHistory event
                 Then.Combine [ updateSensorStatusesPromise; updateSensorHistoryPromise; ]
+                |> Then.AsUnit
                 )
-        let updatePromise = Then.Combine updatePromises
+        let updatePromise = Then.Combine updatePromises |> Then.AsUnit
         Then.Combine [ storeSensorEventPromise; updatePromise; ]
     
     let SaveSensorData deviceGroupId sensorEvent =
