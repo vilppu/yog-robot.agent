@@ -1,6 +1,6 @@
 ﻿namespace YogRobot
 
-module Http = 
+module Agent = 
     open System
     open System.Net
     open System.Net.Http
