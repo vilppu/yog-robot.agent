@@ -95,6 +95,8 @@ type ApiController() =
     member this.SubscribeToPushNotification (token : string) : Task = 
         let subscription = PushNotificationSubscription token
         Service.SubscribeToPushNotification (this.DeviceGroupId) subscription
+        |> Promise.ToTask
+        :> Task
     
     [<Route("sensor-data")>]
     [<HttpPost>]

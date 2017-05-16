@@ -19,7 +19,7 @@ module PushNotificationSubscriptionCommand =
         let stored = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         let command =
             stored.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-            |> Promise.One
+            |> Promise.FromTask
             |> Promise.Then (fun stored->
                 stored.Tokens.RemoveAll (fun token -> tokens.Contains(token)) |> ignore
                 let options = UpdateOptions()
@@ -35,7 +35,7 @@ module PushNotificationSubscriptionCommand =
         let stored = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         let command =
             stored.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
-            |> Promise.One
+            |> Promise.FromTask
             |> Promise.Then (fun stored->
                 let stored =
                     if stored :> obj |> isNull then

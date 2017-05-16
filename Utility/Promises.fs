@@ -7,43 +7,38 @@ module Promise =
     let private thenContinuation<'TSource, 'TResult> (continuation : 'TSource -> 'TResult) (task : Task<'TSource>) : 'TResult =
         continuation task.Result
 
-    type TaskPromise<'TResult> =
-        | Open of Task<'TResult>
-
-    let One (task : Task<_>) = Open task
-
-    let Some (task : Task<_>) = Open task
-
-    let Many (tasks : Task<_> seq) = Open (Task.WhenAll tasks)
-
-    let UnwrapOne (task : Task<Task<_>>) = Open (TaskExtensions.Unwrap task)
-
-    let Then<'TSource, 'TResult> (continuation : 'TSource -> 'TResult) (promise : TaskPromise<'TSource>) : TaskPromise<'TResult> = 
+    type Promise<'TResult> =
+        | Pending of Task<'TResult>
+        
+    let FromTask (task : Task<_>) = Pending task
+        
+    let ToTask<'TResult> (promise : Promise<'TResult>) =
         match promise with
-        | Open task ->
+        | Pending task -> task
+
+    let Many (tasks : Task<_> seq) = Pending (Task.WhenAll tasks)
+
+    let UnwrapOne (task : Task<Task<_>>) = Pending (TaskExtensions.Unwrap task)
+
+    let Then<'TSource, 'TResult> (continuation : 'TSource -> 'TResult) (promise : Promise<'TSource>) : Promise<'TResult> = 
+        match promise with
+        | Pending task ->
             let taskContinuation = thenContinuation continuation
             let next = task.ContinueWith<'TResult>(taskContinuation, TaskContinuationOptions.OnlyOnRanToCompletion)
-            Open next
+            Pending next
 
-    let Ignore (promise : TaskPromise<_>) = 
+    let Ignore (promise : Promise<_>) = 
         match promise with
-        | Open task ->
+        | Pending task ->
             let taskContinuation = Func<Task, _>(ignore)
             let next = task.ContinueWith<_>(taskContinuation, TaskContinuationOptions.OnlyOnRanToCompletion)
-            Open next
+            Pending next
 
     let AwaitTask promise = 
         match promise with
-        | Open task ->
+        | Pending task ->
             Async.AwaitTask task
 
-    // let Ignore<'TResult> (continuation : unit -> 'TResult) (promise : TaskPromise<_>) : TaskPromise<'TResult> = 
-    //     match promise with
-    //     | Open task ->
-    //         let taskContinuation = Func<Task, 'TResult>(fun task -> continuation())
-    //         let next = task.ContinueWith<'TResult>(taskContinuation, TaskContinuationOptions.OnlyOnRanToCompletion)
-    //         Open next
-  
-    let Empty<'TResult> =
+    let Fulfilled<'TResult> =
         let result = Task.FromResult(Unchecked.defaultof<'TResult>)
-        Open result
+        Pending result
