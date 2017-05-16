@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Http.fs" />
+    <Compile Include="Agent.fs" />
     <Compile Include="SensorStatusesClient.fs" />
     <Compile Include="KeyServiceClient.fs" />
     <Compile Include="MeasurementsToSensorDataMapping.fs" />

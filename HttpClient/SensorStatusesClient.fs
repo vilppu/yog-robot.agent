@@ -6,19 +6,19 @@ module SensorStatusesClient =
     
     let GetSensorStatusesResponse token = 
         let apiUrl = "api/sensors"
-        Http.Get token apiUrl
+        Agent.Get token apiUrl
     
     let GetSensorStatuses token = 
         let response = GetSensorStatusesResponse token
-        async { let! content = response |> Http.ContentOrFail
+        async { let! content = response |> Agent.ContentOrFail
                 let result = JsonConvert.DeserializeObject<List<SensorStatus>>(content)
                 return result |> Seq.toList }
     
     let GetSensorHistoryResponse token sensorId = 
         let apiUrl = sprintf "api/sensor/%s/history" sensorId
-        Http.Get token apiUrl
+        Agent.Get token apiUrl
     
     let GetSensorHistory token sensorId = 
         let response = GetSensorHistoryResponse token sensorId
-        async { let! content = response |> Http.ContentOrFail
+        async { let! content = response |> Agent.ContentOrFail
                 return JsonConvert.DeserializeObject<SensorHistory>(content) }

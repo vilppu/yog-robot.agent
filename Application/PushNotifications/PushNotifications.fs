@@ -42,9 +42,6 @@ module PushNotification =
           mutable failure : int64
           mutable canonical_ids : int64
           mutable results : List<FirebaseResult> }
-
-    let httpClient = new HttpClient()
-
     let private removeRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
         if not(tokens.IsEmpty) then
             let subscriptions = tokens |> List.map PushNotificationSubscription
@@ -88,7 +85,7 @@ module PushNotification =
                     use content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
                     requestMessage.Content <- content
                     requestMessage.Headers.TryAddWithoutValidation("Authorization", token) |> ignore
-                    let! response = httpClient.SendAsync(requestMessage) |> Async.AwaitTask
+                    let! response = Http.Send requestMessage |> Async.AwaitTask
                     let! responseJson = response.Content.ReadAsStringAsync() |> Async.AwaitTask              
                     let firebaseResponse = JsonConvert.DeserializeObject<FirebaseResponse> responseJson
                     let firebaseResults = firebaseResponse.results |> Seq.toList

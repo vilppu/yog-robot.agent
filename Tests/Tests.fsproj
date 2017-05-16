@@ -33,12 +33,13 @@
   <ItemGroup>
     <Compile Include="Fake.fs" />
     <Compile Include="TestContext.fs" />
-    <Compile Include="TestHelpers.fs" />    
+    <Compile Include="TestHelpers.fs" />
     <Compile Include="SensorHistoryTests.fs" />
-    <Compile Include="SensorStatusTests.fs" />    
-    <Compile Include="KeyTests.fs" />    
+    <Compile Include="SensorStatusTests.fs" />
+    <Compile Include="PushNotificationTests.fs" />
+    <Compile Include="KeyTests.fs" />
     <Compile Include="SensorDataTest.fs" />
-    <Compile Include="TokenTests.fs" />    
+    <Compile Include="TokenTests.fs" />
     <Compile Include="DeviceSettingsTests.fs" /> 
   </ItemGroup>
 
