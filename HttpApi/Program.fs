@@ -9,7 +9,7 @@ module Program =
 
     let rec HandleException(ex : Exception) =
         match ex.InnerException with
-        | null -> printf "%s" ex.Message
+        | null -> eprintf "%s" ex.Message
         | _ -> HandleException ex.InnerException
     
     [<EntryPoint>]
@@ -20,11 +20,11 @@ module Program =
             0
         with
         | :? AggregateException as ex -> 
-            printfn "Error:"
+            eprintfn "Error:"
             for innerExceptions in ex.InnerExceptions do
                 HandleException innerExceptions
             -1
         | ex -> 
-            printfn "Error:"
+            eprintfn "Error:"
             HandleException ex
             -1
