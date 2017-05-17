@@ -63,7 +63,8 @@ module SensorStatusesCommand =
             |> Then.Map (fun sensorStatus -> (sensorStatus :> obj |> isNull) || (measurement.Value <> sensorStatus.MeasuredValue))
         result
 
-    let UpdateSensorStatuses (sendPushNotifications : PushNotificationReason -> Task<unit>) (event : SensorEvent) : Task<unit> =
+    let UpdateSensorStatuses (httpSend) (event : SensorEvent) : Task<unit> =
+        let sendPushNotifications = SendPushNotifications httpSend
         let measurement = StorableMeasurement event.Measurement
         let sensorId = event.SensorId.AsString
         let filter = event |> FilterSensorsByEvent

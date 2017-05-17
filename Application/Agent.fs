@@ -32,10 +32,8 @@ module Agent =
         |> Then.AsUnit 
         |> Then.Map(fun x -> key.Token.AsString)
     
-    let SaveSensorData httpSend deviceGroupId sensorEvent =
-        let sendPushNotifications = SendPushNotifications httpSend
-        let updateSensorStatuses = UpdateSensorStatuses sendPushNotifications
-        let sensorEvents = sensorEvent |> SensorDataEventToEvents deviceGroupId
+    let SaveSensorData httpSend deviceGroupId sensorEvent =        
+        let updateSensorStatuses = UpdateSensorStatuses httpSend
         let updateSensorStatusAndHistory event =
             let updateSensorStatusesPromise = updateSensorStatuses event
             let updateSensorHistoryPromise = UpdateSensorHistory event
@@ -43,6 +41,7 @@ module Agent =
             |> Then.Combine
             |> Then.AsUnit
         try
+            let sensorEvents = sensorEvent |> SensorDataEventToEvents deviceGroupId
             let storeSensorEventPromise = sensorEvents |> StoreSensorEvents
             let updatePromise =
                 sensorEvents
