@@ -57,5 +57,6 @@ module PushNotificationSubscriptionCommand =
             |> Then.Ignore
         command
     
-    let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscription)=
+    let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscription) =
         StorePushNotificationSubscriptions deviceGroupId [subscription]
+        |> Then.AsUnit

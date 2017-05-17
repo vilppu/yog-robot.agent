@@ -45,7 +45,7 @@
     <Compile Include="Storage/SensorEventStorage.fs" />  
     <Compile Include="SensorDataApi/Sensors.fs" />
     <Compile Include="SensorDataApi/SensorDataToEventsMapping.fs" />
-    <Compile Include="Application.fs" />
+    <Compile Include="Agent.fs" />
   </ItemGroup>
 
 </Project>

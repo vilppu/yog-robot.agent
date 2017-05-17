@@ -63,7 +63,7 @@ module SensorStatusesCommand =
             |> Then.Map (fun sensorStatus -> (sensorStatus :> obj |> isNull) || (measurement.Value <> sensorStatus.MeasuredValue))
         result
 
-    let UpdateSensorStatuses (sendPushNotifications : StorableSensorStatus -> SensorEvent -> Task<unit>) (event : SensorEvent) : Task<unit> =
+    let UpdateSensorStatuses (sendPushNotifications : PushNotificationReason -> Task<unit>) (event : SensorEvent) : Task<unit> =
         let measurement = StorableMeasurement event.Measurement
         let sensorId = event.SensorId.AsString
         let filter = event |> FilterSensorsByEvent
@@ -78,7 +78,10 @@ module SensorStatusesCommand =
                         event |> updateExisting sensorStatus
                     |> Then.AsUnit
                 let notifyPromise =
-                    sendPushNotifications sensorStatus event
+                    let reason =
+                        { Event = event
+                          Status = sensorStatus }
+                    sendPushNotifications reason
                 Then.Combine [updatePromise; notifyPromise]
                 )
         result |> Then.Unwrap |> Then.AsUnit

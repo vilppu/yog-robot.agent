@@ -98,3 +98,4 @@ module SensorEventStorage =
         events
         |> Seq.map store
         |> Then.Combine
+        |> Then.AsUnit

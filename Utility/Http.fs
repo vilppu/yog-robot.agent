@@ -12,6 +12,3 @@ module Http =
 
     let Send (request : HttpRequestMessage) : Task<HttpResponseMessage> =
         httpClient.SendAsync request
-
-
-    

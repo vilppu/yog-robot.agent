@@ -12,27 +12,34 @@ module PushNotification =
     open Newtonsoft.Json
     open Newtonsoft.Json.Serialization
    
-    let private sendPushNotifications (sendFirebaseMessages : DevicePushNotification -> Task<unit>) (sensorStatus : StorableSensorStatus) (event : SensorEvent) =
+    type PushNotificationReason =
+        { // Event causing the push notification
+          Event : SensorEvent
+          // Sensor status after the event
+          Status : StorableSensorStatus }
+
+    let private sendPushNotifications httpSend reason =
         let sensorName =
-            if sensorStatus :> obj |> isNull then event.SensorId.AsString
-            else sensorStatus.SensorName
-        let measurement = StorableMeasurement event.Measurement
+            if reason.Status :> obj |> isNull then reason.Event.SensorId.AsString
+            else reason.Status.SensorName
+        let measurement = StorableMeasurement reason.Event.Measurement        
+        let sendFirebaseMessages = SendFirebaseMessages httpSend reason.Event.DeviceGroupId
         let pushNotification : DevicePushNotification =
-            { DeviceId = event.DeviceId.AsString
+            { DeviceId = reason.Event.DeviceId.AsString
               SensorName = sensorName
               MeasuredProperty = measurement.Name
               MeasuredValue = measurement.Value }
         pushNotification |> sendFirebaseMessages
 
-    let SendPushNotifications sendFirebaseMessages (sensorStatus : StorableSensorStatus) (event : SensorEvent) =
-        let measurement = StorableMeasurement event.Measurement
+    let SendPushNotifications httpSend reason =
+        let measurement = StorableMeasurement reason.Event.Measurement
         let hasChanged =
-            if sensorStatus :> obj |> isNull then true
-            else measurement.Value <> sensorStatus.MeasuredValue 
+            if reason.Status :> obj |> isNull then true
+            else measurement.Value <> reason.Status.MeasuredValue 
         if hasChanged then
-            match event.Measurement with
+            match reason.Event.Measurement with
             | Contact contact ->
-                sendPushNotifications sendFirebaseMessages sensorStatus event
+                sendPushNotifications httpSend reason
                 |> Then.AsUnit
             | _ -> Then.Nothing
         else

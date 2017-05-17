@@ -14,5 +14,5 @@ module SensorNameCommand =
         let update =
             Builders<StorableSensorStatus>.Update
              .Set((fun s -> s.SensorName), sensorName)
-        let result = SensorsCollection.UpdateOneAsync<StorableSensorStatus>(filter, update)
-        result :> Task
+        SensorsCollection.UpdateOneAsync<StorableSensorStatus>(filter, update)
+        |> Then.AsUnit

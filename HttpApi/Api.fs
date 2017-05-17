@@ -8,8 +8,11 @@ open Microsoft.AspNetCore.Authorization
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
 
+type IHttpService =
+    abstract member Send: HttpRequestMessage -> Task<HttpResponseMessage>
+
 [<Route("api")>]
-type ApiController() = 
+type ApiController(http : IHttpService) = 
     inherit Controller()
     member private this.DeviceGroupId = DeviceGroupId(GetDeviceGroupId this.User)
     
@@ -48,7 +51,7 @@ type ApiController() =
     [<Authorize(Policy = Roles.Administrator)>]
     member this.PostMasterKey() : Task<JsonResult> = 
         let token = MasterKeyToken(GenerateSecureToken())
-        Service.SaveMasterKey token
+        Agent.SaveMasterKey token
         |> Then.Map (fun key -> this.Json(key))
     
     [<Route("keys/device-group-keys/{deviceGroupId}")>]
@@ -56,7 +59,7 @@ type ApiController() =
     [<Authorize(Policy = Roles.Administrator)>]
     member this.PostDeviceGroupKey(deviceGroupId : string) : Task<JsonResult> = 
         let token = DeviceGroupKeyToken(GenerateSecureToken())
-        Service.SaveDeviceGroupKey (DeviceGroupId(deviceGroupId)) token
+        Agent.SaveDeviceGroupKey (DeviceGroupId(deviceGroupId)) token
         |> Then.Map (fun key -> this.Json(key))
     
     [<Route("keys/sensor-keys/{deviceGroupId}")>]
@@ -64,45 +67,46 @@ type ApiController() =
     [<Authorize(Policy = Roles.Administrator)>]
     member this.PostSensorKey(deviceGroupId : string) : Task<JsonResult> = 
         let token = SensorKeyToken(GenerateSecureToken())
-        Service.SaveSensorKey (DeviceGroupId(deviceGroupId)) token
+        Agent.SaveSensorKey (DeviceGroupId(deviceGroupId)) token
         |> Then.Map (fun key -> this.Json(key))
     
     
     [<Route("sensor/{sensorId}/name/{sensorName}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.User)>]
-    member this.PostSensorName (sensorId : string) (sensorName : string) : Task = 
+    member this.PostSensorName (sensorId : string) (sensorName : string) : Task<unit> = 
         let sensorId = SensorId sensorId
-        Service.SaveSensorName (this.DeviceGroupId) sensorId (sensorName)
+        Agent.SaveSensorName (this.DeviceGroupId) sensorId (sensorName)
     
     
     [<Route("sensors")>]
     [<HttpGet>]
     [<Authorize(Policy = Roles.User)>]
     member this.GetSensorStatuses() = 
-        Service.GetSensorStatuses (this.DeviceGroupId)
+        Agent.GetSensorStatuses (this.DeviceGroupId)
     
     [<Route("sensor/{sensorId}/history/")>]
     [<HttpGet>]
     [<Authorize(Policy = Roles.User)>]
     member this.GetSensorHistory (sensorId : string) =
-        Service.GetSensorHistory (this.DeviceGroupId) (SensorId sensorId)
+        Agent.GetSensorHistory (this.DeviceGroupId) (SensorId sensorId)
     
     
     [<Route("push-notifications/subscribe/{token}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.User)>]
-    member this.SubscribeToPushNotification (token : string) : Task = 
+    member this.SubscribeToPushNotification (token : string) : Task<unit> = 
         let subscription = PushNotificationSubscription token
-        Service.SubscribeToPushNotification (this.DeviceGroupId) subscription
+        Agent.SubscribeToPushNotification (this.DeviceGroupId) subscription
     
     [<Route("sensor-data")>]
     [<HttpPost>]
     member this.PostSensorData([<FromBody>]sensorEvent : SensorData) =
+        let httpSend = http.Send
         if BotKeyIsMissing this.Request then
             Task.FromResult(this.StatusCode(StatusCodes.Status401Unauthorized))
         else
             let deviceGroupId = FindBotId this.Request
-            Service.SaveSensorData (deviceGroupId) (sensorEvent)
-            |> Then.AsUnit |> Then.Map (fun () -> this.StatusCode(StatusCodes.Status201Created))
-            
+            let saveSensorData = Agent.SaveSensorData httpSend
+            saveSensorData (deviceGroupId) (sensorEvent)
+            |> Then.Map (fun () -> this.StatusCode(StatusCodes.Status201Created))

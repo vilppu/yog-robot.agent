@@ -22,6 +22,10 @@ module SelfHost =
     open Microsoft.IdentityModel.Tokens
     open Newtonsoft.Json
     open Newtonsoft.Json.Serialization
+
+    type HttpService() =
+        interface IHttpService with 
+            member this.Send request = Http.Send request
     
     type Startup(environment : IHostingEnvironment) =       
         
@@ -64,6 +68,8 @@ module SelfHost =
                 .AddMvc()
                 .AddJsonOptions(configureJsonAction)
                 |> ignore
+
+            services.AddSingleton<IHttpService, HttpService>() |> ignore
             
             let configureAdminPolicy =
                 let builder =
@@ -92,7 +98,7 @@ module SelfHost =
 
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>()
             |> ignore
-    
+
     let CreateHttpServer() : Task = 
         let url = Environment.GetEnvironmentVariable("YOG_BOT_BASE_URL")
         
