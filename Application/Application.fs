@@ -26,7 +26,7 @@ module Service =
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         StoreSensorKey key |> Then.AsUnit |> Then.Map(fun x -> key.Token.AsString)
     
-    let private saveSensorData deviceGroupId sensorEvents =
+    let private saveSensorData (updateSensorStatuses : SensorEvent -> Task<unit>) deviceGroupId sensorEvents =
         
         let storeSensorEventPromise =
             StoreSensorEvents sensorEvents
@@ -34,7 +34,7 @@ module Service =
         let updatePromises =
             sensorEvents
             |> List.map (fun event ->
-                let updateSensorStatusesPromise = UpdateSensorStatuses event
+                let updateSensorStatusesPromise = updateSensorStatuses event
                 let updateSensorHistoryPromise = UpdateSensorHistory event
                 Then.Combine [ updateSensorStatusesPromise; updateSensorHistoryPromise; ]
                 |> Then.AsUnit
@@ -43,9 +43,13 @@ module Service =
         Then.Combine [ storeSensorEventPromise; updatePromise; ]
     
     let SaveSensorData deviceGroupId sensorEvent =
+        let httpSend = Http.Send
+        let sendFirebaseMessages = SendFirebaseMessages httpSend deviceGroupId
+        let sendPushNotifications = SendPushNotifications sendFirebaseMessages
+        let updateSensorStatuses = UpdateSensorStatuses sendPushNotifications
         try
             let sensorEvents = sensorEvent |> SensorDataEventToEvents deviceGroupId
-            saveSensorData deviceGroupId sensorEvents
+            saveSensorData updateSensorStatuses deviceGroupId sensorEvents
         with
         | ex ->
             printfn "%s" ex.Message

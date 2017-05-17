@@ -27,19 +27,19 @@ module SensorStatusesCommand =
         let result = SensorsCollection.InsertOneAsync(storable)
         result
 
-    let private updateExisting (toBeUpdated : StorableSensorStatus) (event : SensorEvent) =
+    let private updateExisting (sensorStatus : StorableSensorStatus) (event : SensorEvent) =
     
         let measurement = StorableMeasurement event.Measurement
         let voltage = (float)event.BatteryVoltage
         let signalStrength = (float)event.SignalStrength
-        let hasChanged = measurement.Value <> toBeUpdated.MeasuredValue
+        let hasChanged = measurement.Value <> sensorStatus.MeasuredValue
         let sensorId = event.SensorId.AsString
         let deviceGroupId = event.DeviceGroupId.AsString
         let lastActive = event.Timestamp
         let lastUpdated =
                     if hasChanged
                     then lastActive
-                    else toBeUpdated.LastUpdated
+                    else sensorStatus.LastUpdated
         let filter = event |> FilterSensorsByEvent
         
         let update =
@@ -60,27 +60,25 @@ module SensorStatusesCommand =
         
         let result = 
             SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
-            |> Then.Map (fun toBeUpdated -> (toBeUpdated :> obj |> isNull) || (measurement.Value <> toBeUpdated.MeasuredValue))
+            |> Then.Map (fun sensorStatus -> (sensorStatus :> obj |> isNull) || (measurement.Value <> sensorStatus.MeasuredValue))
         result
 
-    let UpdateSensorStatuses (event : SensorEvent) : Task<unit> =
+    let UpdateSensorStatuses (sendPushNotifications : StorableSensorStatus -> SensorEvent -> Task<unit>) (event : SensorEvent) : Task<unit> =
         let measurement = StorableMeasurement event.Measurement
         let sensorId = event.SensorId.AsString
         let filter = event |> FilterSensorsByEvent
         
         let result = 
             SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
-            |> Then.Map (fun toBeUpdated ->
+            |> Then.Map (fun sensorStatus ->
                 let updatePromise =
-                    if toBeUpdated :> obj |> isNull then
+                    if sensorStatus :> obj |> isNull then
                         event |> insertNew
                     else
-                        event |> updateExisting toBeUpdated
+                        event |> updateExisting sensorStatus
                     |> Then.AsUnit
                 let notifyPromise =
-                    event
-                    |> SendPushNotifications toBeUpdated
-                    |> Then.AsUnit
+                    sendPushNotifications sensorStatus event
                 Then.Combine [updatePromise; notifyPromise]
                 )
         result |> Then.Unwrap |> Then.AsUnit

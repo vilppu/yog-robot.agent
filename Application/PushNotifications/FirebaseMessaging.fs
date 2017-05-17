@@ -8,6 +8,7 @@ module FirebaseMessaging =
     open System.Net.Http
     open System.Net.Http.Headers
     open System.Text    
+    open System.Threading.Tasks
     open Newtonsoft.Json
     open Newtonsoft.Json.Serialization
 
@@ -82,7 +83,7 @@ module FirebaseMessaging =
             do! addRegistrations deviceGroupId subscriptionsToBeAdded  |> Async.AwaitTask
         }
     
-    let private sendMessages (deviceGroupId : DeviceGroupId) (subscriptions : string seq) (pushNotification : DevicePushNotification) =
+    let private sendMessages (httpSend : HttpRequestMessage -> Task<HttpResponseMessage>) (deviceGroupId : DeviceGroupId) (subscriptions : string seq) (pushNotification : DevicePushNotification) =
         async {
             let storedFirebaseKey = StoredFirebaseKey()
             let url = "https://fcm.googleapis.com/fcm/send"
@@ -108,13 +109,13 @@ module FirebaseMessaging =
             requestMessage.Content <- content
             requestMessage.Headers.TryAddWithoutValidation("Authorization", token) |> ignore
             
-            let! response = Http.Send requestMessage |> Async.AwaitTask
+            let! response = httpSend requestMessage |> Async.AwaitTask
             let! responseJson = response.Content.ReadAsStringAsync() |> Async.AwaitTask              
             let firebaseResponse = JsonConvert.DeserializeObject<FirebaseResponse> responseJson
             do! cleanRegistrations deviceGroupId subscriptions firebaseResponse
     }
     
-    let SendFirebaseMessages (deviceGroupId : DeviceGroupId) (pushNotification : DevicePushNotification) =
+    let SendFirebaseMessages httpSend (deviceGroupId : DeviceGroupId) (pushNotification : DevicePushNotification) =
         async {
             let storedFirebaseKey = StoredFirebaseKey()
             if not(String.IsNullOrWhiteSpace(storedFirebaseKey)) then
@@ -122,5 +123,7 @@ module FirebaseMessaging =
                 let token = "key=" + storedFirebaseKey
                 let! subscriptions = ReadPushNotificationSubscriptions deviceGroupId |> Async.AwaitTask
                 if subscriptions.Count > 0 then
-                    do! sendMessages deviceGroupId subscriptions pushNotification
-        } |> Async.StartAsTask :> System.Threading.Tasks.Task
+                    do! sendMessages httpSend deviceGroupId subscriptions pushNotification
+        }
+        |> Async.StartAsTask
+        |> Then.AsUnit
