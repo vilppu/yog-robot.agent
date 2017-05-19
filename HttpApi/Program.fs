@@ -15,7 +15,7 @@ module Program =
     [<EntryPoint>]
     let main argv = 
         try 
-            let server = CreateHttpServer()
+            let server = CreateHttpServer Http.Send
             server.Wait()
             0
         with

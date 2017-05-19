@@ -8,11 +8,8 @@ open Microsoft.AspNetCore.Authorization
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
 
-type IHttpService =
-    abstract member Send: HttpRequestMessage -> Task<HttpResponseMessage>
-
 [<Route("api")>]
-type ApiController(http : IHttpService) = 
+type ApiController(httpSend : HttpRequestMessage -> Task<HttpResponseMessage>) = 
     inherit Controller()
     member private this.DeviceGroupId = DeviceGroupId(GetDeviceGroupId this.User)
     
@@ -102,7 +99,6 @@ type ApiController(http : IHttpService) =
     [<Route("sensor-data")>]
     [<HttpPost>]
     member this.PostSensorData([<FromBody>]sensorEvent : SensorData) =
-        let httpSend = http.Send
         if BotKeyIsMissing this.Request then
             Task.FromResult(this.StatusCode(StatusCodes.Status401Unauthorized))
         else

@@ -28,7 +28,7 @@ module TestContext =
         SensorHistoryBsonStorage.Drop()
     
         if serverTask |> isNull then
-            serverTask <- CreateHttpServer()
+            serverTask <- CreateHttpServer Http.Send
     
     type Context() = 
         do

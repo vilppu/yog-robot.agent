@@ -1,13 +1,11 @@
 ﻿namespace YogRobot
 
-// netsh http add urlacl http://localhost:18888/ user=user
-// netsh http add urlacl http://127.0.0.1:18888/ user=user
-// netsh http add urlacl http://xxx.xxx.xxx.xxx:18888/ user=user
-// netsh http add urlacl http://169.254.80.80:18888/ user=user
 [<AutoOpen>]
 module SelfHost = 
     open System
     open System.IO
+    open System.Net
+    open System.Net.Http
     open System.Threading
     open System.Threading.Tasks    
     open Microsoft.AspNetCore.Authorization
@@ -22,20 +20,10 @@ module SelfHost =
     open Microsoft.IdentityModel.Tokens
     open Newtonsoft.Json
     open Newtonsoft.Json.Serialization
-
-    type HttpService() =
-        interface IHttpService with 
-            member this.Send request = Http.Send request
     
-    type Startup(environment : IHostingEnvironment) =       
+    type Startup(environment : IHostingEnvironment) =
         
-        let getConfiguration() =
-                (ConfigurationBuilder())
-                 .SetBasePath(environment.ContentRootPath)
-                 .AddEnvironmentVariables()
-                 .Build()
-        
-        member this.Configure(app : IApplicationBuilder, env : IHostingEnvironment, loggerFactory : ILoggerFactory) =             
+        member this.Configure(app : IApplicationBuilder, env : IHostingEnvironment, loggerFactory : ILoggerFactory, httpSend : HttpRequestMessage -> Task<HttpResponseMessage>) =             
             loggerFactory
                 .AddConsole(LogLevel.Warning)
                 .AddDebug()
@@ -68,8 +56,6 @@ module SelfHost =
                 .AddMvc()
                 .AddJsonOptions(configureJsonAction)
                 |> ignore
-
-            services.AddSingleton<IHttpService, HttpService>() |> ignore
             
             let configureAdminPolicy =
                 let builder =
@@ -99,7 +85,7 @@ module SelfHost =
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>()
             |> ignore
 
-    let CreateHttpServer() : Task = 
+    let CreateHttpServer (httpSend : HttpRequestMessage -> Task<HttpResponseMessage>) : Task = 
         let url = Environment.GetEnvironmentVariable("YOG_BOT_BASE_URL")
         
         let url = 
@@ -108,6 +94,7 @@ module SelfHost =
 
         let host = 
             WebHostBuilder()
+                .ConfigureServices(fun services -> services.AddSingleton(httpSend) |> ignore)
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>()
