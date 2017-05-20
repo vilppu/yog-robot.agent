@@ -19,7 +19,8 @@ module FirebaseMessaging =
         { deviceId : string
           sensorName : string
           measuredProperty : string
-          measuredValue : obj }
+          measuredValue : obj
+          timestamp : DateTime }
 
     [<CLIMutable>]
     type FirebasePushNotificationRequestData = 
@@ -93,7 +94,8 @@ module FirebaseMessaging =
                 { deviceId = pushNotification.DeviceId
                   sensorName = pushNotification.SensorName
                   measuredProperty = pushNotification.MeasuredProperty
-                  measuredValue = pushNotification.MeasuredValue }
+                  measuredValue = pushNotification.MeasuredValue
+                  timestamp = pushNotification.Timestamp }
 
             let pushNotificationRequestData =
                 { deviceNotification = notification }

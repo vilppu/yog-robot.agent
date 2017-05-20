@@ -28,7 +28,8 @@ module PushNotification =
             { DeviceId = reason.Event.DeviceId.AsString
               SensorName = sensorName
               MeasuredProperty = measurement.Name
-              MeasuredValue = measurement.Value }
+              MeasuredValue = measurement.Value
+              Timestamp = reason.Event.Timestamp }
         pushNotification |> sendFirebaseMessages
 
     let SendPushNotifications httpSend reason =
