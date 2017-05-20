@@ -101,7 +101,5 @@ module SelfHost =
                 .UseUrls(url)
                 .Build()
 
-        let tokenSource = new CancellationTokenSource()
-        let token = tokenSource.Token
         Task.Run(fun () -> host.Run())
         
