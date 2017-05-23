@@ -3,6 +3,7 @@
 [<AutoOpen>]
 module TestContext = 
     open System
+    open System.Net.Http 
     open System.Threading.Tasks    
     open Newtonsoft.Json
 
@@ -16,7 +17,7 @@ module TestContext =
     let TheMasterKey = "D4C144DA78C8FF923F3C56ADEB4F5113"
     let AnotherMasterKey = "F4C155DA78C8FF923F3C56ADEB4F5113"
 
-    let SetupEmptyEnvironment() = 
+    let SetupEmptyEnvironmentUsing httpSend = 
         Environment.SetEnvironmentVariable("YOG_BOT_BASE_URL", "http://127.0.0.1:18888/yog-robot/")
         Environment.SetEnvironmentVariable("YOG_MONGODB_DATABASE", "YogRobot_Test")
         Environment.SetEnvironmentVariable("YOG_MASTER_KEY", TheMasterKey)
@@ -29,7 +30,13 @@ module TestContext =
     
         if serverTask |> isNull then
             serverTask <- CreateHttpServer Http.Send
-    
+
+    let SetupEmptyEnvironment() = 
+        let httpSend (request : HttpRequestMessage) : Task<HttpResponseMessage> =
+            let response = new HttpResponseMessage()
+            Task.FromResult response
+        SetupEmptyEnvironmentUsing httpSend
+
     type Context() = 
         do
             SetupEmptyEnvironment()
