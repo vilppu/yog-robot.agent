@@ -21,8 +21,8 @@ module TestContext =
         Environment.SetEnvironmentVariable("YOG_BOT_BASE_URL", "http://127.0.0.1:18888/yog-robot/")
         Environment.SetEnvironmentVariable("YOG_MONGODB_DATABASE", "YogRobot_Test")
         Environment.SetEnvironmentVariable("YOG_MASTER_KEY", TheMasterKey)
-        Environment.SetEnvironmentVariable("YOG_TOKEN_SECRET", "development-token-secret")
-        Environment.SetEnvironmentVariable("YOG_FCM_KEY", "")
+        Environment.SetEnvironmentVariable("YOG_TOKEN_SECRET", "fake-token-secret")
+        Environment.SetEnvironmentVariable("YOG_FCM_KEY", "fake")
         KeyStorage.Drop()
         SensorEventStorage.Drop()
         SensorStatusesBsonStorage.Drop()
@@ -31,8 +31,12 @@ module TestContext =
         if serverTask |> isNull then
             serverTask <- CreateHttpServer Http.Send
 
-    let SetupEmptyEnvironment() = 
+    let SentHttpRequests = System.Collections.Generic.List<HttpRequestMessage>()
+
+    let SetupEmptyEnvironment() =
+        SentHttpRequests.Clear()
         let httpSend (request : HttpRequestMessage) : Task<HttpResponseMessage> =
+            SentHttpRequests.Add request
             let response = new HttpResponseMessage()
             Task.FromResult response
         SetupEmptyEnvironmentUsing httpSend
@@ -56,11 +60,11 @@ module TestContext =
         interface IDisposable with
             member this.Dispose() = ()
     
-    let SetupWithoutExampleDeviceGroup() = 
+    let SetupEmptyContext() = 
         SetupEmptyEnvironment()
         new Context()
     
-    let SetupWithExampleDeviceGroup() = 
+    let SetupContext() = 
         SetupEmptyEnvironment()
         let context = new Context()
         context.DeviceGroupId <- DeviceGroupId(GenerateSecureToken())

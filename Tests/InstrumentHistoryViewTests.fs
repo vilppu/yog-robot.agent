@@ -9,7 +9,7 @@ module SensorHistoryTests =
     
     [<Fact>]
     let AuthenticationTokenIsChecked() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         context.DeviceGroupToken <- InvalidToken
 
         let response = context |> GetExampleSensorHistoryResponse "device-1" "RelativeHumidity"
@@ -18,7 +18,7 @@ module SensorHistoryTests =
     
     [<Fact>]
     let SensorHistoryContainsMeasurements() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = RelativeHumidity 78.0
         let deviceId = "device-1"
 
@@ -32,7 +32,7 @@ module SensorHistoryTests =
     
     [<Fact>]
     let SensorHistoryContainsMeasurementsChronologically() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = RelativeHumidity 78.0
         let deviceId = "device-1"
 
@@ -47,7 +47,7 @@ module SensorHistoryTests =
  
     [<Fact>]
     let SensorHistoryEntryContainsTimestamp() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = RelativeHumidity 78.0
         let deviceId = "device-1"
 
@@ -60,7 +60,7 @@ module SensorHistoryTests =
 
     [<Fact>]
     let DeviceGroupCanTellDeviceSpecificMeasurementHistory() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = RelativeHumidity 78.0
         let anotherExample = RelativeHumidity 80.0
         let deviceId = "device-1"
@@ -74,7 +74,7 @@ module SensorHistoryTests =
     
     [<Fact>]
     let MeasurementHistoryShouldBeLimitedToContainOnlyNearHistory() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let expectedValue = 80.0
         let expectedLimit = 30
         let latest = RelativeHumidity expectedValue
@@ -92,7 +92,7 @@ module SensorHistoryTests =
     
     [<Fact>]
     let StoreOnlyMeasurementChanges() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let deviceId = "device-1"
 
         context |> WriteMeasurement(Fake.MeasurementFromDevice (RelativeHumidity 77.0) deviceId)
@@ -109,7 +109,7 @@ module SensorHistoryTests =
     
     [<Fact>]
     let StoreOnlyStateChanges() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let deviceId = "device-1"
         let measurement = OpenClosed OpenClosed.Open
 
@@ -123,7 +123,7 @@ module SensorHistoryTests =
 
     [<Fact>]
     let ShowHistoryPerDevice() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = RelativeHumidity 77.0
         let anotherExample = RelativeHumidity 80.0
         let deviceId = "device-1"
@@ -136,7 +136,7 @@ module SensorHistoryTests =
     
     [<Fact>]
     let HistoryShouldNotContainEntriesFromOtherDeviceGroups() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = RelativeHumidity 78.1
         let deviceId = "device-1"
         let savedDeviceGroupToken = context.DeviceGroupToken
