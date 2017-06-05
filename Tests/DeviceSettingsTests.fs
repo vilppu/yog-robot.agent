@@ -5,7 +5,6 @@ module DeviceSettingsTest =
     open System.Net
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     open Xunit
-    open FsUnit
     
     [<Fact>]
     let DeviceGroupTokenIsRequiredToSaveSensorName() = 
@@ -15,7 +14,7 @@ module DeviceSettingsTest =
 
         let response = PostSensorName InvalidToken deviceId "ExampleName" |> Async.RunSynchronously
 
-        response.StatusCode |> should equal HttpStatusCode.Unauthorized
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
     
     
     [<Fact>]
@@ -30,4 +29,4 @@ module DeviceSettingsTest =
 
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
-        entry.SensorName |> should equal expectedName
+        Assert.Equal(expectedName, entry.SensorName)

@@ -5,7 +5,6 @@ module PushNotificationTests =
     open System.Net
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     open Xunit
-    open FsUnit
     
     [<Fact(Skip = "because")>]
     let NotifyWhenContactChanges() = 
@@ -15,6 +14,6 @@ module PushNotificationTests =
         
         context |> GetExampleSensorStatuses |> ignore
         
-        SentHttpRequests.Count |> should equal 1
+        Assert.Equal(1, SentHttpRequests.Count)
     
    

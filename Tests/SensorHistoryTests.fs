@@ -5,7 +5,6 @@ module SensorHistoryTests =
     open System.Net
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     open Xunit
-    open FsUnit
     
     [<Fact>]
     let AuthenticationTokenIsChecked() = 
@@ -14,7 +13,7 @@ module SensorHistoryTests =
 
         let response = context |> GetExampleSensorHistoryResponse "device-1.rh"
 
-        response.StatusCode |> should equal HttpStatusCode.Unauthorized
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
     
     [<Fact>]
     let SensorHistoryContainsMeasurements() = 
@@ -28,8 +27,8 @@ module SensorHistoryTests =
         let result = context |> GetExampleSensorHistory sensorId
         let entry = result.Entries.Head
         
-        result.MeasuredProperty |> should equal "RelativeHumidity"
-        entry.MeasuredValue |> should equal 78.0
+        Assert.Equal("RelativeHumidity", result.MeasuredProperty)
+        Assert.Equal(78.0, entry.MeasuredValue :?> float)
     
     [<Fact>]
     let SensorHistoryContainsMeasurementsChronologically() = 
@@ -45,7 +44,7 @@ module SensorHistoryTests =
         let result = context |> GetExampleSensorHistory sensorId
         let entry = result.Entries.Head      
         
-        entry.MeasuredValue |> should equal 79.0
+        Assert.Equal(79.0, entry.MeasuredValue :?> float)
  
     [<Fact>]
     let SensorHistoryEntryContainsTimestamp() = 
@@ -59,7 +58,7 @@ module SensorHistoryTests =
         let result = context |> GetExampleSensorHistory sensorId
         let entry = result.Entries.Head
 
-        (System.DateTime.UtcNow - entry.Timestamp).TotalMinutes |> should be (lessThan 1.0)
+        Assert.True((System.DateTime.UtcNow - entry.Timestamp).TotalMinutes < 1.0)
 
     [<Fact>]
     let DeviceSpecificMeasurementHistory() = 
@@ -74,7 +73,7 @@ module SensorHistoryTests =
 
         let result = context |> GetExampleSensorHistory sensorId
         
-        result.Entries.Length |> should equal 2
+        Assert.Equal(2, result.Entries.Length)
     
     [<Fact>]
     let MeasurementHistoryShouldBeLimitedToContainOnlyNearHistory() = 
@@ -92,8 +91,8 @@ module SensorHistoryTests =
 
         let result = context |> GetExampleSensorHistory sensorId
 
-        result.Entries.Length |> should equal expectedLimit
-        result.Entries.Head.MeasuredValue |> should equal expectedValue
+        Assert.Equal(expectedLimit, result.Entries.Length)
+        Assert.Equal(expectedValue, result.Entries.Head.MeasuredValue :?> float)
     
     [<Fact>]
     let StoreOnlyMeasurementChanges() = 
@@ -110,7 +109,7 @@ module SensorHistoryTests =
         
         let result = context |> GetExampleSensorHistory sensorId
         
-        result.Entries.Length |> should equal 5
+        Assert.Equal(5, result.Entries.Length)
 
     
     [<Fact>]
@@ -126,7 +125,7 @@ module SensorHistoryTests =
         
         let result = context |> GetExampleSensorHistory sensorId
         
-        result.Entries.Length |> should equal 1
+        Assert.Equal(1, result.Entries.Length)
 
     [<Fact>]
     let ShowHistoryPerDevice() = 
@@ -140,7 +139,7 @@ module SensorHistoryTests =
         
         let result = context |> GetExampleSensorHistory sensorId
         
-        result.Entries.Length |> should equal 1
+        Assert.Equal(1, result.Entries.Length)
     
     [<Fact>]
     let HistoryShouldNotContainEntriesFromOtherDeviceGroups() = 
@@ -156,4 +155,4 @@ module SensorHistoryTests =
         context.DeviceGroupToken <- savedDeviceGroupToken
         let result =  context |> GetExampleSensorHistory sensorId
         
-        result.Entries.Length |> should equal 1
+        Assert.Equal(1, result.Entries.Length)

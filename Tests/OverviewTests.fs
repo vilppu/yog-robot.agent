@@ -5,7 +5,6 @@ module SensorStatusesTests =
     open System.Net
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     open Xunit
-    open FsUnit
     
     [<Fact>]
     let AuthenticationTokenIsChecked() = 
@@ -14,7 +13,7 @@ module SensorStatusesTests =
 
         let response = context |> GetExampleSensorStatusesResponse
 
-        response.StatusCode |> should equal HttpStatusCode.Unauthorized
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
     
     [<Fact>]
     let DeviceGroupTellsOnlyTheLatestMeasurentFromAnSensor() = 
@@ -28,7 +27,7 @@ module SensorStatusesTests =
         let result = context |> GetExampleSensorStatuses
 
         result.Entries |> should haveLength 1
-        result.Entries.Head.MeasuredValue |> should equal 78.0
+        Assert.Equal(78.0, result.Entries.Head.MeasuredValue)
     
     [<Fact>]
     let DeviceGroupTellsTheDeviceId() = 
@@ -39,7 +38,7 @@ module SensorStatusesTests =
         let result = context |> GetExampleSensorStatuses
         let entry = result.Entries.Head
 
-        entry.DeviceId |> should equal deviceId
+        Assert.Equal(deviceId, entry.DeviceId)
     
     [<Fact>]
     let DeviceGroupTellsTheLastActiveTimestamp() = 
@@ -72,7 +71,7 @@ module SensorStatusesTests =
 
         let result = context |> GetExampleSensorStatuses
 
-        result.Entries.Length |> should equal 3
+        Assert.Equal(3, result.Entries.Length)
     
     [<Fact>]
     let DeviceGroupCanTellDifferentKindOfMeasurementsFromSameDevice() = 
@@ -84,7 +83,7 @@ module SensorStatusesTests =
 
         let result = context |> GetExampleSensorStatuses
 
-        result.Entries.Length |> should equal 2
+        Assert.Equal(2, result.Entries.Length)
     
     [<Fact>]
     let DeviceGroupTellsOnlyOwnMeasurements() = 
@@ -106,8 +105,8 @@ module SensorStatusesTests =
         let result = context |> GetExampleSensorStatuses
         let entry = result.Entries.Head
 
-        entry.MeasuredProperty |> should equal "Temperature"
-        entry.MeasuredValue |> should equal 25.0
+        Assert.Equal("Temperature", entry.MeasuredProperty)
+        Assert.Equal(25.0, entry.MeasuredValue)
 
     [<Fact>]
     let DeviceGroupCanTellRelativeHumidity() = 
@@ -118,8 +117,8 @@ module SensorStatusesTests =
         let result = context |> GetExampleSensorStatuses
         let entry = result.Entries.Head
 
-        entry.MeasuredProperty |> should equal "RelativeHumidity"
-        entry.MeasuredValue |> should equal 78.0
+        Assert.Equal("RelativeHumidity", entry.MeasuredProperty)
+        Assert.Equal(78.0, entry.MeasuredValue)
     
     [<Fact>]
     let DeviceGroupCanTellPresenceOfWater() = 
@@ -130,8 +129,8 @@ module SensorStatusesTests =
         let result = context |> GetExampleSensorStatuses
         let entry = result.Entries.Head
 
-        entry.MeasuredProperty |> should equal "PresenceOfWater"
-        entry.MeasuredValue |> should equal true
+        Assert.Equal("PresenceOfWater", entry.MeasuredProperty)
+        Assert.Equal(true, entry.MeasuredValue)
     
     [<Fact>]
     let DeviceGroupCanTellOpenDoor() = 
@@ -142,8 +141,8 @@ module SensorStatusesTests =
         let result = context |> GetExampleSensorStatuses
         let entry = result.Entries.Head
 
-        entry.MeasuredProperty |> should equal "OpenClosed"
-        entry.MeasuredValue |> should equal false
+        Assert.Equal("OpenClosed", entry.MeasuredProperty)
+        Assert.Equal(false, entry.MeasuredValue)
     
     [<Fact>]
     let DeviceGroupCanTellClosedDoor() = 
@@ -154,8 +153,8 @@ module SensorStatusesTests =
         let result = context |> GetExampleSensorStatuses
         let entry = result.Entries.Head
 
-        entry.MeasuredProperty |> should equal "OpenClosed"
-        entry.MeasuredValue |> should equal true
+        Assert.Equal("OpenClosed", entry.MeasuredProperty)
+        Assert.Equal(true, entry.MeasuredValue)
     
     [<Fact>]
     let DeviceGroupCanTellBatteryVoltage() = 
@@ -166,8 +165,8 @@ module SensorStatusesTests =
         let result = context |> GetExampleSensorStatuses
         let entry = result.Entries.Head
 
-        entry.MeasuredProperty |> should equal "BatteryVoltage"
-        entry.MeasuredValue |> should equal 3.4
+        Assert.Equal("BatteryVoltage", entry.MeasuredProperty)
+        Assert.Equal(3.4, entry.MeasuredValue)
     
     [<Fact>]
     let DeviceGroupCanTellSignalStrength() = 
@@ -178,8 +177,8 @@ module SensorStatusesTests =
         let result = context |> GetExampleSensorStatuses
         let entry = result.Entries.Head
 
-        entry.MeasuredProperty |> should equal "Rssi"
-        entry.MeasuredValue |> should equal 3.4
+        Assert.Equal("Rssi", entry.MeasuredProperty)
+        Assert.Equal(3.4, entry.MeasuredValue)
   
     [<Fact>]
     let DeviceNameIsByDefaultDeviceIdAndMeasuredPropertySeparatedByDot() = 
@@ -190,5 +189,5 @@ module SensorStatusesTests =
         let result = context |> GetExampleSensorStatuses
         let entry = result.Entries.Head
         
-        entry.SensorName |> should equal "ExampleDevice.Temperature"
+        Assert.Equal("ExampleDevice.Temperature", entry.SensorName)
     
