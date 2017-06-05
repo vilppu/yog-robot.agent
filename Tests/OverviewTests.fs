@@ -9,7 +9,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let AuthenticationTokenIsChecked() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         context.DeviceGroupToken <- InvalidToken
 
         let response = context |> GetExampleSensorStatusesResponse
@@ -18,7 +18,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let DeviceGroupTellsOnlyTheLatestMeasurentFromAnSensor() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let previous = RelativeHumidity 80.0
         let newest = RelativeHumidity 78.0
         context |> WriteMeasurement(Fake.Measurement previous)
@@ -32,7 +32,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let DeviceGroupTellsTheDeviceId() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let deviceId = "ExampleDevice"
         context |> WriteMeasurement(Fake.SomeMeasurementFromDevice deviceId)
 
@@ -43,7 +43,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let DeviceGroupTellsTheLastActiveTimestamp() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = RelativeHumidity 78.0
         context |> WriteMeasurement(Fake.Measurement example)
 
@@ -54,7 +54,7 @@ module SensorStatusesTests =
 
     [<Fact>]
     let DeviceGroupTellsTheLastUpdatedTimestamp() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = RelativeHumidity 78.0
         context |> WriteMeasurement(Fake.Measurement example)
 
@@ -65,7 +65,7 @@ module SensorStatusesTests =
 
     [<Fact>]
     let DeviceGroupTellsTheLatestMeasurementFromEachKnownSensor() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         context |> WriteMeasurement(Fake.SomeMeasurementFromDevice "device-1")
         context |> WriteMeasurement(Fake.SomeMeasurementFromDevice "device-2")
         context |> WriteMeasurement(Fake.SomeMeasurementFromDevice "device-3")
@@ -76,7 +76,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let DeviceGroupCanTellDifferentKindOfMeasurementsFromSameDevice() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = RelativeHumidity 78.0
         let anotherExample = Temperature 25.0<C>
         context |> WriteMeasurement(Fake.Measurement example)
@@ -88,7 +88,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let DeviceGroupTellsOnlyOwnMeasurements() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
 
         context |> WriteMeasurement(Temperature 25.5<C> |> Fake.Measurement)
 
@@ -99,7 +99,7 @@ module SensorStatusesTests =
   
     [<Fact>]
     let DeviceGroupCanTellTemperature() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = Temperature 25.0<C>
         context |> WriteMeasurement(Fake.Measurement example)
         
@@ -111,7 +111,7 @@ module SensorStatusesTests =
 
     [<Fact>]
     let DeviceGroupCanTellRelativeHumidity() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = RelativeHumidity 78.0
         context |> WriteMeasurement(Fake.Measurement example)
         
@@ -123,7 +123,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let DeviceGroupCanTellPresenceOfWater() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = PresenceOfWater PresenceOfWater.Present
         context |> WriteMeasurement(Fake.Measurement example)
         
@@ -135,7 +135,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let DeviceGroupCanTellOpenDoor() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = OpenClosed OpenClosed.Open
         context |> WriteMeasurement(Fake.Measurement example)
         
@@ -147,7 +147,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let DeviceGroupCanTellClosedDoor() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = OpenClosed OpenClosed.Closed
         context |> WriteMeasurement(Fake.Measurement example)
         
@@ -159,7 +159,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let DeviceGroupCanTellBatteryVoltage() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = BatteryVoltage 3.4<V>
         context |> WriteMeasurement(Fake.Measurement example)
         
@@ -171,7 +171,7 @@ module SensorStatusesTests =
     
     [<Fact>]
     let DeviceGroupCanTellSignalStrength() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = Rssi 3.4
         context |> WriteMeasurement(Fake.Measurement example)
         
@@ -183,7 +183,7 @@ module SensorStatusesTests =
   
     [<Fact>]
     let DeviceNameIsByDefaultDeviceIdAndMeasuredPropertySeparatedByDot() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = Temperature 25.0<C>
         context |> WriteMeasurement(Fake.Measurement example)
         

@@ -11,7 +11,8 @@ module PushNotificationSubscriptions =
         { DeviceId : string
           SensorName : string
           MeasuredProperty : string
-          MeasuredValue : obj }
+          MeasuredValue : obj
+          Timestamp : DateTime }
 
     let PushNotificationSubscription token =
         { Token = token }

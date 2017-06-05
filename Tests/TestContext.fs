@@ -3,6 +3,7 @@
 [<AutoOpen>]
 module TestContext = 
     open System
+    open System.Net.Http 
     open System.Threading.Tasks    
     open Newtonsoft.Json
 
@@ -16,12 +17,12 @@ module TestContext =
     let TheMasterKey = "D4C144DA78C8FF923F3C56ADEB4F5113"
     let AnotherMasterKey = "F4C155DA78C8FF923F3C56ADEB4F5113"
 
-    let SetupEmptyEnvironment() = 
+    let SetupEmptyEnvironmentUsing httpSend = 
         Environment.SetEnvironmentVariable("YOG_BOT_BASE_URL", "http://127.0.0.1:18888/yog-robot/")
         Environment.SetEnvironmentVariable("YOG_MONGODB_DATABASE", "YogRobot_Test")
         Environment.SetEnvironmentVariable("YOG_MASTER_KEY", TheMasterKey)
-        Environment.SetEnvironmentVariable("YOG_TOKEN_SECRET", "development-token-secret")
-        Environment.SetEnvironmentVariable("YOG_FCM_KEY", "")
+        Environment.SetEnvironmentVariable("YOG_TOKEN_SECRET", "fake-token-secret")
+        Environment.SetEnvironmentVariable("YOG_FCM_KEY", "fake")
         KeyStorage.Drop()
         SensorEventStorage.Drop()
         SensorStatusesBsonStorage.Drop()
@@ -29,7 +30,17 @@ module TestContext =
     
         if serverTask |> isNull then
             serverTask <- CreateHttpServer Http.Send
-    
+
+    let SentHttpRequests = System.Collections.Generic.List<HttpRequestMessage>()
+
+    let SetupEmptyEnvironment() =
+        SentHttpRequests.Clear()
+        let httpSend (request : HttpRequestMessage) : Task<HttpResponseMessage> =
+            SentHttpRequests.Add request
+            let response = new HttpResponseMessage()
+            Task.FromResult response
+        SetupEmptyEnvironmentUsing httpSend
+
     type Context() = 
         do
             SetupEmptyEnvironment()
@@ -49,11 +60,11 @@ module TestContext =
         interface IDisposable with
             member this.Dispose() = ()
     
-    let SetupWithoutExampleDeviceGroup() = 
+    let SetupEmptyContext() = 
         SetupEmptyEnvironment()
         new Context()
     
-    let SetupWithExampleDeviceGroup() = 
+    let SetupContext() = 
         SetupEmptyEnvironment()
         let context = new Context()
         context.DeviceGroupId <- DeviceGroupId(GenerateSecureToken())

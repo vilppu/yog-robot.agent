@@ -8,7 +8,7 @@ module SensorDataTest =
     
     [<Fact>]
     let SensorKeyIsChecked() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let event = Fake.SomeSensorData |> WithMeasurement(Temperature 25.5<C>)
         let response = PostSensorData (SensorKeyToken("12345")) context.DeviceGroupId event |> Async.RunSynchronously
         response.StatusCode |> should equal HttpStatusCode.Unauthorized

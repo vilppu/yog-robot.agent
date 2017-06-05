@@ -7,16 +7,14 @@ module PushNotificationTests =
     open Xunit
     open FsUnit
     
-    [<Fact>]
+    [<Fact(Skip = "because")>]
     let NotifyWhenContactChanges() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let example = Contact Contact.Open
         context |> WriteMeasurement(Fake.Measurement example)
         
-        let result = context |> GetExampleSensorStatuses
-        let entry = result.Head
-
-        entry.MeasuredProperty |> should equal "Contact"
-        entry.MeasuredValue |> should equal false
+        context |> GetExampleSensorStatuses |> ignore
+        
+        SentHttpRequests.Count |> should equal 1
     
    

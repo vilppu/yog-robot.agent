@@ -9,7 +9,7 @@ module DeviceSettingsTest =
     
     [<Fact>]
     let DeviceGroupTokenIsRequiredToSaveSensorName() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let deviceId = "ExampleDevice"      
         context |> WriteMeasurement(Fake.SomeMeasurementFromDevice deviceId)
 
@@ -20,7 +20,7 @@ module DeviceSettingsTest =
     
     [<Fact>]
     let SaveSensorName() = 
-        use context = SetupWithExampleDeviceGroup()
+        use context = SetupContext()
         let expectedName = "ExampleSensorName"
         let deviceId = "ExampleDevice"
         let sensorId = "ExampleDevice.temperature"
