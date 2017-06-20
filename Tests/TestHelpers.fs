@@ -15,6 +15,11 @@ module TestHelpers =
     let GetExampleSensorStatuses(context : Context) = 
         GetSensorStatuses context.DeviceGroupToken |> Async.RunSynchronously
     
+    let SetupToReceivePushNotifications(context : Context) = 
+        SubscribeToPushNotifications context.DeviceGroupToken "12345"
+        |> Async.RunSynchronously
+        |> ignore
+    
     let GetExampleSensorHistoryResponse sensorId (context : Context) = 
         GetSensorHistoryResponse context.DeviceGroupToken sensorId
         |> Async.RunSynchronously

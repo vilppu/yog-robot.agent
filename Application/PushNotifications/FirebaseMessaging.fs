@@ -112,9 +112,11 @@ module FirebaseMessaging =
             requestMessage.Headers.TryAddWithoutValidation("Authorization", token) |> ignore
             
             let! response = httpSend requestMessage |> Async.AwaitTask
-            let! responseJson = response.Content.ReadAsStringAsync() |> Async.AwaitTask              
+            let! responseJson = response.Content.ReadAsStringAsync() |> Async.AwaitTask
             let firebaseResponse = JsonConvert.DeserializeObject<FirebaseResponse> responseJson
-            do! cleanRegistrations deviceGroupId subscriptions firebaseResponse
+
+            if not(firebaseResponse :> obj |> isNull) then
+                do! cleanRegistrations deviceGroupId subscriptions firebaseResponse
     }
     
     let SendFirebaseMessages httpSend (deviceGroupId : DeviceGroupId) (pushNotification : DevicePushNotification) =

@@ -30,6 +30,7 @@
     <Compile Include="SensorDataServiceClient.fs" />
     <Compile Include="DeviceSettingsClient.fs" />
     <Compile Include="TokenServiceClient.fs" />
+    <Compile Include="PushNotificationClient.fs" />
   </ItemGroup>
 
 </Project>

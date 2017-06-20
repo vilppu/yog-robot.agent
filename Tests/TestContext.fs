@@ -29,7 +29,7 @@ module TestContext =
         SensorHistoryBsonStorage.Drop()
     
         if serverTask |> isNull then
-            serverTask <- CreateHttpServer Http.Send
+            serverTask <- CreateHttpServer httpSend
 
     let SentHttpRequests = System.Collections.Generic.List<HttpRequestMessage>()
 
@@ -38,6 +38,7 @@ module TestContext =
         let httpSend (request : HttpRequestMessage) : Task<HttpResponseMessage> =
             SentHttpRequests.Add request
             let response = new HttpResponseMessage()
+            response.Content <- new StringContent("")
             Task.FromResult response
         SetupEmptyEnvironmentUsing httpSend
 
