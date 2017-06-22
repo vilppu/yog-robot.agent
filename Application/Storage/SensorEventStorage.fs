@@ -29,8 +29,9 @@ module SensorEventStorage =
     
     let private measurementCases = FSharpType.GetUnionCases typeof<Measurement.Measurement>
     
-    let private sensorEvents = 
-        Database.GetCollection<StorableSensorEvent> "SensorEvents"
+    let private sensorEvents (deviceGroupId : DeviceGroupId) =
+        let collectionName = "SensorEvents." + deviceGroupId.AsString
+        Database.GetCollection<StorableSensorEvent> collectionName
         |> WithDescendingIndex "DeviceGroupId"
         |> WithDescendingIndex "DeviceId"
         |> WithDescendingIndex "Timestamp"
@@ -70,9 +71,12 @@ module SensorEventStorage =
         |> Seq.choose id
         |> Seq.toList
     
-    let Drop() = Database.DropCollection(sensorEvents.CollectionNamespace.CollectionName)
+    let Drop deviceGroupId =
+        let collection = sensorEvents deviceGroupId
+        Database.DropCollection(collection.CollectionNamespace.CollectionName)
     
     let StoreSensorEvent (event : SensorEvent) = 
+        let collection = sensorEvents event.DeviceGroupId
         let eventToBeStored : StorableSensorEvent = 
             let measurement = StorableMeasurement event.Measurement
             { Id = ObjectId.Empty
@@ -84,7 +88,7 @@ module SensorEventStorage =
               Voltage = (float)event.BatteryVoltage
               SignalStrength = (float)event.SignalStrength
               Timestamp = event.Timestamp }
-        sensorEvents.InsertOneAsync(eventToBeStored)
+        collection.InsertOneAsync(eventToBeStored)
          |> Then.AsUnit
         
     let StoreSensorEvents events =

@@ -16,6 +16,8 @@ module TestContext =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0.03f329983b86f7d9a9f5fef85305880101d5e302afafa20154d094b229f75773"
     let TheMasterKey = "D4C144DA78C8FF923F3C56ADEB4F5113"
     let AnotherMasterKey = "F4C155DA78C8FF923F3C56ADEB4F5113"
+    let TestDeviceGroupId = DeviceGroupId "TestDeviceGroup"
+    let AnotherTestDeviceGroupId = DeviceGroupId "AnotherTestDeviceGroupId"
 
     let SetupEmptyEnvironmentUsing httpSend = 
         Environment.SetEnvironmentVariable("YOG_BOT_BASE_URL", "http://127.0.0.1:18888/yog-robot/")
@@ -24,7 +26,8 @@ module TestContext =
         Environment.SetEnvironmentVariable("YOG_TOKEN_SECRET", "fake-token-secret")
         Environment.SetEnvironmentVariable("YOG_FCM_KEY", "fake")
         KeyStorage.Drop()
-        SensorEventStorage.Drop()
+        SensorEventStorage.Drop TestDeviceGroupId
+        SensorEventStorage.Drop AnotherTestDeviceGroupId
         SensorStatusesBsonStorage.Drop()
         SensorHistoryBsonStorage.Drop()
     
@@ -68,8 +71,8 @@ module TestContext =
     let SetupContext() = 
         SetupEmptyEnvironment()
         let context = new Context()
-        context.DeviceGroupId <- DeviceGroupId(GenerateSecureToken())
-        context.AnotherDeviceGroupId <- DeviceGroupId(GenerateSecureToken())
+        context.DeviceGroupId <- TestDeviceGroupId
+        context.AnotherDeviceGroupId <- AnotherTestDeviceGroupId
         context.DeviceGroupKeyToken <- RegisterDeviceGroupKey context.DeviceGroupId |> Async.RunSynchronously
         context.AnotherDeviceGroupKey <- RegisterDeviceGroupKey context.AnotherDeviceGroupId |> Async.RunSynchronously
         context.SensorKeyToken <- RegisterSensorKey context.DeviceGroupId |> Async.RunSynchronously

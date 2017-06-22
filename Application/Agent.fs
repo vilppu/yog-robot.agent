@@ -4,8 +4,6 @@ module Agent =
     open System
     open System.Threading.Tasks
         
-    let Handshake() = "Hello"
-
     let SaveMasterKey token = 
         let key : MasterKey = 
             { Token = token
@@ -32,7 +30,7 @@ module Agent =
         |> Then.AsUnit 
         |> Then.Map(fun x -> key.Token.AsString)
     
-    let SaveSensorData httpSend deviceGroupId sensorEvent =        
+    let SaveSensorData httpSend deviceGroupId sensorData =        
         let updateSensorStatuses = UpdateSensorStatuses httpSend
         let updateSensorStatusAndHistory event =
             let updateSensorStatusesPromise = updateSensorStatuses event
@@ -41,7 +39,7 @@ module Agent =
             |> Then.Combine
             |> Then.AsUnit
         try
-            let sensorEvents = sensorEvent |> SensorDataEventToEvents deviceGroupId
+            let sensorEvents = sensorData |> SensorDataEventToEvents deviceGroupId
             let storeSensorEventPromise = sensorEvents |> StoreSensorEvents
             let updatePromise =
                 sensorEvents
