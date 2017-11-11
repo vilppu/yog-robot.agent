@@ -12,4 +12,4 @@ Features:
 - API KEY authorization
 - JSON web token based authentication and authorization
 
-Copyright (C) 2017 Timo Vilppu
+*Copyright (C) 2017 Timo Vilppu*
