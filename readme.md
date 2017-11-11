@@ -1,6 +1,17 @@
-<img src="https://travis-ci.org/vilppu/yog-robot.svg?branch=master">
+<img src="https://travis-ci.org/vilppu/yog-robot.agent.svg?branch=master">
+
+HTTP based IoT agent that listens for sensor events and stores them to database.
+
+Features:
+- Storing sensor status snapshot
+- Storing sensor history snapshot
+- Event sourcing based storage
+- HTTP API to access current sensor statuses
+- HTTP API to access sensor history
+- User notifications (Google Firebase)
+- API KEY authorization
+- JSON web token based authentication and authorization
 
 
     “That is not dead which can eternal lie,
     And with strange aeons even death may die.”
-    
