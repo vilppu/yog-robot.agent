@@ -5,7 +5,6 @@ module TestContext =
     open System
     open System.Net.Http 
     open System.Threading.Tasks    
-    open Newtonsoft.Json
 
     [<assembly: Xunit.CollectionBehavior(DisableTestParallelization = true)>]
     do()

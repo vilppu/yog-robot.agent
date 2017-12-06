@@ -1,7 +1,5 @@
 ﻿namespace YogRobot
 
-open System
-open System.Net
 open System.Net.Http
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Authorization

@@ -1,9 +1,7 @@
 ﻿namespace YogRobot
 
 module TokenTest = 
-    open System
     open System.Net
-    open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     open Xunit
     
     [<Fact>]

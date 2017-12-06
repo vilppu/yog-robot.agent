@@ -2,7 +2,6 @@
 
 [<AutoOpen>]
 module DeviceSettingsClient = 
-    open Newtonsoft.Json
     
     let PostSensorName token sensorId name = 
         let apiUrl = sprintf "api/sensor/%s/name/%s" sensorId name

@@ -8,13 +8,10 @@ module Authorization =
     open System.Security.Cryptography
     open System.Text
     open System.IdentityModel.Tokens.Jwt
-    open System.IdentityModel.Tokens
     open System.Security.Claims    
     open Microsoft.AspNetCore.Authorization
-    open Microsoft.AspNetCore.Mvc
     open Microsoft.AspNetCore.Http
     open Microsoft.IdentityModel.Tokens
-    open Newtonsoft.Json
     
     module Roles = 
         [<Literal>]

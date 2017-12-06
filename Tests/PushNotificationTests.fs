@@ -2,11 +2,7 @@ namespace YogRobot
 
 module PushNotificationTests = 
     open System
-    open System.Net
-    open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     open Xunit
-    open Newtonsoft.Json
-    open Newtonsoft.Json.Serialization
 
     [<CLIMutable>]
     type FirebaseDeviceNotificationContent = 

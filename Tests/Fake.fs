@@ -1,7 +1,6 @@
 ﻿namespace YogRobot
 
 module Fake = 
-    open System.Globalization
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     
     let private exampleMeasurement = Temperature 15.0<C>
