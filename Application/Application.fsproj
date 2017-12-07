@@ -16,6 +16,7 @@
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Storage/Expressions.fs" />
     <Compile Include="Storage/StorableTypes.fs" />
     <Compile Include="Storage/BsonStorage.fs" />
     <Compile Include="Storage/SensorHistoryBsonStorage.fs" />

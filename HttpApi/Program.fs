@@ -2,7 +2,6 @@
 
 module Program = 
     open System
-    open System.Threading.Tasks
     open SelfHost
 
     let rec HandleException(ex : Exception) =
