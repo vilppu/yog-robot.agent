@@ -7,7 +7,7 @@ open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
 
 [<Route("api")>]
-type ApiController(httpSend : HttpRequestMessage -> Task<HttpResponseMessage>) = 
+type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) = 
     inherit Controller()
     member private this.DeviceGroupId = DeviceGroupId(GetDeviceGroupId this.User)
     
@@ -45,62 +45,76 @@ type ApiController(httpSend : HttpRequestMessage -> Task<HttpResponseMessage>) =
     [<HttpPost>]
     [<Authorize(Policy = Roles.Administrator)>]
     member this.PostMasterKey() : Task<JsonResult> = 
-        let token = MasterKeyToken(GenerateSecureToken())
-        Agent.SaveMasterKey token
-        |> Then.Map (fun key -> this.Json(key))
+        async {
+            let token = MasterKeyToken(GenerateSecureToken())
+            let! key = Agent.SaveMasterKey token
+            return this.Json(key)
+        } |> Async.StartAsTask
     
     [<Route("keys/device-group-keys/{deviceGroupId}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.Administrator)>]
     member this.PostDeviceGroupKey(deviceGroupId : string) : Task<JsonResult> = 
-        let token = DeviceGroupKeyToken(GenerateSecureToken())
-        Agent.SaveDeviceGroupKey (DeviceGroupId(deviceGroupId)) token
-        |> Then.Map (fun key -> this.Json(key))
+        async {
+            let token = DeviceGroupKeyToken(GenerateSecureToken())
+            let! key = Agent.SaveDeviceGroupKey (DeviceGroupId(deviceGroupId)) token
+            return this.Json(key)
+        } |> Async.StartAsTask
     
     [<Route("keys/sensor-keys/{deviceGroupId}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.Administrator)>]
     member this.PostSensorKey(deviceGroupId : string) : Task<JsonResult> = 
-        let token = SensorKeyToken(GenerateSecureToken())
-        Agent.SaveSensorKey (DeviceGroupId(deviceGroupId)) token
-        |> Then.Map (fun key -> this.Json(key))
-    
+        async {
+            let token = SensorKeyToken(GenerateSecureToken())
+            let! key = Agent.SaveSensorKey (DeviceGroupId(deviceGroupId)) token
+            return this.Json(key)
+        } |> Async.StartAsTask
     
     [<Route("sensor/{sensorId}/name/{sensorName}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.User)>]
     member this.PostSensorName (sensorId : string) (sensorName : string) : Task<unit> = 
-        let sensorId = SensorId sensorId
-        Agent.SaveSensorName (this.DeviceGroupId) sensorId (sensorName)
+        async {
+            let sensorId = SensorId sensorId
+            do! Agent.SaveSensorName (this.DeviceGroupId) sensorId (sensorName)
+        } |> Async.StartAsTask
     
     
     [<Route("sensors")>]
     [<HttpGet>]
     [<Authorize(Policy = Roles.User)>]
     member this.GetSensorStatuses() = 
-        Agent.GetSensorStatuses (this.DeviceGroupId)
+        async {
+            return! Agent.GetSensorStatuses (this.DeviceGroupId)
+        } |> Async.StartAsTask
     
     [<Route("sensor/{sensorId}/history/")>]
     [<HttpGet>]
     [<Authorize(Policy = Roles.User)>]
     member this.GetSensorHistory (sensorId : string) =
-        Agent.GetSensorHistory (this.DeviceGroupId) (SensorId sensorId)
-    
+        async {
+            return! Agent.GetSensorHistory (this.DeviceGroupId) (SensorId sensorId)
+        } |> Async.StartAsTask    
     
     [<Route("push-notifications/subscribe/{token}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.User)>]
     member this.SubscribeToPushNotification (token : string) : Task<unit> = 
-        let subscription = PushNotificationSubscription token
-        Agent.SubscribeToPushNotification (this.DeviceGroupId) subscription
+        async {
+            let subscription = PushNotificationSubscription token
+            do! Agent.SubscribeToPushNotification (this.DeviceGroupId) subscription
+        } |> Async.StartAsTask
     
     [<Route("sensor-data")>]
     [<HttpPost>]
     member this.PostSensorData([<FromBody>]sensorEvent : SensorData) =
-        if BotKeyIsMissing this.Request then
-            Task.FromResult(this.StatusCode(StatusCodes.Status401Unauthorized))
-        else
-            let deviceGroupId = FindBotId this.Request
-            let saveSensorData = Agent.SaveSensorData httpSend
-            saveSensorData (deviceGroupId) (sensorEvent)
-            |> Then.Map (fun () -> this.StatusCode(StatusCodes.Status201Created))
+        async {
+            if BotKeyIsMissing this.Request then
+                return this.StatusCode(StatusCodes.Status401Unauthorized)
+            else
+                let deviceGroupId = FindBotId this.Request
+                let saveSensorData = Agent.SaveSensorData httpSend
+                do! saveSensorData (deviceGroupId) (sensorEvent)
+                return this.StatusCode(StatusCodes.Status201Created)
+        }

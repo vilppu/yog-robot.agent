@@ -2,11 +2,8 @@ namespace YogRobot
 
 [<AutoOpen>]
 module SensorHistoryCommand =
-    open System
     open System.Collections.Generic
-    open System.Threading.Tasks
     open MongoDB.Bson
-    open MongoDB.Bson.Serialization.Attributes
     open MongoDB.Driver
     
     let private entryToStorable (entry : SensorHistoryEntry) =
@@ -40,20 +37,20 @@ module SensorHistoryCommand =
         options.IsUpsert <- true
         
         SensorHistoryCollection.ReplaceOneAsync<StorableSensorHistory>(filter, storable, options)
-        :> Task
+        |> Async.AwaitTask
+        |> Async.Ignore
          
     let UpdateSensorHistory event =
-        let measurement = StorableMeasurement event.Measurement
-        let promise =
-            ReadSensorHistory event.DeviceGroupId event.SensorId
-            |> Then.Map (fun history ->
-                let changed =
-                    match history.Entries with
-                    | head::tail ->
-                        head.MeasuredValue <> measurement.Value
-                    | _ -> true
+        async {
+            let measurement = StorableMeasurement event.Measurement
+            let! history = ReadSensorHistory event.DeviceGroupId event.SensorId
+            let changed =
+                match history.Entries with
+                | head::tail ->
+                    head.MeasuredValue <> measurement.Value
+                | _ -> true
 
-                match changed with
-                | true -> upsertHistory event history |> Then.AsUnit
-                | false -> Then.Nothing)
-        promise.Unwrap()
+            match changed with
+            | true -> do! upsertHistory event history
+            | false -> ()
+        }

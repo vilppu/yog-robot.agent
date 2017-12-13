@@ -151,7 +151,7 @@ module Authorization =
             { Token = MasterKeyToken(GenerateSecureToken())
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! StoreMasterKey key |> Async.AwaitTask
+            do! StoreMasterKey key
             return key.Token
         }
     
@@ -161,7 +161,7 @@ module Authorization =
               DeviceGroupId = deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! StoreDeviceGroupKey key |> Async.AwaitTask
+            do! StoreDeviceGroupKey key
             return key.Token
         }
     
@@ -171,7 +171,7 @@ module Authorization =
               DeviceGroupId = deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! StoreSensorKey key |> Async.AwaitTask
+            do! StoreSensorKey key
             return key.Token
         }
     
@@ -187,4 +187,4 @@ module Authorization =
             if isInRequiredRole then
                 context.Succeed requirement
                 
-            Then.Nothing |> Then.Ignore
+            System.Threading.Tasks.Task.FromResult(0) :> System.Threading.Tasks.Task

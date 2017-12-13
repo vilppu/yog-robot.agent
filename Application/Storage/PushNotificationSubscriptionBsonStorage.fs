@@ -2,9 +2,7 @@ namespace YogRobot
 
 [<AutoOpen>]
 module PushNotificationSubscriptionBsonStorage =
-    open System
     open System.Collections.Generic
-    open Microsoft.FSharp.Reflection
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
     open MongoDB.Driver

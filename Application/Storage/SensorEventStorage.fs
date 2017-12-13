@@ -88,18 +88,9 @@ module SensorEventStorage =
               Voltage = (float)event.BatteryVoltage
               SignalStrength = (float)event.SignalStrength
               Timestamp = event.Timestamp }
-        collection.InsertOneAsync(eventToBeStored)
-         |> Then.AsUnit
-        
-    let StoreSensorEvents events =
-        let store event =
-            let result =
-                HasChanges event
-                |> Then.Map (fun hasChanges -> 
-                    if hasChanges then StoreSensorEvent event |> Then.AsUnit
-                    else Then.Nothing)
-            result.Unwrap()
-        events
-        |> Seq.map store
-        |> Then.Combine
-        |> Then.AsUnit
+        async {
+            let! hasChanges = event |> HasChanges
+            if hasChanges then
+                do! collection.InsertOneAsync(eventToBeStored) |> Async.AwaitTask
+        }
+

@@ -37,9 +37,11 @@ module SensorStatusesQuery =
                 |> List.map toSensorStatus
         statuses 
     
-    let ReadSensorStatuses (deviceGroupId : DeviceGroupId) : Task<SensorStatus list> = 
-        let deviceGroupId = deviceGroupId.AsString
-        let storable = SensorsCollection.Find<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId)
-        storable.ToListAsync<StorableSensorStatus>()
-        |> Then.Map toSensorStatuses
+    let ReadSensorStatuses (deviceGroupId : DeviceGroupId) : Async<SensorStatus list> =
+        async {
+            let deviceGroupId = deviceGroupId.AsString
+            let storable = SensorsCollection.Find<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId)
+            let! statuses = storable.ToListAsync<StorableSensorStatus>() |> Async.AwaitTask
+            return statuses |> toSensorStatuses
+        }
     

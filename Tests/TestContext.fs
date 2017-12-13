@@ -37,11 +37,13 @@ module TestContext =
 
     let SetupEmptyEnvironment() =
         SentHttpRequests.Clear()
-        let httpSend (request : HttpRequestMessage) : Task<HttpResponseMessage> =
-            SentHttpRequests.Add request
-            let response = new HttpResponseMessage()
-            response.Content <- new StringContent("")
-            Task.FromResult response
+        let httpSend (request : HttpRequestMessage) : Async<HttpResponseMessage> =
+            async {
+                SentHttpRequests.Add request
+                let response = new HttpResponseMessage()
+                response.Content <- new StringContent("")
+                return response
+            }
         SetupEmptyEnvironmentUsing httpSend
 
     type Context() = 

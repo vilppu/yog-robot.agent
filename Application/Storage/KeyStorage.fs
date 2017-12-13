@@ -61,6 +61,7 @@ module KeyStorage =
               ValidThrough = key.ValidThrough
               Timestamp = DateTime.UtcNow }
         masterKeys.InsertOneAsync(keyToBeStored)
+        |> Async.AwaitTask
     
     let StoreDeviceGroupKey(key : DeviceGroupKey) = 
         let keyToBeStored : StorableDeviceGroupKey =
@@ -70,6 +71,7 @@ module KeyStorage =
               ValidThrough = key.ValidThrough
               Timestamp = DateTime.UtcNow }
         botKeys.InsertOneAsync(keyToBeStored)
+        |> Async.AwaitTask
     
     let StoreSensorKey(key : SensorKey) = 
         let keyToBeStored : StorableSensorKey =
@@ -79,6 +81,7 @@ module KeyStorage =
               ValidThrough = key.ValidThrough
               Timestamp = DateTime.UtcNow }
         sensorKeys.InsertOneAsync(keyToBeStored)
+        |> Async.AwaitTask
     
     let IsValidMasterKeyToken (token : MasterKeyToken) (validationTime : DateTime) =
         let token = token.AsString

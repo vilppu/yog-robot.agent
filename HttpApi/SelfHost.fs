@@ -29,7 +29,7 @@ module SelfHost =
     
     type Startup(environment : IHostingEnvironment) =
 
-        member this.Configure(app : IApplicationBuilder, env : IHostingEnvironment, loggerFactory : ILoggerFactory, httpSend : HttpRequestMessage -> Task<HttpResponseMessage>) =             
+        member this.Configure(app : IApplicationBuilder, env : IHostingEnvironment, loggerFactory : ILoggerFactory, httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) =             
             loggerFactory
                 .AddConsole(LogLevel.Warning)
                 .AddDebug()
@@ -97,7 +97,7 @@ module SelfHost =
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>()
             |> ignore
 
-    let CreateHttpServer (httpSend : HttpRequestMessage -> Task<HttpResponseMessage>) : Task = 
+    let CreateHttpServer (httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) : Task = 
 
         let url = GetUrl()
         let host = url.Scheme + Uri.SchemeDelimiter + url.Host + ":" + url.Port.ToString()

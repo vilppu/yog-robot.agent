@@ -2,8 +2,6 @@
 
 [<AutoOpen>]
 module SensorDataServiceClient = 
-    open System.Globalization
-    open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     
     let PostSensorData key deviceGroupId (sensorEvent : SensorData) = 
         let apiUrl = "api/sensor-data"

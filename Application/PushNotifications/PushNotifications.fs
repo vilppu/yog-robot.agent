@@ -33,15 +33,13 @@ module PushNotification =
         pushNotification |> sendFirebaseMessages
 
     let SendPushNotifications httpSend reason =
-        let measurement = StorableMeasurement reason.Event.Measurement
-        let hasChanged =
-            if reason.Status :> obj |> isNull then true
-            else measurement.Value <> reason.Status.MeasuredValue 
-        if hasChanged then
-            match reason.Event.Measurement with
-            | Contact contact ->
-                sendPushNotifications httpSend reason
-                |> Then.AsUnit
-            | _ -> Then.Nothing
-        else
-            Then.Nothing
+        async {
+            let measurement = StorableMeasurement reason.Event.Measurement
+            let hasChanged =
+                if reason.Status :> obj |> isNull then true
+                else measurement.Value <> reason.Status.MeasuredValue 
+            if hasChanged then
+                match reason.Event.Measurement with
+                | Contact contact -> do! sendPushNotifications httpSend reason
+                | _ -> ()
+        }

@@ -4,50 +4,44 @@ module Agent =
     open System
         
     let SaveMasterKey token = 
-        let key : MasterKey = 
-            { Token = token
-              ValidThrough = DateTime.UtcNow.AddYears(10) }
-        StoreMasterKey key 
-        |> Then.AsUnit 
-        |> Then.Map(fun x -> key.Token.AsString)
+        async {
+            let key : MasterKey = 
+                { Token = token
+                  ValidThrough = DateTime.UtcNow.AddYears(10) }
+            do! StoreMasterKey key 
+            return key.Token.AsString
+        }
     
     let SaveDeviceGroupKey deviceGroupId token = 
-        let key : DeviceGroupKey = 
-            { Token = token
-              DeviceGroupId = deviceGroupId
-              ValidThrough = DateTime.UtcNow.AddYears(10) }
-        StoreDeviceGroupKey key 
-        |> Then.AsUnit 
-        |> Then.Map(fun x -> key.Token.AsString)
+        async {
+            let key : DeviceGroupKey = 
+                { Token = token
+                  DeviceGroupId = deviceGroupId
+                  ValidThrough = DateTime.UtcNow.AddYears(10) }
+            do! StoreDeviceGroupKey key 
+            return key.Token.AsString
+        }
     
-    let SaveSensorKey deviceGroupId token = 
-        let key : SensorKey = 
-            { Token = token
-              DeviceGroupId = deviceGroupId
-              ValidThrough = DateTime.UtcNow.AddYears(10) }
-        StoreSensorKey key 
-        |> Then.AsUnit 
-        |> Then.Map(fun x -> key.Token.AsString)
+    let SaveSensorKey deviceGroupId token =
+        async {
+            let key : SensorKey = 
+                { Token = token
+                  DeviceGroupId = deviceGroupId
+                  ValidThrough = DateTime.UtcNow.AddYears(10) }
+            do! StoreSensorKey key 
+            return key.Token.AsString
+        }
     
-    let SaveSensorData httpSend deviceGroupId sensorData =        
-        let updateSensorStatuses = UpdateSensorStatuses httpSend
-        let updateSensorStatusAndHistory event =
-            let updateSensorStatusesPromise = updateSensorStatuses event
-            let updateSensorHistoryPromise = UpdateSensorHistory event
-            [ updateSensorStatusesPromise; updateSensorHistoryPromise; ]
-            |> Then.Combine
-            |> Then.AsUnit
+    let SaveSensorData httpSend deviceGroupId sensorData =
         try
-            let sensorEvents = sensorData |> SensorDataEventToEvents deviceGroupId
-            let storeSensorEventPromise = sensorEvents |> StoreSensorEvents
-            let updatePromise =
-                sensorEvents
-                |> List.map updateSensorStatusAndHistory
-                |> Then.Combine
-                |> Then.AsUnit
-            [ storeSensorEventPromise; updatePromise; ]
-            |> Then.Combine
-            |> Then.AsUnit
+            async { 
+                let sensorEvents = sensorData |> SensorDataEventToEvents deviceGroupId
+
+                for event in sensorEvents do   
+                    do! UpdateSensorStatuses httpSend event
+                    do! UpdateSensorHistory event
+                    do! StoreSensorEvent event
+            }       
         with
         | ex ->
             eprintfn "SaveSensorData failed: %s" ex.Message

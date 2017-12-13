@@ -2,9 +2,11 @@ namespace YogRobot
 
 module Http = 
     open System.Net.Http
-    open System.Threading.Tasks
     
     let private httpClient = new HttpClient()
 
-    let Send (request : HttpRequestMessage) : Task<HttpResponseMessage> =
-        httpClient.SendAsync request
+    let Send (request : HttpRequestMessage) : Async<HttpResponseMessage> =
+        async {
+            let! response = httpClient.SendAsync request |> Async.AwaitTask
+            return response 
+        }

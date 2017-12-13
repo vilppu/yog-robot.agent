@@ -10,7 +10,6 @@ module FirebaseMessaging =
     open System.Text    
     open System.Threading.Tasks
     open Newtonsoft.Json
-    open Newtonsoft.Json.Serialization
 
     let StoredFirebaseKey() = Environment.GetEnvironmentVariable("YOG_FCM_KEY")
 
@@ -46,18 +45,22 @@ module FirebaseMessaging =
           mutable results : List<FirebaseResult> }
 
     let private removeRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
-        if not(tokens.IsEmpty) then
-            let subscriptions = tokens |> List.map PushNotificationSubscription
-            RemovePushNotificationSubscriptions deviceGroupId subscriptions
-            |> Then.AsUnit
-        else Then.Nothing
+        async {
+            if not(tokens.IsEmpty) then
+                let subscriptions = tokens |> List.map PushNotificationSubscription
+                return! RemovePushNotificationSubscriptions deviceGroupId subscriptions
+            else
+                return ()
+        }
 
     let private addRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
-        if not(tokens.IsEmpty) then
-            let subscriptions = tokens |> List.map PushNotificationSubscription
-            StorePushNotificationSubscriptions deviceGroupId subscriptions
-            |> Then.AsUnit
-        else Then.Nothing
+        async {
+            if not(tokens.IsEmpty) then
+                let subscriptions = tokens |> List.map PushNotificationSubscription
+                return! StorePushNotificationSubscriptions deviceGroupId subscriptions
+            else
+                return ()
+        }
 
     let private shouldBeRemoved (result : FirebaseResult * String) =
         let (firebaseResult, subscription) = result
@@ -80,11 +83,11 @@ module FirebaseMessaging =
                 |> List.map (fun result -> result.registration_id)
                 |> List.filter (String.IsNullOrWhiteSpace >> not)
 
-            do! removeRegistrations deviceGroupId subscriptionsToBeRemoved |> Async.AwaitTask
-            do! addRegistrations deviceGroupId subscriptionsToBeAdded  |> Async.AwaitTask
+            do! removeRegistrations deviceGroupId subscriptionsToBeRemoved
+            do! addRegistrations deviceGroupId subscriptionsToBeAdded
         }
     
-    let private sendMessages (httpSend : HttpRequestMessage -> Task<HttpResponseMessage>) (deviceGroupId : DeviceGroupId) (subscriptions : string seq) (pushNotification : DevicePushNotification) =
+    let private sendMessages (httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) (deviceGroupId : DeviceGroupId) (subscriptions : string seq) (pushNotification : DevicePushNotification) =
         async {
             let storedFirebaseKey = StoredFirebaseKey()
             let url = "https://fcm.googleapis.com/fcm/send"
@@ -111,7 +114,7 @@ module FirebaseMessaging =
             requestMessage.Content <- content
             requestMessage.Headers.TryAddWithoutValidation("Authorization", token) |> ignore
             
-            let! response = httpSend requestMessage |> Async.AwaitTask
+            let! response = httpSend requestMessage
             let! responseJson = response.Content.ReadAsStringAsync() |> Async.AwaitTask
             let firebaseResponse = JsonConvert.DeserializeObject<FirebaseResponse> responseJson
 
@@ -123,11 +126,7 @@ module FirebaseMessaging =
         async {
             let storedFirebaseKey = StoredFirebaseKey()
             if not(String.IsNullOrWhiteSpace(storedFirebaseKey)) then
-                let url = "https://fcm.googleapis.com/fcm/send"
-                let token = "key=" + storedFirebaseKey
-                let! subscriptions = ReadPushNotificationSubscriptions deviceGroupId |> Async.AwaitTask
+                let! subscriptions = ReadPushNotificationSubscriptions deviceGroupId
                 if subscriptions.Count > 0 then
                     do! sendMessages httpSend deviceGroupId subscriptions pushNotification
         }
-        |> Async.StartAsTask
-        |> Then.AsUnit

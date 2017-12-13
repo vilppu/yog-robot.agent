@@ -53,37 +53,39 @@ module SensorStatusesCommand =
         let result = SensorsCollection.UpdateOneAsync<StorableSensorStatus>(filter, update)
         result :> Task
 
-    let HasChanges (event : SensorEvent) : Task<bool> =
-        let measurement = StorableMeasurement event.Measurement
-        let sensorId = event.SensorId.AsString
-        let filter = event |> FilterSensorsByEvent
-        
-        let result = 
-            SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
-            |> Then.Map (fun sensorStatus -> (sensorStatus :> obj |> isNull) || (measurement.Value <> sensorStatus.MeasuredValue))
-        result
+    let HasChanges (event : SensorEvent) : Async<bool> =
+        async {
+            let measurement = StorableMeasurement event.Measurement
+            let sensorId = event.SensorId.AsString
+            let filter = event |> FilterSensorsByEvent
+            let! sensorStatus =
+                SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
+                |> Async.AwaitTask
+            let result =
+                (sensorStatus :> obj |> isNull) || (measurement.Value <> sensorStatus.MeasuredValue)
+            return result
+        }
 
-    let UpdateSensorStatuses (httpSend) (event : SensorEvent) : Task<unit> =
-        let sendPushNotifications = SendPushNotifications httpSend
-        let measurement = StorableMeasurement event.Measurement
-        let sensorId = event.SensorId.AsString
-        let filter = event |> FilterSensorsByEvent
-        
-        let result = 
-            SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
-            |> Then.Map (fun sensorStatus ->
-                let updatePromise =
-                    if sensorStatus :> obj |> isNull then
-                        event |> insertNew
-                    else
-                        event |> updateExisting sensorStatus
-                    |> Then.AsUnit
-                let notifyPromise =
-                    let reason =
-                        { Event = event
-                          Status = sensorStatus }
-                    sendPushNotifications reason
-                Then.Combine [updatePromise; notifyPromise]
-                )
-        result |> Then.Unwrap |> Then.AsUnit
+    let UpdateSensorStatuses (httpSend) (event : SensorEvent) : Async<unit> =
+        async {
+            let sendPushNotifications = SendPushNotifications httpSend
+            let measurement = StorableMeasurement event.Measurement
+            let sensorId = event.SensorId.AsString
+            let filter = event |> FilterSensorsByEvent
+            let! sensorStatus =
+                SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
+                |> Async.AwaitTask        
+
+            do!
+                if sensorStatus :> obj |> isNull then
+                    event |> insertNew |> Async.AwaitTask
+                else
+                    event |> updateExisting sensorStatus |> Async.AwaitTask
+
+            do!
+                let reason =
+                    { Event = event
+                      Status = sensorStatus }
+                sendPushNotifications reason
+        }
 

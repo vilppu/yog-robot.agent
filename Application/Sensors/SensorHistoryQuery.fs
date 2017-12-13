@@ -2,10 +2,7 @@
 
 [<AutoOpen>]
 module SensorHistoryQuery =
-    open System
-    open System.Collections.Generic
-    
-    open MongoDB.Bson
+    open System    
     open MongoDB.Driver
 
     let private toEntry (entry : StorableSensorHistoryEntry) : SensorHistoryEntry =
@@ -27,8 +24,9 @@ module SensorHistoryQuery =
               Entries = stored |> toHistoryEntries }
 
     let ReadSensorHistory (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
-        let filter = FilterHistoryBy deviceGroupId sensorId
-        let history = SensorHistoryCollection.Find<StorableSensorHistory>(filter)
-
-        history.FirstOrDefaultAsync<StorableSensorHistory>()
-        |> Then.Map toHistory
+        async {
+            let filter = FilterHistoryBy deviceGroupId sensorId
+            let history = SensorHistoryCollection.Find<StorableSensorHistory>(filter)
+            let! first = history.FirstOrDefaultAsync<StorableSensorHistory>() |> Async.AwaitTask
+            return first |> toHistory
+        }       
