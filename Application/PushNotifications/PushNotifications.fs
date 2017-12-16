@@ -2,15 +2,6 @@ namespace YogRobot
 
 [<AutoOpen>]
 module PushNotification =
-    open System
-    open System.Collections.Generic
-    open System.Net
-    open System.Net.Http
-    open System.Net.Http.Headers
-    open System.Text    
-    open System.Threading.Tasks    
-    open Newtonsoft.Json
-    open Newtonsoft.Json.Serialization
    
     type PushNotificationReason =
         { // Event causing the push notification

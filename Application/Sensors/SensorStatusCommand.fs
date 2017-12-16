@@ -2,11 +2,8 @@
 
 [<AutoOpen>]
 module SensorStatusesCommand =
-    open System
-    open System.Collections.Generic
     open System.Threading.Tasks    
     open MongoDB.Bson
-    open MongoDB.Bson.Serialization.Attributes
     open MongoDB.Driver
 
     let private insertNew (event : SensorEvent) =
@@ -33,8 +30,6 @@ module SensorStatusesCommand =
         let voltage = (float)event.BatteryVoltage
         let signalStrength = (float)event.SignalStrength
         let hasChanged = measurement.Value <> sensorStatus.MeasuredValue
-        let sensorId = event.SensorId.AsString
-        let deviceGroupId = event.DeviceGroupId.AsString
         let lastActive = event.Timestamp
         let lastUpdated =
                     if hasChanged
@@ -56,7 +51,6 @@ module SensorStatusesCommand =
     let HasChanges (event : SensorEvent) : Async<bool> =
         async {
             let measurement = StorableMeasurement event.Measurement
-            let sensorId = event.SensorId.AsString
             let filter = event |> FilterSensorsByEvent
             let! sensorStatus =
                 SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
@@ -67,10 +61,7 @@ module SensorStatusesCommand =
         }
 
     let UpdateSensorStatuses (httpSend) (event : SensorEvent) : Async<unit> =
-        async {
-            let sendPushNotifications = SendPushNotifications httpSend
-            let measurement = StorableMeasurement event.Measurement
-            let sensorId = event.SensorId.AsString
+        async {            
             let filter = event |> FilterSensorsByEvent
             let! sensorStatus =
                 SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
@@ -82,10 +73,14 @@ module SensorStatusesCommand =
                 else
                     event |> updateExisting sensorStatus |> Async.AwaitTask
 
-            do!
+            do
                 let reason =
                     { Event = event
                       Status = sensorStatus }
-                sendPushNotifications reason
+                SendPushNotifications httpSend reason
+                // Do not wait for push notifications to be sent to notification provider.
+                // This is to ensure that IoT hub does not need to wait for request to complete 
+                // for too long.
+                |> Async.Start
         }
 
