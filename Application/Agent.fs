@@ -36,11 +36,18 @@ module Agent =
         try
             async { 
                 let sensorEvents = sensorData |> SensorDataEventToEvents deviceGroupId
-
-                for event in sensorEvents do   
-                    do! UpdateSensorStatuses httpSend event
-                    do! UpdateSensorHistory event
-                    do! StoreSensorEvent event
+                let operations =
+                    sensorEvents |> Seq.map(fun event ->
+                        [
+                            UpdateSensorStatuses httpSend event
+                            UpdateSensorHistory event
+                            StoreSensorEvent event
+                        ]
+                    )
+                    |> Seq.collect (fun x -> x)
+                    |> Async.Parallel |> Async.Ignore
+                
+                do! operations
             }       
         with
         | ex ->

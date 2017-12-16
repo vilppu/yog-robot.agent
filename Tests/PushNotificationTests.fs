@@ -44,6 +44,9 @@ module PushNotificationTests =
 
         context |> WriteMeasurement(Fake.Measurement example)
         
+        // Wait for background processing to complete.
+        System.Threading.Thread.Sleep(100)
+
         Assert.Equal(1, SentHttpRequests.Count)
         Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
    
