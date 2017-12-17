@@ -7,6 +7,7 @@ module SensorHistoryBsonStorage =
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
     open MongoDB.Driver
+    open YogRobot.Expressions
 
     [<CLIMutable>]
     [<BsonIgnoreExtraElements>]
@@ -38,7 +39,7 @@ module SensorHistoryBsonStorage =
     let FilterHistoryBy (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
         let sensorId = sensorId.AsString
         let deviceGroupId = deviceGroupId.AsString
-        let expr = ExpressionBuilder<StorableSensorHistory>.Filter(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
+        let expr = Lambda.Create<StorableSensorHistory>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
     
     let Drop() = Database.DropCollection(SensorHistoryCollectionName)

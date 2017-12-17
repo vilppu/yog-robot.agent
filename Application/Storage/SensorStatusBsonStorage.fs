@@ -3,8 +3,6 @@ namespace YogRobot
 [<AutoOpen>]
 module SensorStatusesBsonStorage =
     open System
-    open System.Collections.Generic
-    open Microsoft.FSharp.Reflection
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
     open MongoDB.Driver
@@ -34,7 +32,7 @@ module SensorStatusesBsonStorage =
     let FilterSensorsBy (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
         let sensorId = sensorId.AsString
         let deviceGroupId = deviceGroupId.AsString
-        let expr = ExpressionBuilder<StorableSensorStatus>.Filter(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
+        let expr = Lambda.Create<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
     
     let FilterSensorsByEvent (event : SensorEvent) =
