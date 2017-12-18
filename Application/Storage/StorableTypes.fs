@@ -2,12 +2,12 @@
 
 [<AutoOpen>]
 module StorableTypes =
-    open Microsoft.FSharp.Linq.RuntimeHelpers
     open Microsoft.FSharp.Reflection
     
     type StorableMeasurement = 
         { Name : string
           Value : obj }
+
     let StorableMeasurementValue (measurement : Measurement) =
         match measurement with
         | Voltage voltage -> float(voltage) :> obj

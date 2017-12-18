@@ -23,7 +23,7 @@ module SensorStatusesBsonStorage =
           mutable LastUpdated : DateTime
           mutable LastActive : DateTime }
 
-    let SensorsCollectionName = "Sensors"
+    let private SensorsCollectionName = "Sensors"
 
     let SensorsCollection = 
         Database.GetCollection<StorableSensorStatus> SensorsCollectionName

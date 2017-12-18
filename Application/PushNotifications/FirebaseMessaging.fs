@@ -8,7 +8,6 @@ module FirebaseMessaging =
     open System.Net.Http
     open System.Net.Http.Headers
     open System.Text    
-    open System.Threading.Tasks
     open Newtonsoft.Json
 
     let StoredFirebaseKey() = Environment.GetEnvironmentVariable("YOG_FCM_KEY")

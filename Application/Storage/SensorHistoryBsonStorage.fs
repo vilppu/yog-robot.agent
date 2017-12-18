@@ -28,10 +28,10 @@ module SensorHistoryBsonStorage =
           MeasuredProperty : string
           Entries : List<StorableSensorHistoryEntry> }
 
-    let SensorHistoryCollectionName = "SensorHistory"
+    let private sensorHistoryCollectionName = "SensorHistory"
 
     let SensorHistoryCollection = 
-        Database.GetCollection<StorableSensorHistory> SensorHistoryCollectionName
+        Database.GetCollection<StorableSensorHistory> sensorHistoryCollectionName
         |> WithDescendingIndex "DeviceGroupId"        
         |> WithDescendingIndex "DeviceId"
         |> WithDescendingIndex "MeasuredProperty"
@@ -42,4 +42,4 @@ module SensorHistoryBsonStorage =
         let expr = Lambda.Create<StorableSensorHistory>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
     
-    let Drop() = Database.DropCollection(SensorHistoryCollectionName)
+    let Drop() = Database.DropCollection(sensorHistoryCollectionName)

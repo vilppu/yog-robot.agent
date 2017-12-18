@@ -16,7 +16,7 @@ module PushNotificationSubscriptionBsonStorage =
           mutable DeviceGroupId : string
           mutable Tokens : List<string> }
 
-    let PushNotificationSubscriptionCollectionName = "PushNotificationSubscriptions"
+    let private PushNotificationSubscriptionCollectionName = "PushNotificationSubscriptions"
 
     let PushNotificationSubscriptionCollection = 
         Database.GetCollection<StorablePushNotificationSubscriptions> PushNotificationSubscriptionCollectionName

@@ -3,12 +3,7 @@
 [<AutoOpen>]
 module SensorEventStorage = 
     open System
-    open System.Collections.Generic
-    open System.Linq
-    open System.Linq.Expressions
-    open System.Threading.Tasks    
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
-    open Microsoft.FSharp.Linq.RuntimeHelpers
     open Microsoft.FSharp.Reflection
     open MongoDB.Bson
     open MongoDB.Driver
@@ -64,12 +59,6 @@ module SensorEventStorage =
                   Timestamp = event.Timestamp }
             Some sensorEvent
         | None -> None
-    
-    let private toSensorEvents documents = 
-        documents
-        |> Seq.map toSensorEvent
-        |> Seq.choose id
-        |> Seq.toList
     
     let Drop deviceGroupId =
         let collection = sensorEvents deviceGroupId

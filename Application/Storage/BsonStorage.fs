@@ -3,15 +3,9 @@
 [<AutoOpen>]
 module BsonStorage = 
     open System
-    open System.Collections.Generic
-    open System.Linq
-    open Microsoft.FSharp.Linq.RuntimeHelpers
-    open Microsoft.FSharp.Reflection
-    open MongoDB.Bson
     open MongoDB.Driver
     open MongoDB.Bson.Serialization
     open MongoDB.Bson.Serialization.Conventions
-    
     
     type IgnoreBackingFieldsConvention() =
         inherit ConventionBase()

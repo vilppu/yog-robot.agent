@@ -46,13 +46,9 @@ module KeyStorage =
         |> WithDescendingIndex "ValidThrough"
         |> WithDescendingIndex "DeviceGroupId"
     
-    let sensorKeysCacheKey = "KeysStorage.SensorKeys"
-    let options = MemoryCacheOptions()
-    let cache = new MemoryCache(options)
-    let private (<&>) left right = FilterDefinition<StorableDeviceGroupKey>.op_BitwiseAnd(left, right)
-    
-    let private filterCollection (filter : FilterDefinition<BsonDocument>) (collection : IMongoCollection<BsonDocument>) = 
-        collection.Find<BsonDocument>(filter).ToEnumerable() |> Seq.toList
+    let private sensorKeysCacheKey = "KeysStorage.SensorKeys"
+    let private options = MemoryCacheOptions()
+    let private cache = new MemoryCache(options)
     
     let StoreMasterKey(key : MasterKey) = 
         let keyToBeStored : StorableMasterKey =
