@@ -34,6 +34,11 @@ module Agent =
     
     let SaveSensorData httpSend deviceGroupId sensorData =
         try
+            let logSensorData = Environment.GetEnvironmentVariable("YOG_BOT_LOG_DATA") = "yes"
+
+            if logSensorData then
+                printf "data: %s" (Newtonsoft.Json.JsonConvert.SerializeObject sensorData)
+            
             async { 
                 let sensorEvents = sensorData |> SensorDataEventToEvents deviceGroupId
                 let operations =
@@ -48,7 +53,7 @@ module Agent =
                     |> Async.Parallel |> Async.Ignore
                 
                 do! operations
-            }       
+            }
         with
         | ex ->
             eprintfn "SaveSensorData failed: %s" ex.Message

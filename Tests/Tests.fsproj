@@ -12,7 +12,6 @@
     <ProjectReference Include="..\HttpApi\HttpApi.fsproj" />
     <ProjectReference Include="..\HttpClient\HttpClient.fsproj" />
     <ProjectReference Include="..\Types\Types.fsproj" />
-    <ProjectReference Include="..\Utility\Utility.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />

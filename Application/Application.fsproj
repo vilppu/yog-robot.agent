@@ -7,7 +7,6 @@
     <PackageId>Application</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Utility\Utility.fsproj" />
     <ProjectReference Include="..\Types\Types.fsproj" />
   </ItemGroup>
   <ItemGroup>
