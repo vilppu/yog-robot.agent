@@ -34,7 +34,7 @@ module Agent =
     
     let SaveSensorData httpSend deviceGroupId sensorData =
         try
-            let logSensorData = Environment.GetEnvironmentVariable("YOG_BOT_LOG_DATA") = "yes"
+            let logSensorData = Environment.GetEnvironmentVariable("YOG_LOG_SENSOR_DATA") = "yes"
 
             if logSensorData then
                 printf "data: %s" (Newtonsoft.Json.JsonConvert.SerializeObject sensorData)

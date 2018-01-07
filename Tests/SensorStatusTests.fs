@@ -130,7 +130,7 @@ module SensorStatusTests =
         let entry = result.Head
 
         Assert.Equal("PresenceOfWater", entry.MeasuredProperty)
-        Assert.Equal(true, entry.MeasuredValue :?> bool)
+        Assert.Equal(true, entry.MeasuredValue :?> bool)        
     
     [<Fact>]
     let TellOpenDoor() = 
