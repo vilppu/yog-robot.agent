@@ -16,14 +16,29 @@ module SensorDataTest =
     let AgentCanHandleLotsOfRequests() = 
         use context = SetupContext()
         let timer = new System.Diagnostics.Stopwatch()
+        let requestsPerBatch = 100       
+
         timer.Start()
-        for i in 1 .. 100 do
-            let isEven x = (x % 2) = 0
-            let even = isEven i            
-            let example =
-                if even then Contact Contact.Open
-                else Contact Contact.Closed
-            context |> WriteMeasurement(Fake.Measurement example)
+
+        let writeMeasurement = fun index ->
+            async {
+                let isEven x = (x % 2) = 0
+                let even = isEven index         
+                let example =
+                    if even then Contact Contact.Open
+                    else Contact Contact.Closed
+                let! response = (context |> WriteMeasurement (Fake.Measurement example))
+                response |> ignore
+            }
+
+        let batchWriteMeasurements = fun () ->
+            [for i in 1 .. requestsPerBatch -> writeMeasurement i]
+            |> Async.Parallel
+            |> Async.RunSynchronously
+            |> ignore
+        
+        batchWriteMeasurements()
+
         timer.Stop()
-        Assert.True(timer.ElapsedMilliseconds < int64(5000))
+        Assert.True(timer.ElapsedMilliseconds < int64(10000))
         

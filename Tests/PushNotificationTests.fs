@@ -42,7 +42,7 @@ module PushNotificationTests =
 
         context |> SetupToReceivePushNotifications
 
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
         
         // Wait for background processing to complete.
         System.Threading.Thread.Sleep(100)

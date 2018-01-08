@@ -40,68 +40,87 @@ module Authorization =
                |> Seq.toList
                |> Seq.head)
     
-    let private validMasterKeyHeaderIsPresent request = 
-        let headers = request |> FindHeader "yog-robot-key"
-        match headers with
-        | key :: tail -> 
-            let now = DateTime.UtcNow
-            IsValidMasterKeyToken (MasterKeyToken key) now
-        | [] -> false
+    let private validMasterKeyHeaderIsPresent request =
+        async {
+            let headers = request |> FindHeader "yog-robot-key"
+            match headers with
+            | key :: tail -> 
+                let now = DateTime.UtcNow
+                return! IsValidMasterKeyToken (MasterKeyToken key) now
+            | [] -> return false
+        }
     
     let private validDeviceGroupKeyHeaderIsPresent request = 
-        let key = request |> FindHeader "yog-robot-device-group-key"
-        let deviceGroupIds = request |> FindHeader "yog-robot-device-group-id"
+        async {
+            let key = request |> FindHeader "yog-robot-device-group-key"
+            let deviceGroupIds = request |> FindHeader "yog-robot-device-group-id"
         
-        let headers = 
-            if key.Length = deviceGroupIds.Length then key |> List.zip deviceGroupIds
-            else []
-        match headers with
-        | head :: tail -> 
-            let (deviceGroupId, key) = head
-            let now = DateTime.UtcNow
-            IsValidDeviceGroupKeyToken (DeviceGroupId deviceGroupId) (DeviceGroupKeyToken key) now
-        | [] -> false
+            let headers = 
+                if key.Length = deviceGroupIds.Length then key |> List.zip deviceGroupIds
+                else []
+            match headers with
+            | head :: tail -> 
+                let (deviceGroupId, key) = head
+                let now = DateTime.UtcNow
+                return! IsValidDeviceGroupKeyToken (DeviceGroupId deviceGroupId) (DeviceGroupKeyToken key) now
+            | [] -> return false
+        }
 
     let private validSensorKeyHeaderIsPresent request = 
-        let key = request |> FindHeader "yog-robot-sensor-data-key"
-        let deviceGroupIds = request |> FindHeader "yog-robot-device-group-id"
+        async {
+            let key = request |> FindHeader "yog-robot-sensor-data-key"
+            let deviceGroupIds = request |> FindHeader "yog-robot-device-group-id"
         
-        let headers = 
-            if key.Length = deviceGroupIds.Length then key |> List.zip deviceGroupIds
-            else []
-        match headers with
-        | head :: tail -> 
-            let (deviceGroupId, key) = head
-            let now = DateTime.UtcNow
-            IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
-        | [] -> false
+            let headers = 
+                if key.Length = deviceGroupIds.Length then key |> List.zip deviceGroupIds
+                else []
+            match headers with
+            | head :: tail -> 
+                let (deviceGroupId, key) = head
+                let now = DateTime.UtcNow
+                return! IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
+            | [] -> return false
+        }
 
     let private validBotKeyHeaderIsPresent request = 
-        let key = request |> FindHeader "yog-robot-sensor-data-key"
-        let deviceGroupIds = request |> FindHeader "yog-robot-bot-id"
+        async {
+            let key = request |> FindHeader "yog-robot-sensor-data-key"
+            let deviceGroupIds = request |> FindHeader "yog-robot-bot-id"
         
-        let headers = 
-            if key.Length = deviceGroupIds.Length then key |> List.zip deviceGroupIds
-            else []
-        match headers with
-        | head :: tail -> 
-            let (deviceGroupId, key) = head
-            let now = DateTime.UtcNow
-            IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
-        | [] -> false
-        
+            let headers = 
+                if key.Length = deviceGroupIds.Length then key |> List.zip deviceGroupIds
+                else []
+            match headers with
+            | head :: tail -> 
+                let (deviceGroupId, key) = head
+                let now = DateTime.UtcNow
+                return! IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
+            | [] -> return false
+        }
     
     let MasterKeyIsMissing request =
-        not(validMasterKeyHeaderIsPresent request)
+        async {
+            let! isPresent = validMasterKeyHeaderIsPresent request
+            return not(isPresent)
+        }
 
     let DeviceGroupKeyIsMissing request =
-        not(validDeviceGroupKeyHeaderIsPresent request)
+        async {
+            let! isPresent = validDeviceGroupKeyHeaderIsPresent request
+            return not(isPresent)
+        }
     
     let SensorKeyIsMissing request =
-        not(validSensorKeyHeaderIsPresent request)
+        async {
+            let! isPresent = validSensorKeyHeaderIsPresent request
+            return not(isPresent)
+        }
         
     let BotKeyIsMissing request =
-        not(validBotKeyHeaderIsPresent request)
+        async {
+            let! isPresent = validBotKeyHeaderIsPresent request
+            return not(isPresent)
+        }
 
     let GetDeviceGroupId(user : ClaimsPrincipal) = 
         user.Claims.Single(fun claim -> claim.Type = "DeviceGroupId").Value    

@@ -3,11 +3,11 @@ namespace YogRobot
 [<AutoOpen>]
 module TestHelpers = 
     
-    
     let WriteMeasurement (measurement, deviceId) (context : Context) = 
         PostMeasurement context.SensorKeyToken context.DeviceGroupId deviceId measurement
-        |> Async.RunSynchronously
-        |> ignore
+
+    let WriteMeasurementSynchronously (measurement, deviceId) (context : Context) = 
+        WriteMeasurement (measurement, deviceId) context |> Async.RunSynchronously |> ignore
     
     let GetExampleSensorStatusesResponse (context : Context) = 
         GetSensorStatusesResponse context.DeviceGroupToken |> Async.RunSynchronously

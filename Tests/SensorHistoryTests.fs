@@ -21,7 +21,7 @@ module SensorHistoryTests =
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
 
-        context |> WriteMeasurement(Fake.MeasurementFromDevice example deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice example deviceId)
 
         let result = context |> GetExampleSensorHistory sensorId
         let entry = result.Entries.Head
@@ -36,9 +36,9 @@ module SensorHistoryTests =
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
 
-        context |> WriteMeasurement(Fake.MeasurementFromDevice (RelativeHumidity 78.0) deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice (RelativeHumidity 80.0) deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice (RelativeHumidity 79.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 78.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 80.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 79.0) deviceId)
 
         let result = context |> GetExampleSensorHistory sensorId
         let entry = result.Entries.Head      
@@ -52,7 +52,7 @@ module SensorHistoryTests =
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
 
-        context |> WriteMeasurement(Fake.MeasurementFromDevice example deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice example deviceId)
 
         let result = context |> GetExampleSensorHistory sensorId
         let entry = result.Entries.Head
@@ -67,8 +67,8 @@ module SensorHistoryTests =
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
 
-        context |> WriteMeasurement(Fake.MeasurementFromDevice example deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice anotherExample deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice example deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice anotherExample deviceId)
 
         let result = context |> GetExampleSensorHistory sensorId
         
@@ -85,8 +85,8 @@ module SensorHistoryTests =
         let sensorId = deviceId + ".rh"
         for i in 1..bigNumberOfEvents do
             let measurement = RelativeHumidity(float (i))
-            context |> WriteMeasurement(Fake.MeasurementFromDevice measurement deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice latest deviceId)
+            context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice measurement deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice latest deviceId)
 
         let result = context |> GetExampleSensorHistory sensorId
 
@@ -99,12 +99,12 @@ module SensorHistoryTests =
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
 
-        context |> WriteMeasurement(Fake.MeasurementFromDevice (RelativeHumidity 77.0) deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice (RelativeHumidity 78.0) deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice (RelativeHumidity 77.0) deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice (RelativeHumidity 77.0) deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice (RelativeHumidity 81.0) deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice (RelativeHumidity 82.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 77.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 78.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 77.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 77.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 81.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 82.0) deviceId)
         
         let result = context |> GetExampleSensorHistory sensorId
         
@@ -118,9 +118,9 @@ module SensorHistoryTests =
         let sensorId = deviceId + ".contact"
         let measurement = Contact Contact.Open
 
-        context |> WriteMeasurement(Fake.MeasurementFromDevice measurement deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice measurement deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice measurement deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice measurement deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice measurement deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice measurement deviceId)
         
         let result = context |> GetExampleSensorHistory sensorId
         
@@ -133,8 +133,8 @@ module SensorHistoryTests =
         let anotherExample = RelativeHumidity 80.0
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
-        context |> WriteMeasurement(Fake.MeasurementFromDevice example deviceId)
-        context |> WriteMeasurement(Fake.MeasurementFromDevice anotherExample "device-2")
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice example deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice anotherExample "device-2")
         
         let result = context |> GetExampleSensorHistory sensorId
         
@@ -149,7 +149,7 @@ module SensorHistoryTests =
         let savedDeviceGroupToken = context.DeviceGroupToken
 
         context.DeviceGroupToken <- context.AnotherDeviceGroupToken
-        context |> WriteMeasurement(Fake.MeasurementFromDevice example deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice example deviceId)
 
         context.DeviceGroupToken <- savedDeviceGroupToken
         let result =  context |> GetExampleSensorHistory sensorId

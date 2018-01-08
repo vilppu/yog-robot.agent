@@ -4,16 +4,7 @@ namespace YogRobot
 module SensorStatusesQuery =
     open System
     open System.Collections.Generic
-    open System.Threading.Tasks
-    open Microsoft.FSharp.Reflection
-    open MongoDB.Bson
-    open MongoDB.Bson.Serialization.Attributes
     open MongoDB.Driver
-
-    let private resolveSensorName (storable : StorableSensorStatus) =
-        if String.IsNullOrWhiteSpace(storable.SensorName)
-        then storable.DeviceId + "." + storable.MeasuredProperty
-        else storable.SensorName
     
     let private toSensorStatus (storable : StorableSensorStatus) : SensorStatus =
         { DeviceGroupId = storable.DeviceGroupId

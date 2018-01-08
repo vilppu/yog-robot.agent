@@ -8,7 +8,7 @@ module DeviceSettingsTest =
     let DeviceGroupTokenIsRequiredToSaveSensorName() = 
         use context = SetupContext()
         let deviceId = "ExampleDevice"      
-        context |> WriteMeasurement(Fake.SomeMeasurementFromDevice deviceId)
+        context |> WriteMeasurementSynchronously(Fake.SomeMeasurementFromDevice deviceId)
 
         let response = PostSensorName InvalidToken deviceId "ExampleName" |> Async.RunSynchronously
 
@@ -21,7 +21,7 @@ module DeviceSettingsTest =
         let expectedName = "ExampleSensorName"
         let deviceId = "ExampleDevice"
         let sensorId = "ExampleDevice.temperature"
-        context |> WriteMeasurement(Fake.SomeMeasurementFromDevice deviceId)
+        context |> WriteMeasurementSynchronously(Fake.SomeMeasurementFromDevice deviceId)
 
         SaveSensorName context.DeviceGroupToken sensorId expectedName |> Async.RunSynchronously
 

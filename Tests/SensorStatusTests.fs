@@ -20,9 +20,9 @@ module SensorStatusTests =
         use context = SetupContext()
         let previous = RelativeHumidity 80.0
         let newest = RelativeHumidity 78.0
-        context |> WriteMeasurement(Fake.Measurement previous)
-        context |> WriteMeasurement(Fake.Measurement previous)
-        context |> WriteMeasurement(Fake.Measurement newest)
+        context |> WriteMeasurementSynchronously(Fake.Measurement previous)
+        context |> WriteMeasurementSynchronously(Fake.Measurement previous)
+        context |> WriteMeasurementSynchronously(Fake.Measurement newest)
 
         let result = context |> GetExampleSensorStatuses
 
@@ -33,7 +33,7 @@ module SensorStatusTests =
     let TellTheDeviceId() = 
         use context = SetupContext()
         let deviceId = "ExampleDevice"
-        context |> WriteMeasurement(Fake.SomeMeasurementFromDevice deviceId)
+        context |> WriteMeasurementSynchronously(Fake.SomeMeasurementFromDevice deviceId)
 
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
@@ -44,7 +44,7 @@ module SensorStatusTests =
     let TellTheLastActiveTimestamp() = 
         use context = SetupContext()
         let example = RelativeHumidity 78.0
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
 
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
@@ -55,7 +55,7 @@ module SensorStatusTests =
     let TellTheLastUpdatedTimestamp() = 
         use context = SetupContext()
         let example = RelativeHumidity 78.0
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
 
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
@@ -65,9 +65,9 @@ module SensorStatusTests =
     [<Fact>]
     let TellTheLatestMeasurementFromEachKnownSensor() = 
         use context = SetupContext()
-        context |> WriteMeasurement(Fake.SomeMeasurementFromDevice "device-1")
-        context |> WriteMeasurement(Fake.SomeMeasurementFromDevice "device-2")
-        context |> WriteMeasurement(Fake.SomeMeasurementFromDevice "device-3")
+        context |> WriteMeasurementSynchronously(Fake.SomeMeasurementFromDevice "device-1")
+        context |> WriteMeasurementSynchronously(Fake.SomeMeasurementFromDevice "device-2")
+        context |> WriteMeasurementSynchronously(Fake.SomeMeasurementFromDevice "device-3")
 
         let result = context |> GetExampleSensorStatuses
 
@@ -78,8 +78,8 @@ module SensorStatusTests =
         use context = SetupContext()
         let example = RelativeHumidity 78.0
         let anotherExample = Temperature 25.0<C>
-        context |> WriteMeasurement(Fake.Measurement example)
-        context |> WriteMeasurement(Fake.Measurement anotherExample)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement anotherExample)
 
         let result = context |> GetExampleSensorStatuses
 
@@ -89,7 +89,7 @@ module SensorStatusTests =
     let TellOnlyOwnMeasurements() = 
         use context = SetupContext()
 
-        context |> WriteMeasurement(Temperature 25.5<C> |> Fake.Measurement)
+        context |> WriteMeasurementSynchronously(Temperature 25.5<C> |> Fake.Measurement)
 
         context.DeviceGroupToken <- context.AnotherDeviceGroupToken
         let result = context |> GetExampleSensorStatuses
@@ -100,7 +100,7 @@ module SensorStatusTests =
     let TellTemperature() = 
         use context = SetupContext()
         let example = Temperature 25.0<C>
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
         
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
@@ -112,7 +112,7 @@ module SensorStatusTests =
     let TellRelativeHumidity() = 
         use context = SetupContext()
         let example = RelativeHumidity 78.0
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
         
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
@@ -124,7 +124,7 @@ module SensorStatusTests =
     let TellPresenceOfWater() = 
         use context = SetupContext()
         let example = PresenceOfWater PresenceOfWater.Present
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
         
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
@@ -136,7 +136,7 @@ module SensorStatusTests =
     let TellOpenDoor() = 
         use context = SetupContext()
         let example = Contact Contact.Open
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
         
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
@@ -148,7 +148,7 @@ module SensorStatusTests =
     let TellClosedDoor() = 
         use context = SetupContext()
         let example = Contact Contact.Closed
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
         
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
@@ -160,7 +160,7 @@ module SensorStatusTests =
     let TellVoltage() = 
         use context = SetupContext()
         let example = Voltage 3.4<V>
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
         
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
@@ -172,7 +172,7 @@ module SensorStatusTests =
     let TellSignalStrength() = 
         use context = SetupContext()
         let example = Rssi 3.4
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
         
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head
@@ -220,7 +220,7 @@ module SensorStatusTests =
     let SensorNameIsByDefaultDeviceIdAndMeasuredPropertySeparatedByDot() = 
         use context = SetupContext()
         let example = Temperature 25.0<C>
-        context |> WriteMeasurement(Fake.Measurement example)
+        context |> WriteMeasurementSynchronously(Fake.Measurement example)
         
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head

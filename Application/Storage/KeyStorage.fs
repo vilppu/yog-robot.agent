@@ -80,60 +80,82 @@ module KeyStorage =
         |> Async.AwaitTask
     
     let IsValidMasterKeyToken (token : MasterKeyToken) (validationTime : DateTime) =
-        let token = token.AsString
-        let validationTime = validationTime
+        async {
+            let token = token.AsString
+            let validationTime = validationTime
         
-        let configuredKeys = 
-            match StoredMasterKey() with
-            | null -> []
-            | key -> [ key ] |> List.filter (fun key -> key = token)
+            let configuredKeys = 
+                match StoredMasterKey() with
+                | null -> []
+                | key -> [ key ] |> List.filter (fun key -> key = token)
 
-        let keys = 
-            masterKeys.Find<StorableMasterKey>(fun k ->
-                k.ValidThrough >= validationTime && k.Key = token).ToList()
-            |> List.ofSeq
-            |> List.map (fun k -> k.Key)
-            |> List.append configuredKeys
-        
-        keys.Length > 0
+            let! keys =
+                async {
+                    let! result =
+                        masterKeys.FindAsync<StorableMasterKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token)
+                        |> Async.AwaitTask
+                    
+                    return
+                        result.ToList()
+                        |> List.ofSeq
+                        |> List.map (fun k -> k.Key)
+                        |> List.append configuredKeys
+                }        
+            
+            return keys.Length > 0
+        }
     
     let IsValidDeviceGroupKeyToken (deviceGroupId : DeviceGroupId) (token : DeviceGroupKeyToken) (validationTime : DateTime) =
-        let deviceGroupId = deviceGroupId.AsString
-        let token = token.AsString
-        let validationTime = validationTime
+        async {
+            let deviceGroupId = deviceGroupId.AsString
+            let token = token.AsString
+            let validationTime = validationTime
 
-        let keys = 
-            botKeys.Find<StorableDeviceGroupKey>(fun k ->
-                k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId).ToList()
+            let! keys =
+                async {
+                    let! result =
+                        botKeys.FindAsync<StorableDeviceGroupKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId)
+                        |> Async.AwaitTask
+                    return result.ToList()
+                 }
         
-        keys.Count > 0
-    
+            return keys.Count > 0
+        }
+
     let IsValidSensorKeyToken (deviceGroupId : DeviceGroupId) (token : SensorKeyToken) (validationTime : DateTime) =
-        let deviceGroupId = deviceGroupId.AsString
-        let token = token.AsString
-        let validationTime = validationTime
+        async {
+            let deviceGroupId = deviceGroupId.AsString
+            let token = token.AsString
+            let validationTime = validationTime
 
-        let valueFactory() = 
-            let keys = 
-                sensorKeys.Find<StorableSensorKey>(fun k ->
-                    k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId).ToList()                
-            List.ofSeq keys
+            let valueFactory() : Async<StorableSensorKey list> =
+                async {
+                    let! keys =
+                        async {
+                            let! result =
+                                sensorKeys.FindAsync<StorableSensorKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId)
+                                |> Async.AwaitTask
+                            return result.ToList()                
+                        }
+                    return List.ofSeq keys
+                }
         
-        let sensorKeys = new Lazy<StorableSensorKey list>(valueFactory)
-        let (found, cached) = cache.TryGetValue(sensorKeysCacheKey)
+            let sensorKeys = new Lazy<Async<StorableSensorKey list>>(valueFactory)       
         
-        let keys =
-            cache.GetOrCreate(sensorKeysCacheKey, (fun entry ->
-                        entry.SlidingExpiration <- new Nullable<TimeSpan>(TimeSpan.FromSeconds(10.0))
-                        sensorKeys
-                        ))
+            let keys =
+                cache.GetOrCreate(sensorKeysCacheKey, (fun entry ->
+                            entry.SlidingExpiration <- new Nullable<TimeSpan>(TimeSpan.FromSeconds(10.0))
+                            sensorKeys
+                            ))
+            
+            let! value = keys.Value
+            let matchingKeys =
+                value
+                |> List.filter (fun key -> key.DeviceGroupId = deviceGroupId)
+                |> List.filter (fun key -> key.Key = token)
         
-        let matchingKeys = 
-            keys.Value
-            |> List.filter (fun key -> key.DeviceGroupId = deviceGroupId)
-            |> List.filter (fun key -> key.Key = token)
-        
-        matchingKeys.Length > 0
+            return matchingKeys.Length > 0
+        }
     
     let Drop() = 
         cache.Remove sensorKeysCacheKey |> ignore

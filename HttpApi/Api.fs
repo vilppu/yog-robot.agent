@@ -17,29 +17,37 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Route("tokens/master")>]
     [<HttpGet>]
     member this.GetMasterAccessToken()  =
-        if MasterKeyIsMissing this.Request then
-            this.StatusCode(StatusCodes.Status401Unauthorized) :> IActionResult
-        else
-            this.Json(GenerateMasterAccessToken()) :> IActionResult
+        async {
+            let! keyIsMissing = MasterKeyIsMissing this.Request
+            if keyIsMissing then
+                return this.StatusCode(StatusCodes.Status401Unauthorized) :> IActionResult
+            else
+                return this.Json(GenerateMasterAccessToken()) :> IActionResult
+        }
     
     [<Route("tokens/device-group")>]
     [<HttpGet>]
     member this.GetDeviceGroupAccessToken() = 
-        if DeviceGroupKeyIsMissing this.Request then
-            this.StatusCode(StatusCodes.Status401Unauthorized) :> IActionResult
-        else
-            let deviceGroupId = FindDeviceGroupId this.Request
-            this.Json(GenerateDeviceGroupAccessToken(deviceGroupId)) :> IActionResult
-    
+        async {
+            let! keyIsMissing = DeviceGroupKeyIsMissing this.Request
+            if keyIsMissing then
+                return this.StatusCode(StatusCodes.Status401Unauthorized) :> IActionResult
+            else
+                let deviceGroupId = FindDeviceGroupId this.Request
+                return this.Json(GenerateDeviceGroupAccessToken(deviceGroupId)) :> IActionResult
+        }
+
     [<Route("tokens/sensor")>]
     [<HttpGet>]
     member this.GetSensorAccessToken() = 
-        if SensorKeyIsMissing this.Request then
-            this.StatusCode(StatusCodes.Status401Unauthorized) :> IActionResult
-        else
-            let deviceGroupId = FindDeviceGroupId this.Request
-            this.Json(GenerateSensorAccessToken(deviceGroupId)) :> IActionResult
-    
+        async {
+            let! keyIsMissing = SensorKeyIsMissing this.Request
+            if keyIsMissing then
+                return this.StatusCode(StatusCodes.Status401Unauthorized) :> IActionResult
+            else
+                let deviceGroupId = FindDeviceGroupId this.Request
+                return this.Json(GenerateSensorAccessToken(deviceGroupId)) :> IActionResult
+        }
     [<Route("keys/master-keys")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.Administrator)>]
@@ -108,8 +116,9 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Route("sensor-data")>]
     [<HttpPost>]
     member this.PostSensorData([<FromBody>]sensorEvent : SensorData) =
-        async {
-            if BotKeyIsMissing this.Request then
+        async {  
+            let! keyIsMissing = BotKeyIsMissing this.Request           
+            if keyIsMissing then
                 return this.StatusCode(StatusCodes.Status401Unauthorized)
             else
                 let deviceGroupId = FindBotId this.Request
