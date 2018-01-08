@@ -121,8 +121,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
             if keyIsMissing then
                 return this.StatusCode(StatusCodes.Status401Unauthorized)
             else
-                let deviceGroupId = FindBotId this.Request
-                let saveSensorData = Agent.SaveSensorData httpSend
-                do! saveSensorData (deviceGroupId) (sensorEvent)
+                let deviceGroupId = FindBotId this.Request                
+                do! Agent.SaveSensorData httpSend (deviceGroupId) (sensorEvent)
                 return this.StatusCode(StatusCodes.Status201Created)
         }
