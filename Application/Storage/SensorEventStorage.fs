@@ -3,8 +3,6 @@
 [<AutoOpen>]
 module SensorEventStorage = 
     open System
-    open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
-    open Microsoft.FSharp.Reflection
     open MongoDB.Bson
     open MongoDB.Driver
     open MongoDB.Bson.Serialization.Attributes
@@ -22,43 +20,12 @@ module SensorEventStorage =
           SignalStrength : float
           Timestamp : DateTime }
     
-    let private measurementCases = FSharpType.GetUnionCases typeof<Measurement.Measurement>
-    
     let private sensorEvents (deviceGroupId : DeviceGroupId) =
         let collectionName = "SensorEvents." + deviceGroupId.AsString
         Database.GetCollection<StorableSensorEvent> collectionName
         |> WithDescendingIndex "DeviceGroupId"
         |> WithDescendingIndex "DeviceId"
         |> WithDescendingIndex "Timestamp"
-    
-    let private toMeasurement name (value : obj) = 
-        let toMeasurementUnionCase case =
-            FSharpValue.MakeUnion(case, [| value |]) :?> YogRobot.Measurement.Measurement
-        
-        let value = 
-            measurementCases
-            |> Array.toList
-            |> List.filter (fun case -> case.Name = name)
-            |> List.map toMeasurementUnionCase
-        
-        match value with
-        | [] -> None
-        | head :: tail -> Some(head)
-    
-    let private toSensorEvent(event : StorableSensorEvent) : SensorEvent option = 
-        let measurementOption = toMeasurement event.MeasuredProperty event.MeasuredValue
-        match measurementOption with
-        | Some measurement ->
-            let sensorEvent =
-                { SensorId = SensorId event.SensorId
-                  DeviceGroupId = DeviceGroupId event.DeviceGroupId
-                  DeviceId = DeviceId event.DeviceId
-                  Measurement = measurement
-                  BatteryVoltage = event.Voltage * 1.0<V>
-                  SignalStrength = event.SignalStrength
-                  Timestamp = event.Timestamp }
-            Some sensorEvent
-        | None -> None
     
     let Drop deviceGroupId =
         let collection = sensorEvents deviceGroupId
