@@ -63,20 +63,20 @@ module SensorStatusesCommand =
     let UpdateSensorStatuses (httpSend) (event : SensorEvent) : Async<unit> =
         async {            
             let filter = event |> FilterSensorsByEvent
-            let! sensorStatus =
+            let! previousSensorStatus =
                 SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
                 |> Async.AwaitTask        
 
             do!
-                if sensorStatus :> obj |> isNull then
+                if previousSensorStatus :> obj |> isNull then
                     event |> insertNew |> Async.AwaitTask
                 else
-                    event |> updateExisting sensorStatus |> Async.AwaitTask
+                    event |> updateExisting previousSensorStatus |> Async.AwaitTask
 
             do
                 let reason =
                     { Event = event
-                      Status = sensorStatus }
+                      SensorStatusBeforeEvent = previousSensorStatus }
                 SendPushNotifications httpSend reason
                 // Do not wait for push notifications to be sent to notification provider.
                 // This is to ensure that IoT hub does not need to wait for request to complete 

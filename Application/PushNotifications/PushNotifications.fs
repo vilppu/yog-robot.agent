@@ -4,17 +4,16 @@ namespace YogRobot
 module PushNotification =
    
     type PushNotificationReason =
-        { // Event causing the push notification
-          Event : SensorEvent
-          // Sensor status after the event
-          Status : StorableSensorStatus }
+        {
+          Event : SensorEvent          
+          SensorStatusBeforeEvent : StorableSensorStatus }
 
     let private sendFirebasePushNotifications httpSend reason =
         async {
             let measurement = StorableMeasurement reason.Event.Measurement
             let sensorName =
-                if reason.Status :> obj |> isNull then reason.Event.SensorId.AsString
-                else reason.Status.SensorName
+                if reason.SensorStatusBeforeEvent :> obj |> isNull then reason.Event.SensorId.AsString
+                else reason.SensorStatusBeforeEvent.SensorName
             let sendFirebaseMessages = SendFirebaseMessages httpSend reason.Event.DeviceGroupId
             let pushNotification : DevicePushNotification =
                 { DeviceId = reason.Event.DeviceId.AsString
@@ -25,20 +24,34 @@ module PushNotification =
             do! sendFirebaseMessages pushNotification
         }
 
-    let private sendPushNotificationsAboutChange httpSend reason =
+    let private sendContactPushNotifications httpSend reason =
         async {
             let measurement = StorableMeasurement reason.Event.Measurement
             let hasChanged =
-                if reason.Status :> obj |> isNull then true
-                else measurement.Value <> reason.Status.MeasuredValue
+                if reason.SensorStatusBeforeEvent :> obj |> isNull then true
+                else measurement.Value <> reason.SensorStatusBeforeEvent.MeasuredValue
             if hasChanged then
+                do! sendFirebasePushNotifications httpSend reason
+        }        
+
+    let private sendPresenceOfWaterPushNotifications httpSend reason =
+        async {
+            let eventMeasurement = StorableMeasurement reason.Event.Measurement
+            let hasChanged =
+                if reason.SensorStatusBeforeEvent :> obj |> isNull then true
+                else eventMeasurement.Value <> reason.SensorStatusBeforeEvent.MeasuredValue
+            let isPresent =
+                match reason.Event.Measurement with
+                | PresenceOfWater presenceOfWater -> presenceOfWater = PresenceOfWater.Present
+                | _ -> false
+            if (hasChanged && isPresent) then
                 do! sendFirebasePushNotifications httpSend reason
         }
 
     let SendPushNotifications httpSend reason =
         async {
             match reason.Event.Measurement with
-            | Contact _ -> do! sendPushNotificationsAboutChange httpSend reason
-            | PresenceOfWater _ -> do! sendPushNotificationsAboutChange httpSend reason
+            | Contact _ -> do! sendContactPushNotifications httpSend reason
+            | PresenceOfWater _ -> do! sendPresenceOfWaterPushNotifications httpSend reason
             | _ -> ()
         }
