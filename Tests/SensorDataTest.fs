@@ -16,7 +16,7 @@ module SensorDataTest =
     let AgentCanHandleLotsOfRequests() = 
         use context = SetupContext()
         let timer = new System.Diagnostics.Stopwatch()
-        let requestsPerBatch = 500
+        let requestsPerBatch = 100
 
         timer.Start()
 
