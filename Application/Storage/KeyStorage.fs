@@ -3,7 +3,6 @@
 [<AutoOpen>]
 module KeyStorage = 
     open System
-    open Microsoft.Extensions.Caching.Memory
     open MongoDB.Bson
     open MongoDB.Driver
     open MongoDB.Bson.Serialization.Attributes
@@ -45,10 +44,6 @@ module KeyStorage =
         Database.GetCollection<StorableSensorKey> "SensorKeys"
         |> WithDescendingIndex "ValidThrough"
         |> WithDescendingIndex "DeviceGroupId"
-    
-    let private sensorKeysCacheKey = "KeysStorage.SensorKeys"
-    let private options = MemoryCacheOptions()
-    let private cache = new MemoryCache(options)
     
     let StoreMasterKey(key : MasterKey) = 
         let keyToBeStored : StorableMasterKey =
@@ -127,38 +122,24 @@ module KeyStorage =
             let deviceGroupId = deviceGroupId.AsString
             let token = token.AsString
             let validationTime = validationTime
-
-            let valueFactory() : Async<StorableSensorKey list> =
+        
+            let! keys =
                 async {
-                    let! keys =
-                        async {
-                            let! result =
-                                sensorKeys.FindAsync<StorableSensorKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId)
-                                |> Async.AwaitTask
-                            return result.ToList()                
-                        }
-                    return List.ofSeq keys
+                    let! result =
+                        sensorKeys.FindAsync<StorableSensorKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId)
+                        |> Async.AwaitTask
+                    return result.ToList() |> List.ofSeq
                 }
-        
-            let sensorKeys = new Lazy<Async<StorableSensorKey list>>(valueFactory)       
-        
-            let keys =
-                cache.GetOrCreate(sensorKeysCacheKey, (fun entry ->
-                            entry.SlidingExpiration <- new Nullable<TimeSpan>(TimeSpan.FromSeconds(10.0))
-                            sensorKeys
-                            ))
             
-            let! value = keys.Value
             let matchingKeys =
-                value
+                keys
                 |> List.filter (fun key -> key.DeviceGroupId = deviceGroupId)
                 |> List.filter (fun key -> key.Key = token)
         
             return matchingKeys.Length > 0
         }
     
-    let Drop() = 
-        cache.Remove sensorKeysCacheKey |> ignore
+    let Drop() =
         Database.DropCollection(masterKeys.CollectionNamespace.CollectionName)
         Database.DropCollection(botKeys.CollectionNamespace.CollectionName)
         Database.DropCollection(sensorKeys.CollectionNamespace.CollectionName)
