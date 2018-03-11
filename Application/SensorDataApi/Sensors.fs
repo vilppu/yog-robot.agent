@@ -9,17 +9,17 @@ module Sensors =
         | SensorUpEvent of SensorData
         | SensorDataEvent of SensorData
     
-    let ToSensorEvent(sensorEvent : SensorData) = 
-        match sensorEvent.event with
-        | "gateway up" -> GatewayUpEvent sensorEvent
-        | "gateway down" -> GatewayDownEvent sensorEvent
-        | "gateway active" -> GatewayActiveOnChannelEvent sensorEvent
-        | "sensor up" -> SensorUpEvent sensorEvent
-        | "sensor data" -> SensorDataEvent sensorEvent
-        | _ -> failwith ("unknown sensor event: " + sensorEvent.event)
+    let ToSensorEvent(sensorData : SensorData) = 
+        match sensorData.event with
+        | "gateway up" -> GatewayUpEvent sensorData
+        | "gateway down" -> GatewayDownEvent sensorData
+        | "gateway active" -> GatewayActiveOnChannelEvent sensorData
+        | "sensor up" -> SensorUpEvent sensorData
+        | "sensor data" -> SensorDataEvent sensorData
+        | _ -> failwith ("unknown sensor event: " + sensorData.event)
     
-    let ToAnySensorEvent sensorEvent = 
-        match sensorEvent with
+    let ToAnySensorEvent gatewayEvent = 
+        match gatewayEvent with
         | GatewayEvent.GatewayUpEvent event -> event
         | GatewayEvent.GatewayDownEvent event -> event
         | GatewayEvent.GatewayActiveOnChannelEvent event -> event

@@ -73,6 +73,6 @@ module MeasurementsToSensorDataMapping =
           batteryVoltage = ""
           rssi = "" }
     
-    let WithMeasurement measurement sensorEvent =
-        { sensorEvent with data = [ toDatum measurement ] }
+    let WithMeasurement measurement sensorData =
+        { sensorData with data = [ toDatum measurement ] }
 

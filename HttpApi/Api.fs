@@ -115,13 +115,13 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     
     [<Route("sensor-data")>]
     [<HttpPost>]
-    member this.PostSensorData([<FromBody>]sensorEvent : SensorData) =
+    member this.PostSensorData([<FromBody>]sensorData : SensorData) =
         async {  
             let! keyIsMissing = BotKeyIsMissing this.Request           
             if keyIsMissing then
                 return this.StatusCode(StatusCodes.Status401Unauthorized)
             else
-                let deviceGroupId = FindDeviceGroupId this.Request                
-                do! Agent.SaveSensorData httpSend (deviceGroupId) (sensorEvent)
+                let deviceGroupId = FindDeviceGroupId this.Request
+                do! Agent.SaveSensorData httpSend (deviceGroupId) (sensorData)
                 return this.StatusCode(StatusCodes.Status201Created)
         }

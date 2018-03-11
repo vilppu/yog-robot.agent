@@ -3,12 +3,12 @@
 [<AutoOpen>]
 module SensorDataServiceClient = 
     
-    let PostSensorData key deviceGroupId (sensorEvent : SensorData) = 
+    let PostSensorData key deviceGroupId (sensorData : SensorData) = 
         let apiUrl = "api/sensor-data"
-        async { return! Agent.PostWithSensorKey key deviceGroupId apiUrl sensorEvent }
+        async { return! Agent.PostWithSensorKey key deviceGroupId apiUrl sensorData }
 
     let PostMeasurement key deviceGroupId deviceId (measurement : Measurement) =        
-        let sensorEvent = 
+        let sensorData = 
           { event = "sensor data"
             gatewayId = ""
             channel = ""
@@ -16,5 +16,5 @@ module SensorDataServiceClient =
             data = []
             batteryVoltage = ""
             rssi = "" }
-        let event = sensorEvent |> WithMeasurement(measurement)
+        let event = sensorData |> WithMeasurement(measurement)
         async { return! PostSensorData key deviceGroupId event }
