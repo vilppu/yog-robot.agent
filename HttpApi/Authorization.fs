@@ -125,15 +125,12 @@ module Authorization =
     let GetDeviceGroupId(user : ClaimsPrincipal) = 
         user.Claims.Single(fun claim -> claim.Type = "DeviceGroupId").Value    
 
-    let FindDeviceGroupId request = 
-        request
-        |> FindHeader "yog-robot-device-group-id"        
-        |> List.map DeviceGroupId
-        |> List.head  
+    let FindDeviceGroupId request =
+        let deviceGroupIdHeader = request |> FindHeader "yog-robot-device-group-id"
+        let botIdIdHeader = request |> FindHeader "yog-robot-bot-id"
+        let headers = deviceGroupIdHeader |> List.append botIdIdHeader 
 
-    let FindBotId request = 
-        request
-        |> FindHeader "yog-robot-bot-id"        
+        headers
         |> List.map DeviceGroupId
         |> List.head
 
