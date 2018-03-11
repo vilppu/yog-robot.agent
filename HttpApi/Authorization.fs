@@ -66,32 +66,18 @@ module Authorization =
             | [] -> return false
         }
 
-    let private validSensorKeyHeaderIsPresent request = 
+    let private validSensorDataKeyHeaderIsPresent request = 
         async {
             let key = request |> FindHeader "yog-robot-sensor-data-key"
-            let deviceGroupIds = request |> FindHeader "yog-robot-device-group-id"
+            let deviceGroupIdHeader = request |> FindHeader "yog-robot-device-group-id"
+            let botIdIdHeader = request |> FindHeader "yog-robot-bot-id"
+            let deviceGroupIds = deviceGroupIdHeader |> List.append botIdIdHeader 
         
             let headers = 
                 if key.Length = deviceGroupIds.Length then key |> List.zip deviceGroupIds
                 else []
             match headers with
-            | head :: tail -> 
-                let (deviceGroupId, key) = head
-                let now = DateTime.UtcNow
-                return! IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
-            | [] -> return false
-        }
-
-    let private validBotKeyHeaderIsPresent request = 
-        async {
-            let key = request |> FindHeader "yog-robot-sensor-data-key"
-            let deviceGroupIds = request |> FindHeader "yog-robot-bot-id"
-        
-            let headers = 
-                if key.Length = deviceGroupIds.Length then key |> List.zip deviceGroupIds
-                else []
-            match headers with
-            | head :: tail -> 
+            | head :: _ -> 
                 let (deviceGroupId, key) = head
                 let now = DateTime.UtcNow
                 return! IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
@@ -112,13 +98,7 @@ module Authorization =
     
     let SensorKeyIsMissing request =
         async {
-            let! isPresent = validSensorKeyHeaderIsPresent request
-            return not(isPresent)
-        }
-        
-    let BotKeyIsMissing request =
-        async {
-            let! isPresent = validBotKeyHeaderIsPresent request
+            let! isPresent = validSensorDataKeyHeaderIsPresent request
             return not(isPresent)
         }
 

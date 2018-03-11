@@ -117,7 +117,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<HttpPost>]
     member this.PostSensorData([<FromBody>]sensorData : SensorData) =
         async {  
-            let! keyIsMissing = BotKeyIsMissing this.Request           
+            let! keyIsMissing = SensorKeyIsMissing this.Request           
             if keyIsMissing then
                 return this.StatusCode(StatusCodes.Status401Unauthorized)
             else
