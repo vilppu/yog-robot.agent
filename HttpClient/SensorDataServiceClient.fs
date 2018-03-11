@@ -13,7 +13,6 @@ module SensorDataServiceClient =
             gatewayId = ""
             channel = ""
             sensorId = deviceId
-            sensorName = ""
             data = []
             batteryVoltage = ""
             rssi = "" }

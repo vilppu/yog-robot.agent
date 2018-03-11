@@ -16,7 +16,6 @@ module SensorApiTypes =
           gatewayId : string
           channel : string
           sensorId : string
-          sensorName : string
           data : SensorDatum list
           batteryVoltage : string
           rssi : string }

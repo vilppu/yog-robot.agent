@@ -83,7 +83,6 @@ module SensorDataToEventsMapping =
         | Some measurement ->
             let property = datum |> measuredProperty
             let deviceId = DeviceId sensorData.sensorId
-            let sensorName = sensorData.sensorName
             let sensorId = SensorId (deviceId.AsString + "." + property)
             let voltage = mapSensorDataToBatteryVoltage sensorData
             let signalStrength = mapSensorDataToRssi sensorData
