@@ -44,7 +44,7 @@ module Authorization =
         async {
             let headers = request |> FindHeader "yog-robot-key"
             match headers with
-            | key :: tail -> 
+            | key :: _ -> 
                 let now = DateTime.UtcNow
                 return! IsValidMasterKeyToken (MasterKeyToken key) now
             | [] -> return false
@@ -59,7 +59,7 @@ module Authorization =
                 if key.Length = deviceGroupIds.Length then key |> List.zip deviceGroupIds
                 else []
             match headers with
-            | head :: tail -> 
+            | head :: _ -> 
                 let (deviceGroupId, key) = head
                 let now = DateTime.UtcNow
                 return! IsValidDeviceGroupKeyToken (DeviceGroupId deviceGroupId) (DeviceGroupKeyToken key) now
@@ -177,7 +177,7 @@ module Authorization =
     
     type PermissionHandler() = 
         inherit AuthorizationHandler<PermissionRequirement>()
-        override this.HandleRequirementAsync(context : AuthorizationHandlerContext, requirement : PermissionRequirement) = 
+        override __.HandleRequirementAsync(context : AuthorizationHandlerContext, requirement : PermissionRequirement) = 
             let isInRequiredRole = context.User.IsInRole requirement.Permission
            
             if isInRequiredRole then
