@@ -24,7 +24,6 @@ module TestContext =
         Environment.SetEnvironmentVariable("YOG_MASTER_KEY", TheMasterKey)
         Environment.SetEnvironmentVariable("YOG_TOKEN_SECRET", "fake-token-secret")
         Environment.SetEnvironmentVariable("YOG_FCM_KEY", "fake")
-        //Environment.SetEnvironmentVariable("YOG_LOG_SENSOR_DATA", "yes")
         KeyStorage.Drop()
         SensorEventStorage.Drop TestDeviceGroupId
         SensorEventStorage.Drop AnotherTestDeviceGroupId

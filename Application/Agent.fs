@@ -33,12 +33,7 @@ module Agent =
         }
     
     let SaveSensorData httpSend deviceGroupId sensorData =
-        try
-            let logSensorData = Environment.GetEnvironmentVariable("YOG_LOG_SENSOR_DATA") = "yes"
-
-            if logSensorData then
-                printf "data: %s" (Newtonsoft.Json.JsonConvert.SerializeObject sensorData)
-            
+        try            
             async { 
                 let sensorEvents = sensorData |> SensorDataToEventsMapping.SensorDataEventToEvents deviceGroupId
                 for event in sensorEvents do
