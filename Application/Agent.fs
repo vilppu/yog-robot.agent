@@ -55,5 +55,5 @@ module Agent =
     let GetSensorHistory (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
         SensorHistoryQuery.ReadSensorHistory deviceGroupId sensorId
 
-    let SubscribeToPushNotification (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscriptions.PushNotificationSubscription) =
-        PushNotificationSubscriptionCommand.StorePushNotificationSubscription deviceGroupId subscription
+    let SubscribeToPushNotification (deviceGroupId : DeviceGroupId) (subscription : PushNotifications.PushNotificationSubscription) =
+        PushNotifications.StorePushNotificationSubscription deviceGroupId subscription
