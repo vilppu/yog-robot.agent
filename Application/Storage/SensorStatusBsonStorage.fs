@@ -1,7 +1,6 @@
 namespace YogRobot
 
-[<AutoOpen>]
-module SensorStatusesBsonStorage =
+module SensorStatusBsonStorage =
     open System
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
@@ -26,17 +25,17 @@ module SensorStatusesBsonStorage =
     let private SensorsCollectionName = "Sensors"
 
     let SensorsCollection = 
-        Database.GetCollection<StorableSensorStatus> SensorsCollectionName
-        |> WithDescendingIndex "DeviceGroupId"
+        BsonStorage.Database.GetCollection<StorableSensorStatus> SensorsCollectionName
+        |> BsonStorage.WithDescendingIndex "DeviceGroupId"
     
     let FilterSensorsBy (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
         let sensorId = sensorId.AsString
         let deviceGroupId = deviceGroupId.AsString
-        let expr = Lambda.Create<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
+        let expr = Expressions.Lambda.Create<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
     
-    let FilterSensorsByEvent (event : SensorEvent) =
+    let FilterSensorsByEvent (event : SensorStateChangedEvent) =
         FilterSensorsBy event.DeviceGroupId event.SensorId
         
     let Drop() =
-        Database.DropCollection(SensorsCollectionName)
+        BsonStorage.Database.DropCollection(SensorsCollectionName)

@@ -109,7 +109,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.User)>]
     member this.SubscribeToPushNotification (token : string) : Async<unit> = 
         async {
-            let subscription = PushNotificationSubscription token
+            let subscription = PushNotificationSubscriptions.PushNotificationSubscription token
             do! Agent.SubscribeToPushNotification (this.DeviceGroupId) subscription
         }
     

@@ -1,6 +1,5 @@
 ﻿namespace YogRobot
 
-[<AutoOpen>]
 module Sensors = 
     type GatewayEvent = 
         | GatewayUpEvent of SensorData

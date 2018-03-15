@@ -1,6 +1,5 @@
 namespace YogRobot
 
-[<AutoOpen>]
 module PushNotificationSubscriptions =
     open System
     

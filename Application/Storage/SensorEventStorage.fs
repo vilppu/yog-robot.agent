@@ -1,6 +1,5 @@
 ﻿namespace YogRobot
 
-[<AutoOpen>]
 module SensorEventStorage = 
     open System
     open MongoDB.Bson
@@ -22,19 +21,19 @@ module SensorEventStorage =
     
     let private sensorEvents (deviceGroupId : DeviceGroupId) =
         let collectionName = "SensorEvents." + deviceGroupId.AsString
-        Database.GetCollection<StorableSensorEvent> collectionName
-        |> WithDescendingIndex "DeviceGroupId"
-        |> WithDescendingIndex "DeviceId"
-        |> WithDescendingIndex "Timestamp"
+        BsonStorage.Database.GetCollection<StorableSensorEvent> collectionName
+        |> BsonStorage.WithDescendingIndex "DeviceGroupId"
+        |> BsonStorage.WithDescendingIndex "DeviceId"
+        |> BsonStorage.WithDescendingIndex "Timestamp"
     
     let Drop deviceGroupId =
         let collection = sensorEvents deviceGroupId
-        Database.DropCollection(collection.CollectionNamespace.CollectionName)
+        BsonStorage.Database.DropCollection(collection.CollectionNamespace.CollectionName)
     
-    let StoreSensorEvent (event : SensorEvent) = 
+    let StoreSensorEvent (event : SensorStateChangedEvent) = 
         let collection = sensorEvents event.DeviceGroupId
         let eventToBeStored : StorableSensorEvent = 
-            let measurement = StorableMeasurement event.Measurement
+            let measurement = StorableTypes.StorableMeasurement event.Measurement
             { Id = ObjectId.Empty
               DeviceGroupId =  event.DeviceGroupId.AsString
               DeviceId = event.DeviceId.AsString
@@ -45,7 +44,7 @@ module SensorEventStorage =
               SignalStrength = (float)event.SignalStrength
               Timestamp = event.Timestamp }
         async {
-            let! hasChanges = event |> HasChanges
+            let! hasChanges = event |> SensorStatusCommand.HasChanges
             if hasChanges then
                 do! collection.InsertOneAsync(eventToBeStored) |> Async.AwaitTask
         }

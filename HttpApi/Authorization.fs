@@ -46,7 +46,7 @@ module Authorization =
             match headers with
             | key :: _ -> 
                 let now = DateTime.UtcNow
-                return! IsValidMasterKeyToken (MasterKeyToken key) now
+                return! KeyStorage.IsValidMasterKeyToken (MasterKeyToken key) now
             | [] -> return false
         }
     
@@ -62,7 +62,7 @@ module Authorization =
             | head :: _ -> 
                 let (deviceGroupId, key) = head
                 let now = DateTime.UtcNow
-                return! IsValidDeviceGroupKeyToken (DeviceGroupId deviceGroupId) (DeviceGroupKeyToken key) now
+                return! KeyStorage.IsValidDeviceGroupKeyToken (DeviceGroupId deviceGroupId) (DeviceGroupKeyToken key) now
             | [] -> return false
         }
 
@@ -80,7 +80,7 @@ module Authorization =
             | head :: _ -> 
                 let (deviceGroupId, key) = head
                 let now = DateTime.UtcNow
-                return! IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
+                return! KeyStorage.IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
             | [] -> return false
         }
     
@@ -147,7 +147,7 @@ module Authorization =
             { Token = MasterKeyToken(GenerateSecureToken())
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! StoreMasterKey key
+            do! KeyStorage.StoreMasterKey key
             return key.Token
         }
     
@@ -157,7 +157,7 @@ module Authorization =
               DeviceGroupId = deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! StoreDeviceGroupKey key
+            do! KeyStorage.StoreDeviceGroupKey key
             return key.Token
         }
     
@@ -167,7 +167,7 @@ module Authorization =
               DeviceGroupId = deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! StoreSensorKey key
+            do! KeyStorage.StoreSensorKey key
             return key.Token
         }
     

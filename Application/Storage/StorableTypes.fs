@@ -1,6 +1,5 @@
 ﻿namespace YogRobot
 
-[<AutoOpen>]
 module StorableTypes =
     open Microsoft.FSharp.Reflection
     

@@ -1,6 +1,5 @@
 ﻿namespace YogRobot
 
-[<AutoOpen>]
 module BsonStorage = 
     open System
     open MongoDB.Driver

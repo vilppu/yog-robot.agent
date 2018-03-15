@@ -1,21 +1,20 @@
 namespace YogRobot
 
-[<AutoOpen>]
-module PushNotification =
+module PushNotifications =
    
     type PushNotificationReason =
         {
-          Event : SensorEvent          
-          SensorStatusBeforeEvent : StorableSensorStatus }
+          Event : SensorStateChangedEvent          
+          SensorStatusBeforeEvent : SensorStatusBsonStorage.StorableSensorStatus }
 
     let private sendFirebasePushNotifications httpSend reason =
         async {
-            let measurement = StorableMeasurement reason.Event.Measurement
+            let measurement = StorableTypes.StorableMeasurement reason.Event.Measurement
             let sensorName =
                 if reason.SensorStatusBeforeEvent :> obj |> isNull then reason.Event.SensorId.AsString
                 else reason.SensorStatusBeforeEvent.SensorName
-            let sendFirebaseMessages = SendFirebaseMessages httpSend reason.Event.DeviceGroupId
-            let pushNotification : DevicePushNotification =
+            let sendFirebaseMessages = FirebaseMessaging.SendFirebaseMessages httpSend reason.Event.DeviceGroupId
+            let pushNotification : PushNotificationSubscriptions.DevicePushNotification =
                 { DeviceId = reason.Event.DeviceId.AsString
                   SensorName = sensorName
                   MeasuredProperty = measurement.Name
@@ -26,7 +25,7 @@ module PushNotification =
 
     let private sendContactPushNotifications httpSend reason =
         async {
-            let measurement = StorableMeasurement reason.Event.Measurement
+            let measurement = StorableTypes.StorableMeasurement reason.Event.Measurement
             let hasChanged =
                 if reason.SensorStatusBeforeEvent :> obj |> isNull then true
                 else measurement.Value <> reason.SensorStatusBeforeEvent.MeasuredValue
@@ -36,7 +35,7 @@ module PushNotification =
 
     let private sendPresenceOfWaterPushNotifications httpSend reason =
         async {
-            let eventMeasurement = StorableMeasurement reason.Event.Measurement
+            let eventMeasurement = StorableTypes.StorableMeasurement reason.Event.Measurement
             let hasChanged =
                 if reason.SensorStatusBeforeEvent :> obj |> isNull then true
                 else eventMeasurement.Value <> reason.SensorStatusBeforeEvent.MeasuredValue

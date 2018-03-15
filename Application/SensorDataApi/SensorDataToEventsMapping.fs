@@ -1,6 +1,5 @@
 ﻿namespace YogRobot
 
-[<AutoOpen>]
 module SensorDataToEventsMapping =
     open System
     open System.Text.RegularExpressions
@@ -105,9 +104,9 @@ module SensorDataToEventsMapping =
     
     let SensorDataEventToEvents (deviceGroupId : DeviceGroupId) (sensorData : SensorData) = 
         let timestamp = DateTime.UtcNow
-        let sensorData = ToSensorEvent sensorData
+        let sensorData = Sensors.ToSensorEvent sensorData
         match sensorData with
-        | GatewayEvent.SensorDataEvent sensorData ->
+        | Sensors.GatewayEvent.SensorDataEvent sensorData ->
             mapToSensorEvents deviceGroupId sensorData timestamp
         | _ -> []
    

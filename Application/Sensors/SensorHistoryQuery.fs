@@ -1,21 +1,20 @@
 ﻿namespace YogRobot
 
-[<AutoOpen>]
 module SensorHistoryQuery =
     open System    
     open MongoDB.Driver
 
-    let private toEntry (entry : StorableSensorHistoryEntry) : SensorHistoryEntry =
+    let private toEntry (entry : SensorHistoryBsonStorage.StorableSensorHistoryEntry) : SensorHistoryEntry =
         let measuredValue = entry.MeasuredValue
         { MeasuredValue = measuredValue
           Timestamp = entry.Timestamp.ToUniversalTime() }
           
-    let private toHistoryEntries (stored : StorableSensorHistory) : SensorHistoryEntry list =
+    let private toHistoryEntries (stored : SensorHistoryBsonStorage.StorableSensorHistory) : SensorHistoryEntry list =
          stored.Entries
          |> List.ofSeq
          |> List.map toEntry
 
-    let private toHistory(stored : StorableSensorHistory) : SensorHistory =
+    let private toHistory(stored : SensorHistoryBsonStorage.StorableSensorHistory) : SensorHistory =
         if stored :> obj |> isNull then
             EmptySensorHistory
         else
@@ -25,8 +24,8 @@ module SensorHistoryQuery =
 
     let ReadSensorHistory (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
         async {
-            let filter = FilterHistoryBy deviceGroupId sensorId
-            let history = SensorHistoryCollection.Find<StorableSensorHistory>(filter)
-            let! first = history.FirstOrDefaultAsync<StorableSensorHistory>() |> Async.AwaitTask
+            let filter = SensorHistoryBsonStorage.FilterHistoryBy deviceGroupId sensorId
+            let history = SensorHistoryBsonStorage.SensorHistoryCollection.Find<SensorHistoryBsonStorage.StorableSensorHistory>(filter)
+            let! first = history.FirstOrDefaultAsync<SensorHistoryBsonStorage.StorableSensorHistory>() |> Async.AwaitTask
             return first |> toHistory
         }       

@@ -1,6 +1,5 @@
 ﻿namespace YogRobot
 
-[<AutoOpen>]
 module KeyStorage = 
     open System
     open MongoDB.Bson
@@ -33,17 +32,17 @@ module KeyStorage =
           ValidThrough : DateTime
           Timestamp : DateTime }
     
-    let private masterKeys = Database.GetCollection<StorableMasterKey> "MasterKeys" |> WithDescendingIndex "ValidThrough"
+    let private masterKeys = BsonStorage.Database.GetCollection<StorableMasterKey> "MasterKeys" |> BsonStorage.WithDescendingIndex "ValidThrough"
     
     let private botKeys = 
-        Database.GetCollection<StorableDeviceGroupKey> "DeviceGroupKeys"
-        |> WithDescendingIndex "ValidThrough"
-        |> WithDescendingIndex "DeviceGroupId"
+        BsonStorage.Database.GetCollection<StorableDeviceGroupKey> "DeviceGroupKeys"
+        |> BsonStorage.WithDescendingIndex "ValidThrough"
+        |> BsonStorage.WithDescendingIndex "DeviceGroupId"
     
     let private sensorKeys = 
-        Database.GetCollection<StorableSensorKey> "SensorKeys"
-        |> WithDescendingIndex "ValidThrough"
-        |> WithDescendingIndex "DeviceGroupId"
+        BsonStorage.Database.GetCollection<StorableSensorKey> "SensorKeys"
+        |> BsonStorage.WithDescendingIndex "ValidThrough"
+        |> BsonStorage.WithDescendingIndex "DeviceGroupId"
     
     let StoreMasterKey(key : MasterKey) = 
         let keyToBeStored : StorableMasterKey =
@@ -140,6 +139,6 @@ module KeyStorage =
         }
     
     let Drop() =
-        Database.DropCollection(masterKeys.CollectionNamespace.CollectionName)
-        Database.DropCollection(botKeys.CollectionNamespace.CollectionName)
-        Database.DropCollection(sensorKeys.CollectionNamespace.CollectionName)
+        BsonStorage.Database.DropCollection(masterKeys.CollectionNamespace.CollectionName)
+        BsonStorage.Database.DropCollection(botKeys.CollectionNamespace.CollectionName)
+        BsonStorage.Database.DropCollection(sensorKeys.CollectionNamespace.CollectionName)

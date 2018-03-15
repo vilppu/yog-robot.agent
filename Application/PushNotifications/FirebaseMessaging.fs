@@ -1,6 +1,5 @@
 namespace YogRobot
 
-[<AutoOpen>]
 module FirebaseMessaging =
     open System
     open System.Collections.Generic
@@ -46,8 +45,8 @@ module FirebaseMessaging =
     let private removeRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
         async {
             if not(tokens.IsEmpty) then
-                let subscriptions = tokens |> List.map PushNotificationSubscription
-                return! RemovePushNotificationSubscriptions deviceGroupId subscriptions
+                let subscriptions = tokens |> List.map PushNotificationSubscriptions.PushNotificationSubscription
+                return! PushNotificationSubscriptionCommand.RemovePushNotificationSubscriptions deviceGroupId subscriptions
             else
                 return ()
         }
@@ -55,8 +54,8 @@ module FirebaseMessaging =
     let private addRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
         async {
             if not(tokens.IsEmpty) then
-                let subscriptions = tokens |> List.map PushNotificationSubscription
-                return! StorePushNotificationSubscriptions deviceGroupId subscriptions
+                let subscriptions = tokens |> List.map PushNotificationSubscriptions.PushNotificationSubscription
+                return! PushNotificationSubscriptionCommand.StorePushNotificationSubscriptions deviceGroupId subscriptions
             else
                 return ()
         }
@@ -86,7 +85,7 @@ module FirebaseMessaging =
             do! addRegistrations deviceGroupId subscriptionsToBeAdded
         }
     
-    let private sendMessages (httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) (deviceGroupId : DeviceGroupId) (subscriptions : string seq) (pushNotification : DevicePushNotification) =
+    let private sendMessages (httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) (deviceGroupId : DeviceGroupId) (subscriptions : string seq) (pushNotification : PushNotificationSubscriptions.DevicePushNotification) =
         async {
             let storedFirebaseKey = StoredFirebaseKey()
             let url = "https://fcm.googleapis.com/fcm/send"
@@ -121,11 +120,11 @@ module FirebaseMessaging =
                 do! cleanRegistrations deviceGroupId subscriptions firebaseResponse
     }
     
-    let SendFirebaseMessages httpSend (deviceGroupId : DeviceGroupId) (pushNotification : DevicePushNotification) =
+    let SendFirebaseMessages httpSend (deviceGroupId : DeviceGroupId) (pushNotification : PushNotificationSubscriptions.DevicePushNotification) =
         async {
             let storedFirebaseKey = StoredFirebaseKey()
             if not(String.IsNullOrWhiteSpace(storedFirebaseKey)) then
-                let! subscriptions = ReadPushNotificationSubscriptions deviceGroupId
+                let! subscriptions = PushNotificationSubscriptionQuery.ReadPushNotificationSubscriptions deviceGroupId
                 if subscriptions.Count > 0 then
                     do! sendMessages httpSend deviceGroupId subscriptions pushNotification
         }

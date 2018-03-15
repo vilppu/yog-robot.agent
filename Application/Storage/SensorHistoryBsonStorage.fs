@@ -1,6 +1,5 @@
 namespace YogRobot
 
-[<AutoOpen>]
 module SensorHistoryBsonStorage =
     open System
     open System.Collections.Generic
@@ -31,10 +30,10 @@ module SensorHistoryBsonStorage =
     let private sensorHistoryCollectionName = "SensorHistory"
 
     let SensorHistoryCollection = 
-        Database.GetCollection<StorableSensorHistory> sensorHistoryCollectionName
-        |> WithDescendingIndex "DeviceGroupId"        
-        |> WithDescendingIndex "DeviceId"
-        |> WithDescendingIndex "MeasuredProperty"
+        BsonStorage.Database.GetCollection<StorableSensorHistory> sensorHistoryCollectionName
+        |> BsonStorage.WithDescendingIndex "DeviceGroupId"        
+        |> BsonStorage.WithDescendingIndex "DeviceId"
+        |> BsonStorage.WithDescendingIndex "MeasuredProperty"
     
     let FilterHistoryBy (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
         let sensorId = sensorId.AsString
@@ -42,4 +41,4 @@ module SensorHistoryBsonStorage =
         let expr = Lambda.Create<StorableSensorHistory>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
     
-    let Drop() = Database.DropCollection(sensorHistoryCollectionName)
+    let Drop() = BsonStorage.Database.DropCollection(sensorHistoryCollectionName)

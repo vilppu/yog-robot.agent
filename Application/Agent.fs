@@ -8,7 +8,7 @@ module Agent =
             let key : MasterKey = 
                 { Token = token
                   ValidThrough = DateTime.UtcNow.AddYears(10) }
-            do! StoreMasterKey key 
+            do! KeyStorage.StoreMasterKey key 
             return key.Token.AsString
         }
     
@@ -18,7 +18,7 @@ module Agent =
                 { Token = token
                   DeviceGroupId = deviceGroupId
                   ValidThrough = DateTime.UtcNow.AddYears(10) }
-            do! StoreDeviceGroupKey key 
+            do! KeyStorage.StoreDeviceGroupKey key 
             return key.Token.AsString
         }
     
@@ -28,7 +28,7 @@ module Agent =
                 { Token = token
                   DeviceGroupId = deviceGroupId
                   ValidThrough = DateTime.UtcNow.AddYears(10) }
-            do! StoreSensorKey key 
+            do! KeyStorage.StoreSensorKey key 
             return key.Token.AsString
         }
     
@@ -40,11 +40,11 @@ module Agent =
                 printf "data: %s" (Newtonsoft.Json.JsonConvert.SerializeObject sensorData)
             
             async { 
-                let sensorEvents = sensorData |> SensorDataEventToEvents deviceGroupId
+                let sensorEvents = sensorData |> SensorDataToEventsMapping.SensorDataEventToEvents deviceGroupId
                 for event in sensorEvents do
-                    do! UpdateSensorStatuses httpSend event
-                    do! UpdateSensorHistory event
-                    do! StoreSensorEvent event
+                    do! SensorStatusCommand.UpdateSensorStatuses httpSend event
+                    do! SensorHistoryCommand.UpdateSensorHistory event
+                    do! SensorEventStorage.StoreSensorEvent event
              }
         with
         | ex ->
@@ -52,13 +52,13 @@ module Agent =
             reraise()
 
     let SaveSensorName (deviceGroupId : DeviceGroupId) (sensorId : SensorId)  (sensorName : string) =
-        UpdateSensorName deviceGroupId sensorId sensorName
+        SensorSettingsCommand.UpdateSensorName deviceGroupId sensorId sensorName
     
     let GetSensorStatuses deviceGroupId =
-        ReadSensorStatuses deviceGroupId
+        SensorStatusesQuery.ReadSensorStatuses deviceGroupId
 
     let GetSensorHistory (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
-        ReadSensorHistory deviceGroupId sensorId
+        SensorHistoryQuery.ReadSensorHistory deviceGroupId sensorId
 
-    let SubscribeToPushNotification (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscription) =
-        StorePushNotificationSubscription deviceGroupId subscription
+    let SubscribeToPushNotification (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscriptions.PushNotificationSubscription) =
+        PushNotificationSubscriptionCommand.StorePushNotificationSubscription deviceGroupId subscription

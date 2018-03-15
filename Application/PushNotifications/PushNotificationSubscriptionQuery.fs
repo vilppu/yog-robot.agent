@@ -1,6 +1,5 @@
 namespace YogRobot
 
-[<AutoOpen>]
 module PushNotificationSubscriptionQuery =
     open System
     open System.Collections.Generic
@@ -8,12 +7,12 @@ module PushNotificationSubscriptionQuery =
     
     let ReadPushNotificationSubscriptions (deviceGroupId : DeviceGroupId) : Async<List<String>> =         
         async {
-            let collection = PushNotificationSubscriptionCollection
+            let collection = PushNotificationSubscriptionBsonStorage.PushNotificationSubscriptionCollection
             let deviceGroupId = deviceGroupId.AsString
-            let subscriptions = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
+            let subscriptions = collection.Find<PushNotificationSubscriptionBsonStorage.StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
 
             let! subscriptionsForDeviceGroup =
-                subscriptions.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>()
+                subscriptions.FirstOrDefaultAsync<PushNotificationSubscriptionBsonStorage.StorablePushNotificationSubscriptions>()
                 |> Async.AwaitTask
 
             let result =

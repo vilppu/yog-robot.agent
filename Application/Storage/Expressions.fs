@@ -1,6 +1,5 @@
 namespace YogRobot
 
-[<AutoOpen>]
 module Expressions = 
     open System
     open System.Linq.Expressions

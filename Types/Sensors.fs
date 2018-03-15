@@ -22,7 +22,16 @@ module Sensors =
             let (SensorId unwrapped) = this
             unwrapped
 
-    type SensorEvent = 
+    type ChangeSensorStateCommand = 
+        { SensorId : SensorId
+          DeviceGroupId : DeviceGroupId
+          DeviceId : DeviceId
+          Measurement : Measurement
+          BatteryVoltage : Voltage
+          SignalStrength : Rssi
+          Timestamp : DateTime }
+
+    type SensorStateChangedEvent = 
         { SensorId : SensorId
           DeviceGroupId : DeviceGroupId
           DeviceId : DeviceId

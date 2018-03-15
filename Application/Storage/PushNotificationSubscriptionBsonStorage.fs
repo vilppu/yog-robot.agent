@@ -1,6 +1,5 @@
 namespace YogRobot
 
-[<AutoOpen>]
 module PushNotificationSubscriptionBsonStorage =
     open System.Collections.Generic
     open MongoDB.Bson
@@ -19,9 +18,9 @@ module PushNotificationSubscriptionBsonStorage =
     let private PushNotificationSubscriptionCollectionName = "PushNotificationSubscriptions"
 
     let PushNotificationSubscriptionCollection = 
-        Database.GetCollection<StorablePushNotificationSubscriptions> PushNotificationSubscriptionCollectionName
-        |> WithDescendingIndex "DeviceGroupId"
+        BsonStorage.Database.GetCollection<StorablePushNotificationSubscriptions> PushNotificationSubscriptionCollectionName
+        |> BsonStorage.WithDescendingIndex "DeviceGroupId"
         
     let Drop() =
-        Database.DropCollection(PushNotificationSubscriptionCollectionName)
+        BsonStorage.Database.DropCollection(PushNotificationSubscriptionCollectionName)
     

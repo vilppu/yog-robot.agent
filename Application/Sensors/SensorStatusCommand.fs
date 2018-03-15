@@ -1,15 +1,14 @@
 ﻿namespace YogRobot
 
-[<AutoOpen>]
-module SensorStatusesCommand =
+module SensorStatusCommand =
     open System.Threading.Tasks    
     open MongoDB.Bson
     open MongoDB.Driver
 
-    let private insertNew (event : SensorEvent) =
-        let measurement = StorableMeasurement event.Measurement
+    let private insertNew (event : SensorStateChangedEvent) =
+        let measurement = StorableTypes.StorableMeasurement event.Measurement
 
-        let storable : StorableSensorStatus =
+        let storable : SensorStatusBsonStorage.StorableSensorStatus =
             { Id = ObjectId.Empty
               DeviceGroupId = event.DeviceGroupId.AsString
               DeviceId = event.DeviceId.AsString
@@ -21,12 +20,12 @@ module SensorStatusesCommand =
               SignalStrength = (float)event.SignalStrength
               LastUpdated = event.Timestamp
               LastActive = event.Timestamp }
-        let result = SensorsCollection.InsertOneAsync(storable)
+        let result = SensorStatusBsonStorage.SensorsCollection.InsertOneAsync(storable)
         result
 
-    let private updateExisting (sensorStatus : StorableSensorStatus) (event : SensorEvent) =
+    let private updateExisting (sensorStatus : SensorStatusBsonStorage.StorableSensorStatus) (event : SensorStateChangedEvent) =
     
-        let measurement = StorableMeasurement event.Measurement
+        let measurement = StorableTypes.StorableMeasurement event.Measurement
         let voltage = (float)event.BatteryVoltage
         let signalStrength = (float)event.SignalStrength
         let hasChanged = measurement.Value <> sensorStatus.MeasuredValue
@@ -35,36 +34,36 @@ module SensorStatusesCommand =
                     if hasChanged
                     then lastActive
                     else sensorStatus.LastUpdated
-        let filter = event |> FilterSensorsByEvent
+        let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
         
         let update =
-            Builders<StorableSensorStatus>.Update
+            Builders<SensorStatusBsonStorage.StorableSensorStatus>.Update
              .Set((fun s -> s.MeasuredProperty), measurement.Name)
              .Set((fun s -> s.MeasuredValue), measurement.Value)
              .Set((fun s -> s.BatteryVoltage), voltage)
              .Set((fun s -> s.SignalStrength), signalStrength)
              .Set((fun s -> s.LastActive), lastActive)
              .Set((fun s -> s.LastUpdated), lastUpdated)
-        let result = SensorsCollection.UpdateOneAsync<StorableSensorStatus>(filter, update)
+        let result = SensorStatusBsonStorage.SensorsCollection.UpdateOneAsync<SensorStatusBsonStorage.StorableSensorStatus>(filter, update)
         result :> Task
 
-    let HasChanges (event : SensorEvent) : Async<bool> =
+    let HasChanges (event : SensorStateChangedEvent) : Async<bool> =
         async {
-            let measurement = StorableMeasurement event.Measurement
-            let filter = event |> FilterSensorsByEvent
+            let measurement = StorableTypes.StorableMeasurement event.Measurement
+            let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
             let! sensorStatus =
-                SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
+                SensorStatusBsonStorage.SensorsCollection.FindSync<SensorStatusBsonStorage.StorableSensorStatus>(filter).SingleOrDefaultAsync()
                 |> Async.AwaitTask
             let result =
                 (sensorStatus :> obj |> isNull) || (measurement.Value <> sensorStatus.MeasuredValue)
             return result
         }
 
-    let UpdateSensorStatuses (httpSend) (event : SensorEvent) : Async<unit> =
+    let UpdateSensorStatuses (httpSend) (event : SensorStateChangedEvent) : Async<unit> =
         async {            
-            let filter = event |> FilterSensorsByEvent
+            let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
             let! previousSensorStatus =
-                SensorsCollection.FindSync<StorableSensorStatus>(filter).SingleOrDefaultAsync()
+                SensorStatusBsonStorage.SensorsCollection.FindSync<SensorStatusBsonStorage.StorableSensorStatus>(filter).SingleOrDefaultAsync()
                 |> Async.AwaitTask        
 
             do!
@@ -74,10 +73,10 @@ module SensorStatusesCommand =
                     event |> updateExisting previousSensorStatus |> Async.AwaitTask
 
             do
-                let reason =
+                let reason : PushNotifications.PushNotificationReason =
                     { Event = event
                       SensorStatusBeforeEvent = previousSensorStatus }
-                SendPushNotifications httpSend reason
+                PushNotifications.SendPushNotifications httpSend reason
                 // Do not wait for push notifications to be sent to notification provider.
                 // This is to ensure that IoT hub does not need to wait for request to complete 
                 // for too long.
