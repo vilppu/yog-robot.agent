@@ -53,7 +53,7 @@ module PushNotificationTests =
         Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
 
     let WaitForBackgroundProcessingToComplete =
-        System.Threading.Thread.Sleep(100)
+        System.Threading.Thread.Sleep(1000)
 
     [<Fact>]
     let NotifyOnlyWhenContactChanges() = 

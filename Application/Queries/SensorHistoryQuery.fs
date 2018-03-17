@@ -22,10 +22,13 @@ module SensorHistoryQuery =
               MeasuredProperty= stored.MeasuredProperty
               Entries = stored |> toHistoryEntries }
 
-    let ReadSensorHistory (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
+    let private ReadSensorHistory (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
         async {
             let filter = SensorHistoryBsonStorage.FilterHistoryBy deviceGroupId sensorId
             let history = SensorHistoryBsonStorage.SensorHistoryCollection.Find<SensorHistoryBsonStorage.StorableSensorHistory>(filter)
             let! first = history.FirstOrDefaultAsync<SensorHistoryBsonStorage.StorableSensorHistory>() |> Async.AwaitTask
             return first |> toHistory
-        }       
+        }
+
+    let GetSensorHistory (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
+        ReadSensorHistory deviceGroupId sensorId

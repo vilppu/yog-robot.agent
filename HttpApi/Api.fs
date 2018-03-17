@@ -93,9 +93,13 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<HttpPost>]
     [<Authorize(Policy = Roles.User)>]
     member this.PostSensorName (sensorId : string) (sensorName : string) : Async<unit> = 
-        async {
-            let sensorId = SensorId sensorId
-            do! SensorCommands.SaveSensorName (this.DeviceGroupId) sensorId (sensorName)
+        async {    
+            let command : ChangeSensorNameCommand =
+                { SensorId = SensorId sensorId
+                  DeviceGroupId = this.DeviceGroupId
+                  SensorName = sensorName}
+
+            do! SensorCommands.ChangeSensorName command
         }    
     
     [<Route("sensors")>]
@@ -103,7 +107,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.User)>]
     member this.GetSensorStatuses() : Async<SensorStatusResult list> = 
         async {
-            let! statuses = SensorQueries.GetSensorStatuses (this.DeviceGroupId)
+            let! statuses = SensorStatusQuery.GetSensorStatuses (this.DeviceGroupId)
             let result = statuses |> Mapping.ToSensorStatusResults
             return result
         }
@@ -113,7 +117,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.User)>]
     member this.GetSensorHistory (sensorId : string) : Async<SensorHistoryResult> =
         async {
-            let! history = SensorQueries.GetSensorHistory (this.DeviceGroupId) (SensorId sensorId)
+            let! history = SensorHistoryQuery.GetSensorHistory (this.DeviceGroupId) (SensorId sensorId)
             let result = history |> Mapping.ToSensorHistoryResult
             return result
         }
@@ -123,8 +127,8 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.User)>]
     member this.SubscribeToPushNotifications (token : string) : Async<unit> = 
         async {
-            let subscription = PushNotifications.PushNotificationSubscription token
-            let command : PushNotificationCommands.SubscribeToPushNotificationsCommand =
+            let subscription = PushNotificationSubscription token
+            let command : SubscribeToPushNotificationsCommand =
                 { DeviceGroupId = (this.DeviceGroupId)
                   Subscription = subscription }
             do! PushNotificationCommands.SubscribeToPushNotifications command

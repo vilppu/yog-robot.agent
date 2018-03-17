@@ -29,6 +29,18 @@ module SensorEventStorage =
     let Drop deviceGroupId =
         let collection = sensorEvents deviceGroupId
         BsonStorage.Database.DropCollection(collection.CollectionNamespace.CollectionName)
+
+    let private stateHasChanged (event : SensorStateChangedEvent) : Async<bool> =
+        async {
+            let measurement = StorableTypes.StorableMeasurement event.Measurement
+            let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
+            let! sensorStatus =
+                SensorStatusBsonStorage.SensorsCollection.FindSync<SensorStatusBsonStorage.StorableSensorStatus>(filter).SingleOrDefaultAsync()
+                |> Async.AwaitTask
+            let result =
+                (sensorStatus :> obj |> isNull) || (measurement.Value <> sensorStatus.MeasuredValue)
+            return result
+        }
     
     let StoreSensorEvent (event : SensorStateChangedEvent) = 
         let collection = sensorEvents event.DeviceGroupId
@@ -44,7 +56,7 @@ module SensorEventStorage =
               SignalStrength = (float)event.SignalStrength
               Timestamp = event.Timestamp }
         async {
-            let! hasChanges = event |> SensorStatusCommand.HasChanges
+            let! hasChanges = event |> stateHasChanged
             if hasChanges then
                 do! collection.InsertOneAsync(eventToBeStored) |> Async.AwaitTask
         }

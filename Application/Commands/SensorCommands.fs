@@ -14,9 +14,14 @@ module SensorCommands =
 
         async {
             do! SensorEventStorage.StoreSensorEvent event
-            do! SensorStatusCommand.SaveSensorStatus httpSend event
-            do! SensorHistoryCommand.UpdateSensorHistory event
+            do! SensorStateChangedEventHandler.OnSensorStateChanged httpSend event
         }
 
-    let SaveSensorName (deviceGroupId : DeviceGroupId) (sensorId : SensorId)  (sensorName : string) =
-        SensorSettingsCommand.UpdateSensorName deviceGroupId sensorId sensorName
+    let ChangeSensorName (command : ChangeSensorNameCommand) =
+    
+        let event =
+            { SensorId = command.SensorId
+              DeviceGroupId = command.DeviceGroupId
+              SensorName = command.SensorName }
+
+        SensorSettingsEventHandler.OnSensorNameChanged event

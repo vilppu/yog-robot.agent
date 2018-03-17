@@ -21,6 +21,20 @@ module Sensors =
         member this.AsString = 
             let (SensorId unwrapped) = this
             unwrapped
+    
+    type PushNotificationSubscription =
+        { Token : string }
+
+    let PushNotificationSubscription token : PushNotificationSubscription =
+        { Token = token }
+
+    type SubscribeToPushNotificationsCommand =
+        { DeviceGroupId : DeviceGroupId
+          Subscription : PushNotificationSubscription }
+
+    type SubscribedToPushNotificationsEvent =
+        { DeviceGroupId : DeviceGroupId
+          Subscription : PushNotificationSubscription }
 
     type ChangeSensorStateCommand = 
         { SensorId : SensorId
@@ -60,6 +74,16 @@ module Sensors =
         { SensorId : string
           MeasuredProperty : string
           Entries : SensorHistoryEntry list }
+
+    type ChangeSensorNameCommand = 
+        { SensorId : SensorId
+          DeviceGroupId : DeviceGroupId
+          SensorName : string }
+
+    type ChangeSensorNameEvent = 
+        { SensorId : SensorId
+          DeviceGroupId : DeviceGroupId
+          SensorName : string }
 
     let EmptySensorStatus = 
         { DeviceGroupId = ""

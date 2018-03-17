@@ -15,24 +15,24 @@
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Infrastructure\FirebaseApi.fs" />
     <Compile Include="Infrastructure\Expressions.fs" />
     <Compile Include="Infrastructure\StorableTypes.fs" />
     <Compile Include="Infrastructure\BsonStorage.fs" />
-    <Compile Include="Events\SensorHistoryBsonStorage.fs" />
-    <Compile Include="Events\SensorStatusBsonStorage.fs" />
-    <Compile Include="Events\PushNotificationSubscriptionBsonStorage.fs" />
-    <Compile Include="Events\KeyStorage.fs" />
-    <Compile Include="Events\PushNotifications.fs" />
-    <Compile Include="Events\SensorStatusQuery.fs" />
-    <Compile Include="Events\SensorStatusCommand.fs" />
-    <Compile Include="Events\SensorHistoryQuery.fs" />
-    <Compile Include="Events\SensorHistoryCommand.fs" />
-    <Compile Include="Events\SensorSettingsCommand.fs" />
+    <Compile Include="Infrastructure\SensorHistoryBsonStorage.fs" />
+    <Compile Include="Infrastructure\SensorStatusBsonStorage.fs" />
+    <Compile Include="Infrastructure\PushNotificationSubscriptionBsonStorage.fs" />
+    <Compile Include="Infrastructure\KeyStorage.fs" />
+    <Compile Include="Infrastructure\PushNotifications.fs" />
+    <Compile Include="Events\SensorStateChangedEventHandler.fs" />
+    <Compile Include="Events\SensorSettingsEventHandler.fs" />
     <Compile Include="Events\SensorEventStorage.fs" />
+    <Compile Include="Events\PushNotificationSubsciptionEventHandler.fs" />
     <Compile Include="Commands\SecurityCommands.fs" />
     <Compile Include="Commands\SensorCommands.fs" />
     <Compile Include="Commands\PushNotificationCommands.fs" />
-    <Compile Include="Queries\SensorQueries.fs" />
+    <Compile Include="Queries\SensorStatusQuery.fs" />
+    <Compile Include="Queries\SensorHistoryQuery.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.2.3" />

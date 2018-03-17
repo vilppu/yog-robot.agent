@@ -16,14 +16,14 @@ module DeviceSettingsTest =
     
     
     [<Fact>]
-    let SaveSensorName() = 
+    let ChangeSensorName() = 
         use context = SetupContext()
         let expectedName = "ExampleSensorName"
         let deviceId = "ExampleDevice"
         let sensorId = "ExampleDevice.temperature"
         context |> WriteMeasurementSynchronously(Fake.SomeMeasurementFromDevice deviceId)
 
-        SaveSensorName context.DeviceGroupToken sensorId expectedName |> Async.RunSynchronously
+        ChangeSensorName context.DeviceGroupToken sensorId expectedName |> Async.RunSynchronously
 
         let result = context |> GetExampleSensorStatuses
         let entry = result.Head

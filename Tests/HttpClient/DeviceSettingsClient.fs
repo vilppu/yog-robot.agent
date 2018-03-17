@@ -7,5 +7,5 @@ module DeviceSettingsClient =
         let apiUrl = sprintf "api/sensor/%s/name/%s" sensorId name
         Agent.Post token apiUrl ""
     
-    let SaveSensorName token sensorId deviceSettings = 
+    let ChangeSensorName token sensorId deviceSettings = 
         async { do! PostSensorName token sensorId deviceSettings |> Agent.ThrowExceptionOnFailure }
