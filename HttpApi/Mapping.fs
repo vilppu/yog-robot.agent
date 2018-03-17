@@ -1,12 +1,11 @@
 ﻿namespace YogRobot
 
-module SensorDataToEventsMapping =
+module Mapping =
     open System
     open System.Text.RegularExpressions
-    open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
-    
+    open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols    
 
-    let measuredProperty (datum : SensorDatum) =
+    let private measuredProperty (datum : SensorDatum) =
         if String.IsNullOrEmpty(datum.name)
         then ""
         else datum.name.ToLower()
@@ -101,12 +100,52 @@ module SensorDataToEventsMapping =
         |> Seq.toList
         |> List.map (fun datum -> mapToSensorEvent deviceGroupId sensorData datum timestamp)
         |> List.choose (id)
+
+    type private GatewayEvent = 
+        | GatewayUpEvent of SensorData
+        | GatewayDownEvent of SensorData
+        | GatewayActiveOnChannelEvent of SensorData
+        | SensorUpEvent of SensorData
+        | SensorDataEvent of SensorData
     
-    let SensorDataEventToEvents (deviceGroupId : DeviceGroupId) (sensorData : SensorData) = 
+    let private ToGatewayEvent(sensorData : SensorData) = 
+        match sensorData.event with
+        | "gateway up" -> GatewayUpEvent sensorData
+        | "gateway down" -> GatewayDownEvent sensorData
+        | "gateway active" -> GatewayActiveOnChannelEvent sensorData
+        | "sensor up" -> SensorUpEvent sensorData
+        | "sensor data" -> SensorDataEvent sensorData
+        | _ -> failwith ("unknown sensor event: " + sensorData.event)
+    
+    let ToSensorStateChangedEvents (deviceGroupId : DeviceGroupId) (sensorData : SensorData) = 
         let timestamp = DateTime.UtcNow
-        let sensorData = Sensors.ToSensorEvent sensorData
+        let sensorData = ToGatewayEvent sensorData
         match sensorData with
-        | Sensors.GatewayEvent.SensorDataEvent sensorData ->
+        | GatewayEvent.SensorDataEvent sensorData ->
             mapToSensorEvents deviceGroupId sensorData timestamp
         | _ -> []
    
+    let ToSensorStatusResults (statuses : SensorStatus list) : SensorStatusResult list = 
+        statuses
+        |> List.map (fun status ->
+            { DeviceGroupId = status.DeviceGroupId
+              DeviceId = status.DeviceId
+              SensorId = status.SensorId
+              SensorName = status.SensorName
+              MeasuredProperty = status.MeasuredProperty
+              MeasuredValue = status.MeasuredValue
+              BatteryVoltage = status.BatteryVoltage
+              SignalStrength = status.SignalStrength
+              LastUpdated = status.LastUpdated
+              LastActive = status.LastActive })
+   
+    let ToSensorHistoryResult (history : SensorHistory) : SensorHistoryResult =
+        let entries =
+            history.Entries
+            |> List.map (fun entry ->
+                { MeasuredValue = entry.MeasuredValue
+                  Timestamp = entry.Timestamp })
+
+        { SensorId = history.SensorId
+          MeasuredProperty = history.MeasuredProperty
+          Entries = entries }

@@ -104,19 +104,8 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     member this.GetSensorStatuses() : Async<SensorStatusResult list> = 
         async {
             let! statuses = SensorQueries.GetSensorStatuses (this.DeviceGroupId)
-            return
-                statuses
-                |> List.map (fun status ->
-                    { DeviceGroupId = status.DeviceGroupId
-                      DeviceId = status.DeviceId
-                      SensorId = status.SensorId
-                      SensorName = status.SensorName
-                      MeasuredProperty = status.MeasuredProperty
-                      MeasuredValue = status.MeasuredValue
-                      BatteryVoltage = status.BatteryVoltage
-                      SignalStrength = status.SignalStrength
-                      LastUpdated = status.LastUpdated
-                      LastActive = status.LastActive })
+            let result = statuses |> Mapping.ToSensorStatusResults
+            return result
         }
 
     [<Route("sensor/{sensorId}/history/")>]
@@ -125,16 +114,9 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     member this.GetSensorHistory (sensorId : string) : Async<SensorHistoryResult> =
         async {
             let! history = SensorQueries.GetSensorHistory (this.DeviceGroupId) (SensorId sensorId)
-            let entries =
-                history.Entries
-                |> List.map (fun entry ->
-                    { MeasuredValue = entry.MeasuredValue
-                      Timestamp = entry.Timestamp })
-            return
-                { SensorId = history.SensorId
-                  MeasuredProperty = history.MeasuredProperty
-                  Entries = entries }
-        }    
+            let result = history |> Mapping.ToSensorHistoryResult
+            return result
+        }
     
     [<Route("push-notifications/subscribe/{token}")>]
     [<HttpPost>]
@@ -154,7 +136,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 return this.StatusCode(StatusCodes.Status401Unauthorized)
             else
                 let deviceGroupId = FindDeviceGroupId this.Request
-                let sensorEvents = sensorData |> SensorDataToEventsMapping.SensorDataEventToEvents deviceGroupId
+                let sensorEvents = sensorData |> Mapping.ToSensorStateChangedEvents deviceGroupId
                 do! SensorCommands.SaveSensorData httpSend (deviceGroupId) sensorEvents
                 return this.StatusCode(StatusCodes.Status201Created)
         }

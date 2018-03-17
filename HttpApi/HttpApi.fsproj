@@ -25,9 +25,8 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.5" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SensorApi\SensorApiTypes.fs" />
-    <Compile Include="SensorApi\Sensors.fs" />
-    <Compile Include="SensorApi\SensorDataToEventsMapping.fs" />
+    <Compile Include="SensorApiTypes.fs" />
+    <Compile Include="Mapping.fs" />
     <Compile Include="Http.fs" />
     <Compile Include="Authorization.fs" />
     <Compile Include="Api.fs" />
