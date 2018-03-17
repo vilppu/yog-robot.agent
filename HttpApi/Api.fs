@@ -54,8 +54,11 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     member this.PostMasterKey() : Async<JsonResult> = 
         async {
             let token = MasterKeyToken(GenerateSecureToken())
-            let! key = Agent.SaveMasterKey token
-            return this.Json(key)
+            let key : MasterKey = 
+                { Token = token
+                  ValidThrough = System.DateTime.UtcNow.AddYears(10) }
+            do! Agent.SaveMasterKey key
+            return this.Json(key.Token.AsString)
         }
     
     [<Route("keys/device-group-keys/{deviceGroupId}")>]
@@ -64,8 +67,12 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     member this.PostDeviceGroupKey(deviceGroupId : string) : Async<JsonResult> = 
         async {
             let token = DeviceGroupKeyToken(GenerateSecureToken())
-            let! key = Agent.SaveDeviceGroupKey (DeviceGroupId(deviceGroupId)) token
-            return this.Json(key)
+            let key : DeviceGroupKey = 
+                { Token = token
+                  DeviceGroupId = DeviceGroupId deviceGroupId
+                  ValidThrough = System.DateTime.UtcNow.AddYears(10) }
+            do! Agent.SaveDeviceGroupKey key
+            return this.Json(key.Token.AsString)
         }
     
     [<Route("keys/sensor-keys/{deviceGroupId}")>]
@@ -74,8 +81,12 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     member this.PostSensorKey(deviceGroupId : string) : Async<JsonResult> = 
         async {
             let token = SensorKeyToken(GenerateSecureToken())
-            let! key = Agent.SaveSensorKey (DeviceGroupId(deviceGroupId)) token
-            return this.Json(key)
+            let key : SensorKey = 
+                { Token = token
+                  DeviceGroupId = DeviceGroupId deviceGroupId
+                  ValidThrough = System.DateTime.UtcNow.AddYears(10) }
+            do! Agent.SaveSensorKey key
+            return this.Json(key.Token.AsString)
         }
     
     [<Route("sensor/{sensorId}/name/{sensorName}")>]
