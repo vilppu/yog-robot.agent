@@ -57,7 +57,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
             let key : MasterKey = 
                 { Token = token
                   ValidThrough = System.DateTime.UtcNow.AddYears(10) }
-            do! Agent.SaveMasterKey key
+            do! SecurityCommands.SaveMasterKey key
             return this.Json(key.Token.AsString)
         }
     
@@ -71,7 +71,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 { Token = token
                   DeviceGroupId = DeviceGroupId deviceGroupId
                   ValidThrough = System.DateTime.UtcNow.AddYears(10) }
-            do! Agent.SaveDeviceGroupKey key
+            do! SecurityCommands.SaveDeviceGroupKey key
             return this.Json(key.Token.AsString)
         }
     
@@ -85,7 +85,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 { Token = token
                   DeviceGroupId = DeviceGroupId deviceGroupId
                   ValidThrough = System.DateTime.UtcNow.AddYears(10) }
-            do! Agent.SaveSensorKey key
+            do! SecurityCommands.SaveSensorKey key
             return this.Json(key.Token.AsString)
         }
     
@@ -95,24 +95,45 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     member this.PostSensorName (sensorId : string) (sensorName : string) : Async<unit> = 
         async {
             let sensorId = SensorId sensorId
-            do! Agent.SaveSensorName (this.DeviceGroupId) sensorId (sensorName)
-        }
-    
+            do! SensorCommands.SaveSensorName (this.DeviceGroupId) sensorId (sensorName)
+        }    
     
     [<Route("sensors")>]
     [<HttpGet>]
     [<Authorize(Policy = Roles.User)>]
-    member this.GetSensorStatuses() = 
+    member this.GetSensorStatuses() : Async<SensorStatusResult list> = 
         async {
-            return! Agent.GetSensorStatuses (this.DeviceGroupId)
+            let! statuses = SensorQueries.GetSensorStatuses (this.DeviceGroupId)
+            return
+                statuses
+                |> List.map (fun status ->
+                    { DeviceGroupId = status.DeviceGroupId
+                      DeviceId = status.DeviceId
+                      SensorId = status.SensorId
+                      SensorName = status.SensorName
+                      MeasuredProperty = status.MeasuredProperty
+                      MeasuredValue = status.MeasuredValue
+                      BatteryVoltage = status.BatteryVoltage
+                      SignalStrength = status.SignalStrength
+                      LastUpdated = status.LastUpdated
+                      LastActive = status.LastActive })
         }
-    
+
     [<Route("sensor/{sensorId}/history/")>]
     [<HttpGet>]
     [<Authorize(Policy = Roles.User)>]
-    member this.GetSensorHistory (sensorId : string) =
+    member this.GetSensorHistory (sensorId : string) : Async<SensorHistoryResult> =
         async {
-            return! Agent.GetSensorHistory (this.DeviceGroupId) (SensorId sensorId)
+            let! history = SensorQueries.GetSensorHistory (this.DeviceGroupId) (SensorId sensorId)
+            let entries =
+                history.Entries
+                |> List.map (fun entry ->
+                    { MeasuredValue = entry.MeasuredValue
+                      Timestamp = entry.Timestamp })
+            return
+                { SensorId = history.SensorId
+                  MeasuredProperty = history.MeasuredProperty
+                  Entries = entries }
         }    
     
     [<Route("push-notifications/subscribe/{token}")>]
@@ -121,7 +142,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     member this.SubscribeToPushNotification (token : string) : Async<unit> = 
         async {
             let subscription = PushNotifications.PushNotificationSubscription token
-            do! Agent.SubscribeToPushNotification (this.DeviceGroupId) subscription
+            do! PushNotificationCommands.SubscribeToPushNotification (this.DeviceGroupId) subscription
         }
     
     [<Route("sensor-data")>]
@@ -134,6 +155,6 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
             else
                 let deviceGroupId = FindDeviceGroupId this.Request
                 let sensorEvents = sensorData |> SensorDataToEventsMapping.SensorDataEventToEvents deviceGroupId
-                do! Agent.SaveSensorData httpSend (deviceGroupId) sensorEvents
+                do! SensorCommands.SaveSensorData httpSend (deviceGroupId) sensorEvents
                 return this.StatusCode(StatusCodes.Status201Created)
         }

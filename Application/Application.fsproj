@@ -18,18 +18,21 @@
     <Compile Include="Infrastructure\Expressions.fs" />
     <Compile Include="Infrastructure\StorableTypes.fs" />
     <Compile Include="Infrastructure\BsonStorage.fs" />
-    <Compile Include="SensorHistory\SensorHistoryBsonStorage.fs" />
-    <Compile Include="SensorState\SensorStatusBsonStorage.fs" />
-    <Compile Include="PushNotifications\PushNotificationSubscriptionBsonStorage.fs" />
-    <Compile Include="Security\KeyStorage.fs" />
-    <Compile Include="PushNotifications\PushNotifications.fs" />
-    <Compile Include="SensorState\SensorStatusQuery.fs" />
-    <Compile Include="SensorState\SensorStatusCommand.fs" />
-    <Compile Include="SensorHistory\SensorHistoryQuery.fs" />
-    <Compile Include="SensorHistory\SensorHistoryCommand.fs" />
-    <Compile Include="SensorSettings\SensorSettingsCommand.fs" />
-    <Compile Include="Events\SensorEventStorage.fs" />
-    <Compile Include="Events\Agent.fs" />
+    <Compile Include="Events\SensorHistoryBsonStorage.fs" />
+    <Compile Include="Events\SensorStatusBsonStorage.fs" />
+    <Compile Include="Events\PushNotificationSubscriptionBsonStorage.fs" />
+    <Compile Include="Events\KeyStorage.fs" />
+    <Compile Include="Events\PushNotifications.fs" />
+    <Compile Include="Events\SensorStatusQuery.fs" />
+    <Compile Include="Events\SensorStatusCommand.fs" />
+    <Compile Include="Events\SensorHistoryQuery.fs" />
+    <Compile Include="Events\SensorHistoryCommand.fs" />
+    <Compile Include="Events\SensorSettingsCommand.fs" />
+    <Compile Include="Commands\SensorEventStorage.fs" />
+    <Compile Include="Commands\SecurityCommands.fs" />
+    <Compile Include="Commands\SensorCommands.fs" />
+    <Compile Include="Commands\PushNotificationCommands.fs" />
+    <Compile Include="Queries\SensorQueries.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.2.3" />
