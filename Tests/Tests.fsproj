@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpApi\HttpApi.fsproj" />
-    <ProjectReference Include="..\HttpClient\HttpClient.fsproj" />
     <ProjectReference Include="..\Types\Types.fsproj" />
   </ItemGroup>
   <ItemGroup>
@@ -22,6 +21,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Fake.fs" />
+    <Compile Include="HttpClient\Agent.fs" />
+    <Compile Include="HttpClient\DeviceSettingsClient.fs" />
+    <Compile Include="HttpClient\KeyServiceClient.fs" />
+    <Compile Include="HttpClient\MeasurementsToSensorDataMapping.fs" />
+    <Compile Include="HttpClient\PushNotificationClient.fs" />
+    <Compile Include="HttpClient\SensorDataServiceClient.fs" />
+    <Compile Include="HttpClient\SensorStatusesClient.fs" />
+    <Compile Include="HttpClient\TokenServiceClient.fs" />
     <Compile Include="TestContext.fs" />
     <Compile Include="TestHelpers.fs" />
     <Compile Include="SensorHistoryTests.fs" />

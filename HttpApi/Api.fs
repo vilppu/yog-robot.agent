@@ -133,6 +133,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 return this.StatusCode(StatusCodes.Status401Unauthorized)
             else
                 let deviceGroupId = FindDeviceGroupId this.Request
-                do! Agent.SaveSensorData httpSend (deviceGroupId) (sensorData)
+                let sensorEvents = sensorData |> SensorDataToEventsMapping.SensorDataEventToEvents deviceGroupId
+                do! Agent.SaveSensorData httpSend (deviceGroupId) sensorEvents
                 return this.StatusCode(StatusCodes.Status201Created)
         }

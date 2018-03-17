@@ -11,11 +11,10 @@ module Agent =
     let SaveSensorKey key =
         KeyStorage.StoreSensorKey key
     
-    let SaveSensorData httpSend deviceGroupId sensorData =
-        async { 
-            let sensorEvents = sensorData |> SensorDataToEventsMapping.SensorDataEventToEvents deviceGroupId
+    let SaveSensorData httpSend deviceGroupId sensorEvents =
+        async {
             for event in sensorEvents do
-                do! SensorStatusCommand.UpdateSensorStatuses httpSend event
+                do! SensorStatusCommand.SaveSensorStatus httpSend event
                 do! SensorHistoryCommand.UpdateSensorHistory event
                 do! SensorEventStorage.StoreSensorEvent event
             }

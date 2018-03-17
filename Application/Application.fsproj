@@ -15,23 +15,21 @@
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Storage\Expressions.fs" />
-    <Compile Include="Storage/StorableTypes.fs" />
-    <Compile Include="Storage/BsonStorage.fs" />
-    <Compile Include="Storage/SensorHistoryBsonStorage.fs" />
-    <Compile Include="Storage/SensorStatusBsonStorage.fs" />
-    <Compile Include="Storage/PushNotificationSubscriptionBsonStorage.fs" />
-    <Compile Include="Storage/KeyStorage.fs" />
+    <Compile Include="Infrastructure\Expressions.fs" />
+    <Compile Include="Infrastructure\StorableTypes.fs" />
+    <Compile Include="Infrastructure\BsonStorage.fs" />
+    <Compile Include="SensorHistory\SensorHistoryBsonStorage.fs" />
+    <Compile Include="SensorState\SensorStatusBsonStorage.fs" />
+    <Compile Include="PushNotifications\PushNotificationSubscriptionBsonStorage.fs" />
+    <Compile Include="Security\KeyStorage.fs" />
     <Compile Include="PushNotifications\PushNotifications.fs" />
-    <Compile Include="Sensors/SensorStatusQuery.fs" />
-    <Compile Include="Sensors/SensorStatusCommand.fs" />
-    <Compile Include="Sensors/SensorHistoryQuery.fs" />
-    <Compile Include="Sensors/SensorHistoryCommand.fs" />
-    <Compile Include="Sensors/SensorSettingsCommand.fs" />
-    <Compile Include="Storage/SensorEventStorage.fs" />
-    <Compile Include="SensorDataApi/Sensors.fs" />
-    <Compile Include="SensorDataApi/SensorDataToEventsMapping.fs" />
-    <Compile Include="Agent.fs" />
+    <Compile Include="SensorState\SensorStatusQuery.fs" />
+    <Compile Include="SensorState\SensorStatusCommand.fs" />
+    <Compile Include="SensorHistory\SensorHistoryQuery.fs" />
+    <Compile Include="SensorHistory\SensorHistoryCommand.fs" />
+    <Compile Include="SensorSettings\SensorSettingsCommand.fs" />
+    <Compile Include="Events\SensorEventStorage.fs" />
+    <Compile Include="Events\Agent.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.2.3" />

@@ -59,7 +59,7 @@ module SensorStatusCommand =
             return result
         }
 
-    let UpdateSensorStatuses (httpSend) (event : SensorStateChangedEvent) : Async<unit> =
+    let SaveSensorStatus (httpSend) (event : SensorStateChangedEvent) : Async<unit> =
         async {            
             let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
             let! previousSensorStatus =
