@@ -123,13 +123,8 @@ module SensorStateChangedEventHandler =
             | false -> ()
         }
     
-    let private UpdateSensorStatus (event : SensorStateChangedEvent) =
-        async {            
-            let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
-            let! previousSensorStatus =
-                SensorStatusBsonStorage.SensorsCollection.FindSync<SensorStatusBsonStorage.StorableSensorStatus>(filter).SingleOrDefaultAsync()
-                |> Async.AwaitTask        
-
+    let private UpdateSensorStatus (previousSensorStatus) (event : SensorStateChangedEvent) =
+        async {             
             do!
                 if previousSensorStatus :> obj |> isNull then
                     event |> insertNew |> Async.AwaitTask
@@ -137,12 +132,8 @@ module SensorStateChangedEventHandler =
                     event |> updateExisting previousSensorStatus |> Async.AwaitTask
         }
     
-    let private sendPushNotifications httpSend (event : SensorStateChangedEvent) =
-        async {            
-            let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
-            let! previousSensorStatus =
-                SensorStatusBsonStorage.SensorsCollection.FindSync<SensorStatusBsonStorage.StorableSensorStatus>(filter).SingleOrDefaultAsync()
-                |> Async.AwaitTask        
+    let private sendPushNotifications httpSend previousSensorStatus (event : SensorStateChangedEvent) =
+        async {               
             let reason : PushNotifications.PushNotificationReason =
                 { Event = event
                   SensorStatusBeforeEvent = previousSensorStatus }
@@ -155,7 +146,12 @@ module SensorStateChangedEventHandler =
     
     let OnSensorStateChanged httpSend (event : SensorStateChangedEvent) =
         async {
-            do! UpdateSensorStatus event
+            let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
+            let! previousSensorStatus =
+                SensorStatusBsonStorage.SensorsCollection.FindSync<SensorStatusBsonStorage.StorableSensorStatus>(filter).SingleOrDefaultAsync()
+                |> Async.AwaitTask     
+
+            do! UpdateSensorStatus previousSensorStatus event
             do! updateSensorHistory event
-            do! sendPushNotifications httpSend event
+            do! sendPushNotifications httpSend previousSensorStatus event
        }
