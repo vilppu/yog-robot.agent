@@ -11,7 +11,7 @@ module SensorStatusesClient =
     let GetSensorStatuses token = 
         let response = GetSensorStatusesResponse token
         async { let! content = response |> Agent.ContentOrFail
-                let result = JsonConvert.DeserializeObject<List<SensorStatus>>(content)
+                let result = JsonConvert.DeserializeObject<List<SensorStatusResult>>(content)
                 return result |> Seq.toList }
     
     let GetSensorHistoryResponse token sensorId = 
@@ -21,4 +21,4 @@ module SensorStatusesClient =
     let GetSensorHistory token sensorId = 
         let response = GetSensorHistoryResponse token sensorId
         async { let! content = response |> Agent.ContentOrFail
-                return JsonConvert.DeserializeObject<SensorHistory>(content) }
+                return JsonConvert.DeserializeObject<SensorHistoryResult>(content) }
