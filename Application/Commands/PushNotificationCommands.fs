@@ -2,5 +2,9 @@
 
 module PushNotificationCommands =
 
-    let SubscribeToPushNotification (deviceGroupId : DeviceGroupId) (subscription : PushNotifications.PushNotificationSubscription) =
-        PushNotifications.StorePushNotificationSubscription deviceGroupId subscription
+    type SubscribeToPushNotificationsCommand =
+        { DeviceGroupId : DeviceGroupId
+          Subscription : PushNotifications.PushNotificationSubscription }
+
+    let SubscribeToPushNotifications command =
+        PushNotifications.StorePushNotificationSubscription command.DeviceGroupId command.Subscription

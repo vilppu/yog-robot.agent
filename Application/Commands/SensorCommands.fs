@@ -2,13 +2,21 @@
 
 module SensorCommands =
     
-    let SaveSensorData httpSend deviceGroupId sensorEvents =
+    let ChangeSensorState httpSend (command : ChangeSensorStateCommand) =
+        let event =
+            { SensorId = command.SensorId
+              DeviceGroupId= command.DeviceGroupId
+              DeviceId = command.DeviceId
+              Measurement = command.Measurement
+              BatteryVoltage = command.BatteryVoltage
+              SignalStrength = command.SignalStrength
+              Timestamp = command.Timestamp }
+
         async {
-            for event in sensorEvents do
-                do! SensorStatusCommand.SaveSensorStatus httpSend event
-                do! SensorHistoryCommand.UpdateSensorHistory event
-                do! SensorEventStorage.StoreSensorEvent event
-            }
+            do! SensorEventStorage.StoreSensorEvent event
+            do! SensorStatusCommand.SaveSensorStatus httpSend event
+            do! SensorHistoryCommand.UpdateSensorHistory event
+        }
 
     let SaveSensorName (deviceGroupId : DeviceGroupId) (sensorId : SensorId)  (sensorName : string) =
         SensorSettingsCommand.UpdateSensorName deviceGroupId sensorId sensorName

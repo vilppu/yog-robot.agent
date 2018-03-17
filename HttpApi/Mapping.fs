@@ -75,7 +75,7 @@ module Mapping =
             value
         | _ -> 0.0
     
-    let private mapToSensorEvent (deviceGroupId : DeviceGroupId) (sensorData : SensorData) datum timestamp = 
+    let private mapToChangeSensorStateCommand (deviceGroupId : DeviceGroupId) (sensorData : SensorData) datum timestamp : Option<ChangeSensorStateCommand> = 
         let measurementOption = mapDatumToMeasurement datum
         match measurementOption with
         | Some measurement ->
@@ -84,7 +84,7 @@ module Mapping =
             let sensorId = SensorId (deviceId.AsString + "." + property)
             let voltage = mapSensorDataToBatteryVoltage sensorData
             let signalStrength = mapSensorDataToRssi sensorData
-            let sensorEvent =
+            let command : ChangeSensorStateCommand=
                 { SensorId = sensorId
                   DeviceGroupId = deviceGroupId
                   DeviceId = deviceId
@@ -92,13 +92,13 @@ module Mapping =
                   BatteryVoltage = voltage
                   SignalStrength = signalStrength
                   Timestamp = timestamp }
-            Some sensorEvent
+            Some command
         | None -> None
             
-    let private mapToSensorEvents (deviceGroupId : DeviceGroupId) (sensorData : SensorData) timestamp =
+    let private mapToChangeSensorStateCommands (deviceGroupId : DeviceGroupId) (sensorData : SensorData) timestamp =
         sensorData.data
         |> Seq.toList
-        |> List.map (fun datum -> mapToSensorEvent deviceGroupId sensorData datum timestamp)
+        |> List.map (fun datum -> mapToChangeSensorStateCommand deviceGroupId sensorData datum timestamp)
         |> List.choose (id)
 
     type private GatewayEvent = 
@@ -117,12 +117,12 @@ module Mapping =
         | "sensor data" -> SensorDataEvent sensorData
         | _ -> failwith ("unknown sensor event: " + sensorData.event)
     
-    let ToSensorStateChangedEvents (deviceGroupId : DeviceGroupId) (sensorData : SensorData) = 
+    let ToChangeSensorStateCommands (deviceGroupId : DeviceGroupId) (sensorData : SensorData) : ChangeSensorStateCommand list = 
         let timestamp = DateTime.UtcNow
         let sensorData = ToGatewayEvent sensorData
         match sensorData with
         | GatewayEvent.SensorDataEvent sensorData ->
-            mapToSensorEvents deviceGroupId sensorData timestamp
+            mapToChangeSensorStateCommands deviceGroupId sensorData timestamp
         | _ -> []
    
     let ToSensorStatusResults (statuses : SensorStatus list) : SensorStatusResult list = 

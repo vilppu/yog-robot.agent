@@ -28,7 +28,7 @@
     <Compile Include="Events\SensorHistoryQuery.fs" />
     <Compile Include="Events\SensorHistoryCommand.fs" />
     <Compile Include="Events\SensorSettingsCommand.fs" />
-    <Compile Include="Commands\SensorEventStorage.fs" />
+    <Compile Include="Events\SensorEventStorage.fs" />
     <Compile Include="Commands\SecurityCommands.fs" />
     <Compile Include="Commands\SensorCommands.fs" />
     <Compile Include="Commands\PushNotificationCommands.fs" />

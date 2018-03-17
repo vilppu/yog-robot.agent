@@ -121,10 +121,13 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Route("push-notifications/subscribe/{token}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.User)>]
-    member this.SubscribeToPushNotification (token : string) : Async<unit> = 
+    member this.SubscribeToPushNotifications (token : string) : Async<unit> = 
         async {
             let subscription = PushNotifications.PushNotificationSubscription token
-            do! PushNotificationCommands.SubscribeToPushNotification (this.DeviceGroupId) subscription
+            let command : PushNotificationCommands.SubscribeToPushNotificationsCommand =
+                { DeviceGroupId = (this.DeviceGroupId)
+                  Subscription = subscription }
+            do! PushNotificationCommands.SubscribeToPushNotifications command
         }
     
     [<Route("sensor-data")>]
@@ -136,7 +139,8 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 return this.StatusCode(StatusCodes.Status401Unauthorized)
             else
                 let deviceGroupId = FindDeviceGroupId this.Request
-                let sensorEvents = sensorData |> Mapping.ToSensorStateChangedEvents deviceGroupId
-                do! SensorCommands.SaveSensorData httpSend (deviceGroupId) sensorEvents
+                let commands = sensorData |> Mapping.ToChangeSensorStateCommands deviceGroupId
+                for command in commands do
+                    do! SensorCommands.ChangeSensorState httpSend command
                 return this.StatusCode(StatusCodes.Status201Created)
         }
