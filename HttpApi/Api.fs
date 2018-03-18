@@ -9,6 +9,7 @@ open Microsoft.AspNetCore.Mvc
 type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) = 
     inherit Controller()
     member private this.DeviceGroupId = DeviceGroupId(GetDeviceGroupId this.User)
+    member private this.Execute = Command.Execute httpSend
     
     [<Route("secure-token")>]
     [<HttpGet>]
@@ -57,7 +58,8 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
             let key : MasterKey = 
                 { Token = token
                   ValidThrough = System.DateTime.UtcNow.AddYears(10) }
-            do! SecurityCommands.SaveMasterKey key
+            let command = Command.SaveMasterKey { Key = key }
+            do! this.Execute command
             return this.Json(key.Token.AsString)
         }
     
@@ -71,7 +73,8 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 { Token = token
                   DeviceGroupId = DeviceGroupId deviceGroupId
                   ValidThrough = System.DateTime.UtcNow.AddYears(10) }
-            do! SecurityCommands.SaveDeviceGroupKey key
+            let command = Command.SaveDeviceGroupKey { Key = key }
+            do! this.Execute command
             return this.Json(key.Token.AsString)
         }
     
@@ -85,7 +88,8 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 { Token = token
                   DeviceGroupId = DeviceGroupId deviceGroupId
                   ValidThrough = System.DateTime.UtcNow.AddYears(10) }
-            do! SecurityCommands.SaveSensorKey key
+            let command = Command.SaveSensorKey { Key = key }
+            do! this.Execute command
             return this.Json(key.Token.AsString)
         }
     
@@ -94,12 +98,12 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.User)>]
     member this.PostSensorName (sensorId : string) (sensorName : string) : Async<unit> = 
         async {    
-            let command : Command.ChangeSensorName =
+            let changeSensorName : Command.ChangeSensorName =
                 { SensorId = SensorId sensorId
                   DeviceGroupId = this.DeviceGroupId
                   SensorName = sensorName}
-
-            do! SensorCommands.ChangeSensorName command
+            let command = Command.ChangeSensorName changeSensorName
+            do! this.Execute command
         }    
     
     [<Route("sensors")>]
@@ -128,10 +132,12 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     member this.SubscribeToPushNotifications (token : string) : Async<unit> = 
         async {
             let subscription = PushNotification.Subscription token
-            let command : Command.SubscribeToPushNotifications =
-                { DeviceGroupId = (this.DeviceGroupId)
+            let deviceGroupId = FindDeviceGroupId this.Request
+            let subscribeToPushNotifications : Command.SubscribeToPushNotifications =
+                { DeviceGroupId = deviceGroupId
                   Subscription = subscription }
-            do! PushNotificationCommands.SubscribeToPushNotifications command
+            let command = Command.SubscribeToPushNotifications subscribeToPushNotifications
+            do! this.Execute command
         }
     
     [<Route("sensor-data")>]
@@ -143,8 +149,9 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 return this.StatusCode(StatusCodes.Status401Unauthorized)
             else
                 let deviceGroupId = FindDeviceGroupId this.Request
-                let commands = sensorData |> Mapping.ToChangeSensorStateCommands deviceGroupId
-                for command in commands do
-                    do! SensorCommands.ChangeSensorState httpSend command
+                let changeSensorStates = sensorData |> Mapping.ToChangeSensorStateCommands deviceGroupId
+                for changeSensorState in changeSensorStates do
+                    let command = Command.ChangeSensorState changeSensorState
+                    do! this.Execute command
                 return this.StatusCode(StatusCodes.Status201Created)
         }

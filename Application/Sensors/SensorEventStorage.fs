@@ -30,10 +30,10 @@ module SensorEventStorage =
         let collection = sensorEvents deviceGroupId
         BsonStorage.Database.DropCollection(collection.CollectionNamespace.CollectionName)
 
-    let private stateHasChanged (event : Event.SensorStateChanged) : Async<bool> =
+    let private stateHasChanged (sensorState : SensorState) : Async<bool> =
         async {
-            let measurement = StorableTypes.StorableMeasurement event.Measurement
-            let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
+            let measurement = StorableTypes.StorableMeasurement sensorState.Measurement
+            let filter = SensorStatusBsonStorage.FilterSensorsBy sensorState.DeviceGroupId sensorState.SensorId
             let! sensorStatus =
                 SensorStatusBsonStorage.SensorsCollection.FindSync<SensorStatusBsonStorage.StorableSensorStatus>(filter).SingleOrDefaultAsync()
                 |> Async.AwaitTask
@@ -42,21 +42,21 @@ module SensorEventStorage =
             return result
         }
     
-    let StoreSensorEvent (event : Event.SensorStateChanged) = 
-        let collection = sensorEvents event.DeviceGroupId
+    let StoreSensorEvent (sensorState : SensorState) = 
+        let collection = sensorEvents sensorState.DeviceGroupId
         let eventToBeStored : StorableSensorEvent = 
-            let measurement = StorableTypes.StorableMeasurement event.Measurement
+            let measurement = StorableTypes.StorableMeasurement sensorState.Measurement
             { Id = ObjectId.Empty
-              DeviceGroupId =  event.DeviceGroupId.AsString
-              DeviceId = event.DeviceId.AsString
-              SensorId = event.SensorId.AsString
+              DeviceGroupId =  sensorState.DeviceGroupId.AsString
+              DeviceId = sensorState.DeviceId.AsString
+              SensorId = sensorState.SensorId.AsString
               MeasuredProperty = measurement.Name
               MeasuredValue = measurement.Value
-              Voltage = (float)event.BatteryVoltage
-              SignalStrength = (float)event.SignalStrength
-              Timestamp = event.Timestamp }
+              Voltage = (float)sensorState.BatteryVoltage
+              SignalStrength = (float)sensorState.SignalStrength
+              Timestamp = sensorState.Timestamp }
         async {
-            let! hasChanges = event |> stateHasChanged
+            let! hasChanges = sensorState |> stateHasChanged
             if hasChanges then
                 do! collection.InsertOneAsync(eventToBeStored) |> Async.AwaitTask
         }

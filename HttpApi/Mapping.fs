@@ -75,7 +75,8 @@ module Mapping =
             value
         | _ -> 0.0
     
-    let private mapToChangeSensorStateCommand (deviceGroupId : DeviceGroupId) (sensorData : SensorData) datum timestamp : Option<Command.ChangeSensorState> = 
+    let private mapToChangeSensorStateCommand (deviceGroupId : DeviceGroupId) (sensorData : SensorData) datum timestamp
+        : Option<Command.ChangeSensorState> =
         let measurementOption = mapDatumToMeasurement datum
         match measurementOption with
         | Some measurement ->
@@ -84,7 +85,7 @@ module Mapping =
             let sensorId = SensorId (deviceId.AsString + "." + property)
             let voltage = mapSensorDataToBatteryVoltage sensorData
             let signalStrength = mapSensorDataToRssi sensorData
-            let command : Command.ChangeSensorState=
+            let sensorState : SensorState =
                 { SensorId = sensorId
                   DeviceGroupId = deviceGroupId
                   DeviceId = deviceId
@@ -92,9 +93,13 @@ module Mapping =
                   BatteryVoltage = voltage
                   SignalStrength = signalStrength
                   Timestamp = timestamp }
+
+            let command : Command.ChangeSensorState=
+                { SensorState = sensorState }
+
             Some command
         | None -> None
-            
+
     let private mapToChangeSensorStateCommands (deviceGroupId : DeviceGroupId) (sensorData : SensorData) timestamp =
         sensorData.data
         |> Seq.toList

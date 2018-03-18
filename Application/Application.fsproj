@@ -15,8 +15,6 @@
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\Commands.fs" />
-    <Compile Include="Events\Events.fs" />
     <Compile Include="Infrastructure\FirebaseApi.fs" />
     <Compile Include="Infrastructure\Expressions.fs" />
     <Compile Include="Infrastructure\StorableTypes.fs" />
@@ -26,13 +24,13 @@
     <Compile Include="Infrastructure\PushNotificationSubscriptionBsonStorage.fs" />
     <Compile Include="Infrastructure\KeyStorage.fs" />
     <Compile Include="Infrastructure\PushNotifications.fs" />
-    <Compile Include="Events\SensorStateChangedEventHandler.fs" />
-    <Compile Include="Events\SensorSettingsEventHandler.fs" />
-    <Compile Include="Events\SensorEventStorage.fs" />
-    <Compile Include="Events\PushNotificationSubsciptionEventHandler.fs" />
-    <Compile Include="Commands\SecurityCommands.fs" />
-    <Compile Include="Commands\SensorCommands.fs" />
-    <Compile Include="Commands\PushNotificationCommands.fs" />
+    <Compile Include="Sensors\SensorSettingsStorage.fs" />
+    <Compile Include="Sensors\SensorNotifications.fs" />
+    <Compile Include="Sensors\SensorHistoryStorage.fs" />
+    <Compile Include="Sensors\SensorStateStorage.fs" />
+    <Compile Include="Sensors\SensorEventStorage.fs" />
+    <Compile Include="Event.fs" />
+    <Compile Include="Command.fs" />
     <Compile Include="Queries\SensorStatusQuery.fs" />
     <Compile Include="Queries\SensorHistoryQuery.fs" />
   </ItemGroup>

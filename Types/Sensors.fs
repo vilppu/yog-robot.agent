@@ -43,6 +43,15 @@ module Sensors =
           MeasuredProperty : string
           Entries : SensorHistoryEntry list }
 
+    type SensorState = 
+        { SensorId : SensorId
+          DeviceGroupId : DeviceGroupId
+          DeviceId : DeviceId
+          Measurement : Measurement.Measurement
+          BatteryVoltage : Measurement.Voltage
+          SignalStrength : Measurement.Rssi
+          Timestamp : System.DateTime }
+
     let EmptySensorStatus = 
         { DeviceGroupId = ""
           DeviceId = ""
