@@ -7,7 +7,7 @@ module SensorDataServiceClient =
         let apiUrl = "api/sensor-data"
         async { return! Agent.PostWithSensorKey key deviceGroupId apiUrl sensorData }
 
-    let PostMeasurement key deviceGroupId deviceId (measurement : Measurement) =        
+    let PostMeasurement key deviceGroupId deviceId (measurement : Measurement.Measurement) =        
         let sensorData = 
           { event = "sensor data"
             gatewayId = ""

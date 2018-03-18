@@ -7,27 +7,27 @@ module StorableTypes =
         { Name : string
           Value : obj }
 
-    let StorableMeasurementValue (measurement : Measurement) =
+    let StorableMeasurementValue (measurement : Measurement.Measurement) =
         match measurement with
-        | Voltage voltage -> float(voltage) :> obj
-        | Rssi rssi -> float(rssi) :> obj
-        | Temperature temperature -> float(temperature) :> obj
-        | RelativeHumidity relativeHumidity -> float(relativeHumidity) :> obj
-        | PresenceOfWater presenceOfWater ->
+        | Measurement.Voltage voltage -> float(voltage) :> obj
+        | Measurement.Rssi rssi -> float(rssi) :> obj
+        | Measurement.Temperature temperature -> float(temperature) :> obj
+        | Measurement.RelativeHumidity relativeHumidity -> float(relativeHumidity) :> obj
+        | Measurement.PresenceOfWater presenceOfWater ->
             match presenceOfWater with
-            | NotPresent -> false :> obj
-            | Present -> true :> obj
-        | Contact contact ->
+            | Measurement.NotPresent -> false :> obj
+            | Measurement.Present -> true :> obj
+        | Measurement.Contact contact ->
             match contact with
-            | Open -> false :> obj
-            | Closed -> true :> obj
-        | Motion motion -> 
+            | Measurement.Open -> false :> obj
+            | Measurement.Closed -> true :> obj
+        | Measurement.Measurement.Motion motion -> 
             match motion with
-            | NoMotion -> false :> obj
-            | Motion.Motion -> true :> obj
+            | Measurement.NoMotion -> false :> obj
+            | Measurement.Motion -> true :> obj
 
 
-    let StorableMeasurement (measurement : Measurement) = 
+    let StorableMeasurement (measurement : Measurement.Measurement) = 
         match FSharpValue.GetUnionFields(measurement, measurement.GetType()) with
         | unionCaseInfo, value -> 
             { Name = unionCaseInfo.Name

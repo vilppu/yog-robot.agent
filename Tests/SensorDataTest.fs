@@ -8,7 +8,7 @@ module SensorDataTest =
     [<Fact>]
     let SensorKeyIsChecked() = 
         use context = SetupContext()
-        let event = Fake.SomeSensorData |> WithMeasurement(Temperature 25.5<C>)
+        let event = Fake.SomeSensorData |> WithMeasurement(Measurement.Temperature 25.5<C>)
         let response = PostSensorData (SensorKeyToken("12345")) context.DeviceGroupId event |> Async.RunSynchronously
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
     
@@ -25,8 +25,8 @@ module SensorDataTest =
                 let isEven x = (x % 2) = 0
                 let even = isEven index         
                 let example =
-                    if even then Contact Contact.Open
-                    else Contact Contact.Closed
+                    if even then Measurement.Contact Measurement.Open
+                    else Measurement.Contact Measurement.Closed
                 let! response = (context |> WriteMeasurement (Fake.Measurement example))
                 response |> ignore
             }

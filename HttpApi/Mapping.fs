@@ -38,38 +38,38 @@ module Mapping =
         match datum |> measuredProperty with
         | "rh" -> 
             match datum.formattedValue |> mapToRoundedNumericValue with
-            | Some value -> Some(RelativeHumidity value)
+            | Some value -> Some(Measurement.RelativeHumidity value)
             | None -> None
         | "temperature" -> 
             match datum.formattedValue |> mapToRoundedNumericValue with
-            | Some value -> Some(Temperature(value * 1.0<C>))
+            | Some value -> Some(Measurement.Temperature(value * 1.0<C>))
             | None -> None
         | "detect" | "presenceofwater" -> 
-            Some(PresenceOfWater(if datum.value = "1" then PresenceOfWater.Present
-                                 else PresenceOfWater.NotPresent))
+            Some(Measurement.PresenceOfWater(if datum.value = "1" then Measurement.Present
+                                 else Measurement.NotPresent))
         | "contact" -> 
-            Some(Contact(if datum.value = "1" then Contact.Open
-                            else Contact.Closed))
+            Some(Measurement.Contact(if datum.value = "1" then Measurement.Open
+                            else Measurement.Closed))
         | "pir" | "motion" -> 
-            Some(Motion(if datum.value = "1" then Motion.Motion
-                        else Motion.NoMotion))
+            Some(Measurement.Measurement.Motion(if datum.value = "1" then Measurement.Motion
+                        else Measurement.NoMotion))
         | "voltage" -> 
             match datum.value |> mapToNumericValue with
-            | Some value -> Some(Voltage(value * 1.0<V>))
+            | Some value -> Some(Measurement.Voltage(value * 1.0<V>))
             | None -> None
         | "rssi" -> 
             match datum.value |> mapToNumericValue with
-            | Some value -> Some(Rssi(value))
+            | Some value -> Some(Measurement.Rssi(value))
             | None -> None
         | _ -> None
     
-    let private mapSensorDataToBatteryVoltage (sensorData : SensorData) : Voltage = 
+    let private mapSensorDataToBatteryVoltage (sensorData : SensorData) : Measurement.Voltage = 
         match sensorData.batteryVoltage |> mapToNumericValue with
         | Some value -> 
             value * 1.0<V>
         | _ -> 0.0<V>
     
-    let private mapSensorDataToRssi (sensorData : SensorData) : Rssi= 
+    let private mapSensorDataToRssi (sensorData : SensorData) : Measurement.Rssi= 
         match sensorData.rssi |> mapToNumericValue with
         | Some value -> 
             value

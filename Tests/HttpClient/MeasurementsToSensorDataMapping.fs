@@ -7,48 +7,48 @@ module MeasurementsToSensorDataMapping =
     
     let private toDatum measurement = 
         match measurement with
-        | Temperature temperature -> 
+        | Measurement.Temperature temperature -> 
             let value = float(temperature).ToString(CultureInfo.InvariantCulture)
             { name = "TEMPERATURE"
               value = ""
               scale = 1
               formattedValue = sprintf "%s C" value }
-        | RelativeHumidity relativeHumidity -> 
+        | Measurement.RelativeHumidity relativeHumidity -> 
             let value = float(relativeHumidity).ToString(CultureInfo.InvariantCulture)
             { name = "RH"
               value = ""
               scale = 2
               formattedValue = sprintf "%s %%" value }
-        | PresenceOfWater presenceOfWater -> 
+        | Measurement.PresenceOfWater presenceOfWater -> 
             { name = "DETECT"
               value = 
-                  if presenceOfWater = PresenceOfWater.Present then "1"
+                  if presenceOfWater = Measurement.Present then "1"
                   else "0"
               scale = 0
               formattedValue = "" }
-        | Contact contact -> 
+        | Measurement.Contact contact -> 
             let value = contact.ToString()
             { name = "CONTACT"
               value = 
-                  if contact = Contact.Open then "1"
+                  if contact = Measurement.Open then "1"
                   else "0"
               scale = 0
               formattedValue = "" }
-        | Motion motion -> 
+        | Measurement.Measurement.Motion motion -> 
             let value = motion.ToString()
             { name = "pir"
               value = 
-                  if motion = Motion.Motion then "1"
+                  if motion = Measurement.Motion then "1"
                   else "0"
               scale = 0
               formattedValue = "" }
-        | Voltage voltage ->
+        | Measurement.Voltage voltage ->
             let value = float(voltage).ToString(CultureInfo.InvariantCulture)
             { name = "voltage"
               value = value
               scale = 2
               formattedValue = "" }
-        | Rssi rssi -> 
+        | Measurement.Rssi rssi -> 
             let value = float(rssi).ToString(CultureInfo.InvariantCulture)
             { name = "rssi"
               value = value

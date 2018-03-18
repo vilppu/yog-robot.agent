@@ -3,7 +3,7 @@
 module Fake = 
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     
-    let private exampleMeasurement = Temperature 15.0<C>
+    let private exampleMeasurement = Measurement.Temperature 15.0<C>
     let Measurement measurement = (measurement, "ExampleDevice")
     let MeasurementFromDevice measurement deviceId = (measurement, deviceId)
     let SomeMeasurementFromDevice deviceId = (exampleMeasurement, deviceId)

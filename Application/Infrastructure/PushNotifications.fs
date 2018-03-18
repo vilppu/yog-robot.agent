@@ -70,7 +70,7 @@ module PushNotifications =
                 else eventMeasurement.Value <> reason.SensorStatusBeforeEvent.MeasuredValue
             let isPresent =
                 match reason.Event.Measurement with
-                | PresenceOfWater presenceOfWater -> presenceOfWater = PresenceOfWater.Present
+                | Measurement.PresenceOfWater presenceOfWater -> presenceOfWater = Measurement.Present
                 | _ -> false
             if (hasChanged && isPresent) then
                 do! sendFirebasePushNotifications httpSend reason
@@ -82,7 +82,7 @@ module PushNotifications =
     let SendPushNotifications httpSend reason =
         async {
             match reason.Event.Measurement with
-            | Contact _ -> do! sendContactPushNotifications httpSend reason
-            | PresenceOfWater _ -> do! sendPresenceOfWaterPushNotifications httpSend reason
+            | Measurement.Contact _ -> do! sendContactPushNotifications httpSend reason
+            | Measurement.PresenceOfWater _ -> do! sendPresenceOfWaterPushNotifications httpSend reason
             | _ -> ()
         }

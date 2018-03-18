@@ -17,7 +17,7 @@ module SensorHistoryTests =
     [<Fact>]
     let SensorHistoryContainsMeasurements() = 
         use context = SetupContext()
-        let example = RelativeHumidity 78.0
+        let example = Measurement.RelativeHumidity 78.0
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
 
@@ -32,13 +32,13 @@ module SensorHistoryTests =
     [<Fact>]
     let SensorHistoryContainsMeasurementsChronologically() = 
         use context = SetupContext()
-        let example = RelativeHumidity 78.0
+        let example = Measurement.RelativeHumidity 78.0
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
 
-        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 78.0) deviceId)
-        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 80.0) deviceId)
-        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 79.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (Measurement.RelativeHumidity 78.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (Measurement.RelativeHumidity 80.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (Measurement.RelativeHumidity 79.0) deviceId)
 
         let result = context |> GetExampleSensorHistory sensorId
         let entry = result.Entries.Head      
@@ -48,7 +48,7 @@ module SensorHistoryTests =
     [<Fact>]
     let SensorHistoryEntryContainsTimestamp() = 
         use context = SetupContext()
-        let example = RelativeHumidity 78.0
+        let example = Measurement.RelativeHumidity 78.0
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
 
@@ -62,8 +62,8 @@ module SensorHistoryTests =
     [<Fact>]
     let DeviceSpecificMeasurementHistory() = 
         use context = SetupContext()
-        let example = RelativeHumidity 78.0
-        let anotherExample = RelativeHumidity 80.0
+        let example = Measurement.RelativeHumidity 78.0
+        let anotherExample = Measurement.RelativeHumidity 80.0
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
 
@@ -79,12 +79,12 @@ module SensorHistoryTests =
         use context = SetupContext()
         let expectedValue = 80.0
         let expectedLimit = 30
-        let latest = RelativeHumidity expectedValue
+        let latest = Measurement.RelativeHumidity expectedValue
         let bigNumberOfEvents = expectedLimit * 2
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
         for i in 1..bigNumberOfEvents do
-            let measurement = RelativeHumidity(float (i))
+            let measurement = Measurement.RelativeHumidity(float (i))
             context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice measurement deviceId)
         context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice latest deviceId)
 
@@ -99,12 +99,12 @@ module SensorHistoryTests =
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
 
-        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 77.0) deviceId)
-        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 78.0) deviceId)
-        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 77.0) deviceId)
-        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 77.0) deviceId)
-        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 81.0) deviceId)
-        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (RelativeHumidity 82.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (Measurement.RelativeHumidity 77.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (Measurement.RelativeHumidity 78.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (Measurement.RelativeHumidity 77.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (Measurement.RelativeHumidity 77.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (Measurement.RelativeHumidity 81.0) deviceId)
+        context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice (Measurement.RelativeHumidity 82.0) deviceId)
         
         let result = context |> GetExampleSensorHistory sensorId
         
@@ -116,7 +116,7 @@ module SensorHistoryTests =
         use context = SetupContext()
         let deviceId = "device-1"
         let sensorId = deviceId + ".contact"
-        let measurement = Contact Contact.Open
+        let measurement = Measurement.Contact Measurement.Open
 
         context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice measurement deviceId)
         context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice measurement deviceId)
@@ -129,8 +129,8 @@ module SensorHistoryTests =
     [<Fact>]
     let ShowHistoryPerDevice() = 
         use context = SetupContext()
-        let example = RelativeHumidity 77.0
-        let anotherExample = RelativeHumidity 80.0
+        let example = Measurement.RelativeHumidity 77.0
+        let anotherExample = Measurement.RelativeHumidity 80.0
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
         context |> WriteMeasurementSynchronously(Fake.MeasurementFromDevice example deviceId)
@@ -143,7 +143,7 @@ module SensorHistoryTests =
     [<Fact>]
     let HistoryShouldNotContainEntriesFromOtherDeviceGroups() = 
         use context = SetupContext()
-        let example = RelativeHumidity 78.1
+        let example = Measurement.RelativeHumidity 78.1
         let deviceId = "device-1"
         let sensorId = deviceId + ".rh"
         let savedDeviceGroupToken = context.DeviceGroupToken

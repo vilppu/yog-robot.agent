@@ -38,8 +38,8 @@ module PushNotificationTests =
     [<Fact>]
     let NotifyAboutContact() = 
         use context = SetupContext()
-        let opened = Contact Contact.Open
-        let closed = Contact Contact.Closed
+        let opened = Measurement.Contact Measurement.Open
+        let closed = Measurement.Contact Measurement.Closed
 
         context |> SetupToReceivePushNotifications
 
@@ -58,7 +58,7 @@ module PushNotificationTests =
     [<Fact>]
     let NotifyOnlyWhenContactChanges() = 
         use context = SetupContext()
-        let opened = Contact Contact.Open
+        let opened = Measurement.Contact Measurement.Open
 
         context |> SetupToReceivePushNotifications
 
@@ -72,8 +72,8 @@ module PushNotificationTests =
     [<Fact>]
     let NotifyAboutPresenceOfWater() = 
         use context = SetupContext()
-        let present = PresenceOfWater PresenceOfWater.Present
-        let notPresent = PresenceOfWater PresenceOfWater.NotPresent
+        let present = Measurement.PresenceOfWater Measurement.Present
+        let notPresent = Measurement.PresenceOfWater Measurement.NotPresent
 
         context |> SetupToReceivePushNotifications
         
@@ -89,8 +89,8 @@ module PushNotificationTests =
     [<Fact>]
     let DoNotNotifyAboutAbsenceOfWater() = 
         use context = SetupContext()
-        let present = PresenceOfWater PresenceOfWater.Present
-        let notPresent = PresenceOfWater PresenceOfWater.NotPresent
+        let present = Measurement.PresenceOfWater Measurement.Present
+        let notPresent = Measurement.PresenceOfWater Measurement.NotPresent
 
         context |> SetupToReceivePushNotifications
         
@@ -106,7 +106,7 @@ module PushNotificationTests =
     [<Fact>]
     let NotifyOnlyWhenPresenceOfWaterChanges() = 
         use context = SetupContext()
-        let present = PresenceOfWater PresenceOfWater.Present
+        let present = Measurement.PresenceOfWater Measurement.Present
 
         context |> SetupToReceivePushNotifications
 

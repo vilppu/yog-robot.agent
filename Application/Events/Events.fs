@@ -12,9 +12,9 @@ module Events =
         { SensorId : SensorId
           DeviceGroupId : DeviceGroupId
           DeviceId : DeviceId
-          Measurement : Measurement
-          BatteryVoltage : Voltage
-          SignalStrength : Rssi
+          Measurement : Measurement.Measurement
+          BatteryVoltage : Measurement.Voltage
+          SignalStrength : Measurement.Rssi
           Timestamp : DateTime }
 
     type SensorNameChangedEvent = 
