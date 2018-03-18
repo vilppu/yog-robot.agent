@@ -3,7 +3,7 @@
 module SensorSettingsEventHandler =
     open MongoDB.Driver
 
-    let OnSensorNameChanged (event : ChangeSensorNameEvent) =
+    let OnSensorNameChanged (event : Events.SensorNameChangedEvent) =
         async {
             let filter = SensorStatusBsonStorage.FilterSensorsBy event.DeviceGroupId event.SensorId
             let update =

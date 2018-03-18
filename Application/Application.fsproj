@@ -15,6 +15,8 @@
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\Commands.fs" />
+    <Compile Include="Events\Events.fs" />
     <Compile Include="Infrastructure\FirebaseApi.fs" />
     <Compile Include="Infrastructure\Expressions.fs" />
     <Compile Include="Infrastructure\StorableTypes.fs" />

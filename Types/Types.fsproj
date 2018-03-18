@@ -9,6 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Measurement.fs" />
+    <Compile Include="PushNotification.fs" />
     <Compile Include="Sensors.fs" />
     <Compile Include="Security.fs" />
   </ItemGroup>

@@ -34,7 +34,7 @@ module SensorStatusBsonStorage =
         let expr = Expressions.Lambda.Create<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
     
-    let FilterSensorsByEvent (event : SensorStateChangedEvent) =
+    let FilterSensorsByEvent (event : Events.SensorStateChangedEvent) =
         FilterSensorsBy event.DeviceGroupId event.SensorId
         
     let Drop() =

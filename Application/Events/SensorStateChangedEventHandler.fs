@@ -4,9 +4,9 @@ module SensorStateChangedEventHandler =
     open System.Collections.Generic
     open MongoDB.Bson
     open MongoDB.Driver
-    open System.Threading.Tasks    
+    open System.Threading.Tasks
 
-    let private insertNew (event : SensorStateChangedEvent) =
+    let private insertNew (event : Events.SensorStateChangedEvent) =
         let measurement = StorableTypes.StorableMeasurement event.Measurement
 
         let storable : SensorStatusBsonStorage.StorableSensorStatus =
@@ -24,7 +24,7 @@ module SensorStateChangedEventHandler =
         let result = SensorStatusBsonStorage.SensorsCollection.InsertOneAsync(storable)
         result
 
-    let private updateExisting (sensorStatus : SensorStatusBsonStorage.StorableSensorStatus) (event : SensorStateChangedEvent) =
+    let private updateExisting (sensorStatus : SensorStatusBsonStorage.StorableSensorStatus) (event : Events.SensorStateChangedEvent) =
     
         let measurement = StorableTypes.StorableMeasurement event.Measurement
         let voltage = (float)event.BatteryVoltage
@@ -79,7 +79,7 @@ module SensorStateChangedEventHandler =
           MeasuredValue = entry.MeasuredValue
           Timestamp = entry.Timestamp }
 
-    let private updatedHistoryEntries event (history : SensorHistory) =
+    let private updatedHistoryEntries (event :  Events.SensorStateChangedEvent) (history : SensorHistory) =
         let maxNumberOfEntries = 30
         let measurement = StorableTypes.StorableMeasurement event.Measurement
         let newEntry  = 
@@ -90,7 +90,7 @@ module SensorStateChangedEventHandler =
         |> List.truncate maxNumberOfEntries
         |> List.map entryToStorable
         
-    let private upsertHistory (event : SensorStateChangedEvent) (history : SensorHistory) =
+    let private upsertHistory (event : Events.SensorStateChangedEvent) (history : SensorHistory) =
         let measurement = StorableTypes.StorableMeasurement event.Measurement
         let updatedEntries = updatedHistoryEntries event history
         let storable : SensorHistoryBsonStorage.StorableSensorHistory =
@@ -108,7 +108,7 @@ module SensorStateChangedEventHandler =
         |> Async.AwaitTask
         |> Async.Ignore
          
-    let private updateSensorHistory event =
+    let private updateSensorHistory (event : Events.SensorStateChangedEvent) =
         async {
             let measurement = StorableTypes.StorableMeasurement event.Measurement
             let! history = ReadSensorHistory event.DeviceGroupId event.SensorId
@@ -123,7 +123,7 @@ module SensorStateChangedEventHandler =
             | false -> ()
         }
     
-    let private UpdateSensorStatus (previousSensorStatus) (event : SensorStateChangedEvent) =
+    let private UpdateSensorStatus (previousSensorStatus) (event : Events.SensorStateChangedEvent) =
         async {             
             do!
                 if previousSensorStatus :> obj |> isNull then
@@ -132,7 +132,7 @@ module SensorStateChangedEventHandler =
                     event |> updateExisting previousSensorStatus |> Async.AwaitTask
         }
     
-    let private sendPushNotifications httpSend previousSensorStatus (event : SensorStateChangedEvent) =
+    let private sendPushNotifications httpSend previousSensorStatus (event : Events.SensorStateChangedEvent) =
         async {               
             let reason : PushNotifications.PushNotificationReason =
                 { Event = event
@@ -144,7 +144,7 @@ module SensorStateChangedEventHandler =
             |> Async.Start
         }
     
-    let OnSensorStateChanged httpSend (event : SensorStateChangedEvent) =
+    let OnSensorStateChanged httpSend (event : Events.SensorStateChangedEvent) =
         async {
             let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
             let! previousSensorStatus =

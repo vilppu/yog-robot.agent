@@ -2,8 +2,8 @@
 
 module PushNotificationCommands =
 
-    let SubscribeToPushNotifications (command : SubscribeToPushNotificationsCommand)=
-        let event : SubscribedToPushNotificationsEvent =
+    let SubscribeToPushNotifications (command : Commands.SubscribeToPushNotificationsCommand)=
+        let event : Events.SubscribedToPushNotificationsEvent =
             { DeviceGroupId = command.DeviceGroupId
               Subscription = command.Subscription }
 

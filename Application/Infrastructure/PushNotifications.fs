@@ -12,7 +12,7 @@ module PushNotifications =
    
     type PushNotificationReason =
         {
-          Event : SensorStateChangedEvent          
+          Event : Events.SensorStateChangedEvent          
           SensorStatusBeforeEvent : SensorStatusBsonStorage.StorableSensorStatus }
     
     let private sendFirebasePushNotifications httpSend reason =
@@ -76,7 +76,7 @@ module PushNotifications =
                 do! sendFirebasePushNotifications httpSend reason
         }
     
-    let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : PushNotificationSubscription) =
+    let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : PushNotification.PushNotificationSubscription) =
         PushNotificationSubscriptionBsonStorage.StorePushNotificationSubscriptions deviceGroupId [subscription.Token]
 
     let SendPushNotifications httpSend reason =

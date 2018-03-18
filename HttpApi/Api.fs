@@ -94,7 +94,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.User)>]
     member this.PostSensorName (sensorId : string) (sensorName : string) : Async<unit> = 
         async {    
-            let command : ChangeSensorNameCommand =
+            let command : Commands.ChangeSensorNameCommand =
                 { SensorId = SensorId sensorId
                   DeviceGroupId = this.DeviceGroupId
                   SensorName = sensorName}
@@ -127,8 +127,8 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.User)>]
     member this.SubscribeToPushNotifications (token : string) : Async<unit> = 
         async {
-            let subscription = PushNotificationSubscription token
-            let command : SubscribeToPushNotificationsCommand =
+            let subscription = PushNotification.PushNotificationSubscription token
+            let command : Commands.SubscribeToPushNotificationsCommand =
                 { DeviceGroupId = (this.DeviceGroupId)
                   Subscription = subscription }
             do! PushNotificationCommands.SubscribeToPushNotifications command

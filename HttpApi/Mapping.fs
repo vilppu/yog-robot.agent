@@ -75,7 +75,7 @@ module Mapping =
             value
         | _ -> 0.0
     
-    let private mapToChangeSensorStateCommand (deviceGroupId : DeviceGroupId) (sensorData : SensorData) datum timestamp : Option<ChangeSensorStateCommand> = 
+    let private mapToChangeSensorStateCommand (deviceGroupId : DeviceGroupId) (sensorData : SensorData) datum timestamp : Option<Commands.ChangeSensorStateCommand> = 
         let measurementOption = mapDatumToMeasurement datum
         match measurementOption with
         | Some measurement ->
@@ -84,7 +84,7 @@ module Mapping =
             let sensorId = SensorId (deviceId.AsString + "." + property)
             let voltage = mapSensorDataToBatteryVoltage sensorData
             let signalStrength = mapSensorDataToRssi sensorData
-            let command : ChangeSensorStateCommand=
+            let command : Commands.ChangeSensorStateCommand=
                 { SensorId = sensorId
                   DeviceGroupId = deviceGroupId
                   DeviceId = deviceId
@@ -117,7 +117,7 @@ module Mapping =
         | "sensor data" -> SensorDataEvent sensorData
         | _ -> failwith ("unknown sensor event: " + sensorData.event)
     
-    let ToChangeSensorStateCommands (deviceGroupId : DeviceGroupId) (sensorData : SensorData) : ChangeSensorStateCommand list = 
+    let ToChangeSensorStateCommands (deviceGroupId : DeviceGroupId) (sensorData : SensorData) : Commands.ChangeSensorStateCommand list = 
         let timestamp = DateTime.UtcNow
         let sensorData = ToGatewayEvent sensorData
         match sensorData with
