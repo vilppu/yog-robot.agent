@@ -2,9 +2,9 @@ namespace YogRobot
 
 module PushNotification =
     
-    type PushNotificationSubscription =
+    type Subscription =
         { Token : string }
 
-    let PushNotificationSubscription token : PushNotificationSubscription =
+    let Subscription token : Subscription =
         { Token = token }
   

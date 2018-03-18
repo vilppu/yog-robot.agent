@@ -1,14 +1,14 @@
 namespace YogRobot
 
-module Events =
+module Event =
 
     open System
 
-    type SubscribedToPushNotificationsEvent =
+    type SubscribedToPushNotifications =
         { DeviceGroupId : DeviceGroupId
-          Subscription : PushNotification.PushNotificationSubscription }
+          Subscription : PushNotification.Subscription }
 
-    type SensorStateChangedEvent = 
+    type SensorStateChanged = 
         { SensorId : SensorId
           DeviceGroupId : DeviceGroupId
           DeviceId : DeviceId
@@ -17,7 +17,7 @@ module Events =
           SignalStrength : Measurement.Rssi
           Timestamp : DateTime }
 
-    type SensorNameChangedEvent = 
+    type SensorNameChanged = 
         { SensorId : SensorId
           DeviceGroupId : DeviceGroupId
           SensorName : string }

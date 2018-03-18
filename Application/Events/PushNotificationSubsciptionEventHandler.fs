@@ -2,5 +2,5 @@ namespace YogRobot
 
 module PushNotificationSubsciptionEventHandler =
    
-    let OnSubscribedToPushNotificationsEvent (event : Events.SubscribedToPushNotificationsEvent) =
+    let OnSubscribedToPushNotificationsEvent (event : Event.SubscribedToPushNotifications) =
         PushNotifications.StorePushNotificationSubscription event.DeviceGroupId event.Subscription

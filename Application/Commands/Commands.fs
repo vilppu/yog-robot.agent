@@ -1,13 +1,13 @@
 namespace YogRobot
 
-module Commands =
+module Command =
     open System
    
-    type SubscribeToPushNotificationsCommand =
+    type SubscribeToPushNotifications =
         { DeviceGroupId : DeviceGroupId
-          Subscription : PushNotification.PushNotificationSubscription }
+          Subscription : PushNotification.Subscription }
 
-    type ChangeSensorStateCommand = 
+    type ChangeSensorState = 
         { SensorId : SensorId
           DeviceGroupId : DeviceGroupId
           DeviceId : DeviceId
@@ -16,7 +16,7 @@ module Commands =
           SignalStrength : Measurement.Rssi
           Timestamp : DateTime }
 
-    type ChangeSensorNameCommand = 
+    type ChangeSensorName = 
         { SensorId : SensorId
           DeviceGroupId : DeviceGroupId
           SensorName : string }

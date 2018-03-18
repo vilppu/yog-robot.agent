@@ -30,7 +30,7 @@ module SensorEventStorage =
         let collection = sensorEvents deviceGroupId
         BsonStorage.Database.DropCollection(collection.CollectionNamespace.CollectionName)
 
-    let private stateHasChanged (event : Events.SensorStateChangedEvent) : Async<bool> =
+    let private stateHasChanged (event : Event.SensorStateChanged) : Async<bool> =
         async {
             let measurement = StorableTypes.StorableMeasurement event.Measurement
             let filter = event |> SensorStatusBsonStorage.FilterSensorsByEvent
@@ -42,7 +42,7 @@ module SensorEventStorage =
             return result
         }
     
-    let StoreSensorEvent (event : Events.SensorStateChangedEvent) = 
+    let StoreSensorEvent (event : Event.SensorStateChanged) = 
         let collection = sensorEvents event.DeviceGroupId
         let eventToBeStored : StorableSensorEvent = 
             let measurement = StorableTypes.StorableMeasurement event.Measurement

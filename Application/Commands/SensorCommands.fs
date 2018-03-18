@@ -2,8 +2,8 @@
 
 module SensorCommands =
     
-    let ChangeSensorState httpSend (command : Commands.ChangeSensorStateCommand) =
-        let event : Events.SensorStateChangedEvent =
+    let ChangeSensorState httpSend (command : Command.ChangeSensorState) =
+        let event : Event.SensorStateChanged =
             { SensorId = command.SensorId
               DeviceGroupId= command.DeviceGroupId
               DeviceId = command.DeviceId
@@ -17,9 +17,9 @@ module SensorCommands =
             do! SensorStateChangedEventHandler.OnSensorStateChanged httpSend event
         }
 
-    let ChangeSensorName (command : Commands.ChangeSensorNameCommand) =
+    let ChangeSensorName (command : Command.ChangeSensorName) =
     
-        let event : Events.SensorNameChangedEvent =
+        let event : Event.SensorNameChanged =
             { SensorId = command.SensorId
               DeviceGroupId = command.DeviceGroupId
               SensorName = command.SensorName }
