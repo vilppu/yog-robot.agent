@@ -16,8 +16,11 @@ module TestHelpers =
         GetSensorStatuses context.DeviceGroupToken |> Async.RunSynchronously
     
     let SetupToReceivePushNotifications(context : Context) = 
-        SubscribeToPushNotifications context.DeviceGroupToken "12345"
-        |> Async.RunSynchronously
+        let result =
+            SubscribeToPushNotifications context.DeviceGroupToken "12345"
+            |> Async.RunSynchronously
+        if not result.IsSuccessStatusCode then
+            failwith "SubscribeToPushNotifications failed"
         |> ignore
     
     let GetExampleSensorHistoryResponse sensorId (context : Context) = 

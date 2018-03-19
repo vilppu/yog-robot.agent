@@ -132,7 +132,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     member this.SubscribeToPushNotifications (token : string) : Async<unit> = 
         async {
             let subscription = PushNotification.Subscription token
-            let deviceGroupId = FindDeviceGroupId this.Request
+            let deviceGroupId = this.DeviceGroupId
             let subscribeToPushNotifications : Command.SubscribeToPushNotifications =
                 { DeviceGroupId = deviceGroupId
                   Subscription = subscription }
