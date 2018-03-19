@@ -8,7 +8,7 @@ module TokenServiceClient =
         let apiUrl = "api/tokens/master"
         Agent.GetWithMasterKey key apiUrl
     
-    let GetMasterToken masterKey = async { let! response = GetMasterTokenWithKey masterKey |> Agent.ContentOrFail
+    let GetMasterToken masterKey = async { let! response = GetMasterTokenWithKey masterKey |> Http.ContentOrFail
                                            return JsonConvert.DeserializeObject<string>(response) }
     
     let GetDeviceGroupTokenWithKey botKey deviceGroupId = 
@@ -16,7 +16,7 @@ module TokenServiceClient =
         let apiUrl = "api/tokens/device-group"
         Agent.GetWithDeviceGroupKey botKey (DeviceGroupId deviceGroupId) apiUrl
     
-    let GetDeviceGroupToken botKey deviceGroupId = async { let! response = GetDeviceGroupTokenWithKey botKey deviceGroupId |> Agent.ContentOrFail
+    let GetDeviceGroupToken botKey deviceGroupId = async { let! response = GetDeviceGroupTokenWithKey botKey deviceGroupId |> Http.ContentOrFail
                                            return JsonConvert.DeserializeObject<string>(response) }
     
     let GetSensorTokenWithKey sensorKey deviceGroupId = 
@@ -25,5 +25,5 @@ module TokenServiceClient =
         Agent.GetWithSensorKey sensorKey (DeviceGroupId deviceGroupId) apiUrl
     
     let GetSensorToken sensorKey deviceGroupId =
-        async { let! response = GetSensorTokenWithKey sensorKey deviceGroupId |> Agent.ContentOrFail
+        async { let! response = GetSensorTokenWithKey sensorKey deviceGroupId |> Http.ContentOrFail
                 return JsonConvert.DeserializeObject<string>(response) }

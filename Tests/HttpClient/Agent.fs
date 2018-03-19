@@ -2,15 +2,11 @@
 
 module Agent = 
     open System
-    open System.Net
     open System.Net.Http
-    open System.Net.Http.Headers
-    open System.Text
     open Newtonsoft.Json
     
     let private getBaseUrl() = Environment.GetEnvironmentVariable("YOG_BOT_BASE_URL")
-    let httpClient = new HttpClient(BaseAddress = Uri(getBaseUrl()))
-    let TcpPort = 8888
+    let private httpClient = new HttpClient(BaseAddress = Uri(getBaseUrl()))
     
     let PostWithMasterKey (key : MasterKeyToken) (url : string) data = 
         let (MasterKeyToken key) = key
@@ -92,6 +88,15 @@ module Agent =
             return response
         }
     
+module Http =
+    open System
+    open System.Net.Http
+    open System.Net.Http.Headers
+    open Newtonsoft.Json
+    
+    let private getBaseUrl() = Environment.GetEnvironmentVariable("YOG_BOT_BASE_URL")
+    let private httpClient = new HttpClient(BaseAddress = Uri(getBaseUrl()))
+
     let Post (token : string) (url : string) data = 
         let json = JsonConvert.SerializeObject data
         async {            
