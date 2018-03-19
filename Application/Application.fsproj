@@ -29,10 +29,10 @@
     <Compile Include="Sensors\SensorHistoryStorage.fs" />
     <Compile Include="Sensors\SensorStateStorage.fs" />
     <Compile Include="Sensors\SensorEventStorage.fs" />
-    <Compile Include="Queries\SensorStatusQuery.fs" />
-    <Compile Include="Queries\SensorHistoryQuery.fs" />
     <Compile Include="Event.fs" />
     <Compile Include="Command.fs" />
+    <Compile Include="Queries\SensorStatusQuery.fs" />
+    <Compile Include="Queries\SensorHistoryQuery.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.2.3" />
