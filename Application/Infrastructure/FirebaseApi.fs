@@ -114,4 +114,4 @@ module FirebaseApi =
                     return noSubscriptionChanges
             else
                 return noSubscriptionChanges
-        }        
+        }

@@ -52,9 +52,6 @@ module PushNotificationTests =
         Assert.Equal(2, SentHttpRequests.Count)
         Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
 
-    let WaitForBackgroundProcessingToComplete =
-        System.Threading.Thread.Sleep(1000)
-
     [<Fact>]
     let NotifyOnlyWhenContactChanges() = 
         use context = SetupContext()
@@ -64,8 +61,6 @@ module PushNotificationTests =
 
         context |> WriteMeasurementSynchronously(Fake.Measurement opened)        
         context |> WriteMeasurementSynchronously(Fake.Measurement opened)
-
-        WaitForBackgroundProcessingToComplete
 
         Assert.Equal(1, SentHttpRequests.Count)
 
@@ -80,8 +75,6 @@ module PushNotificationTests =
         context |> WriteMeasurementSynchronously(Fake.Measurement present)
         context |> WriteMeasurementSynchronously(Fake.Measurement notPresent)
         context |> WriteMeasurementSynchronously(Fake.Measurement present)
-        
-        WaitForBackgroundProcessingToComplete
 
         Assert.Equal(2, SentHttpRequests.Count)
         Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
@@ -97,8 +90,6 @@ module PushNotificationTests =
         context |> WriteMeasurementSynchronously(Fake.Measurement notPresent)
         context |> WriteMeasurementSynchronously(Fake.Measurement present)
         context |> WriteMeasurementSynchronously(Fake.Measurement notPresent)
-        
-        WaitForBackgroundProcessingToComplete
 
         Assert.Equal(1, SentHttpRequests.Count)
         Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
@@ -112,8 +103,6 @@ module PushNotificationTests =
 
         context |> WriteMeasurementSynchronously(Fake.Measurement present)
         context |> WriteMeasurementSynchronously(Fake.Measurement present)
-        
-        WaitForBackgroundProcessingToComplete
 
         Assert.Equal(1, SentHttpRequests.Count)
    

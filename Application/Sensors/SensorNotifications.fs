@@ -7,9 +7,6 @@ module SensorNotifications =
             let reason : PushNotifications.PushNotificationReason =
                 { SensorState = sensorState
                   PreviousMeasurement = previousMeasurement}
-            PushNotifications.SendPushNotifications httpSend reason
-            // Do not wait for push notifications to be sent to notification provider.
-            // This is to ensure that IoT hub does not need to wait for request to complete 
-            // for too long.
-            |> Async.Start
+            do!
+                PushNotifications.SendPushNotifications httpSend reason                
         }
