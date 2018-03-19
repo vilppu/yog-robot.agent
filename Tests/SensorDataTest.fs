@@ -32,9 +32,7 @@ module SensorDataTest =
             }
 
         let batchWriteMeasurements = fun () ->
-            [for i in 1 .. requestsPerBatch -> writeMeasurement i]
-            |> Async.Parallel
-            |> Async.RunSynchronously
+            [for i in 1 .. requestsPerBatch -> writeMeasurement i |> Async.RunSynchronously]            
             |> ignore
         
         batchWriteMeasurements()

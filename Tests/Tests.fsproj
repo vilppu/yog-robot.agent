@@ -21,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Fake.fs" />
+    <Compile Include="HttpClient\Http.fs" />
     <Compile Include="HttpClient\Agent.fs" />
     <Compile Include="HttpClient\DeviceSettingsClient.fs" />
     <Compile Include="HttpClient\KeyServiceClient.fs" />
