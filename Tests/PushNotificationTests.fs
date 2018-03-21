@@ -83,24 +83,7 @@ module PushNotificationTests =
         
         WaitForBackgroundProcessingToComplete
 
-        Assert.Equal(2, SentHttpRequests.Count)
-        Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
-
-    [<Fact>]
-    let DoNotNotifyAboutAbsenceOfWater() = 
-        use context = SetupContext()
-        let present = Measurement.PresenceOfWater Measurement.Present
-        let notPresent = Measurement.PresenceOfWater Measurement.NotPresent
-
-        context |> SetupToReceivePushNotifications
-        
-        context |> WriteMeasurementSynchronously(Fake.Measurement notPresent)
-        context |> WriteMeasurementSynchronously(Fake.Measurement present)
-        context |> WriteMeasurementSynchronously(Fake.Measurement notPresent)
-        
-        WaitForBackgroundProcessingToComplete
-
-        Assert.Equal(1, SentHttpRequests.Count)
+        Assert.Equal(3, SentHttpRequests.Count)
         Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
 
     [<Fact>]

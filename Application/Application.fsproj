@@ -23,16 +23,16 @@
     <Compile Include="Infrastructure\SensorStatusBsonStorage.fs" />
     <Compile Include="Infrastructure\PushNotificationSubscriptionBsonStorage.fs" />
     <Compile Include="Infrastructure\KeyStorage.fs" />
-    <Compile Include="Infrastructure\PushNotifications.fs" />
+    <Compile Include="Sensors\PushNotifications.fs" />
     <Compile Include="Sensors\SensorSettingsStorage.fs" />
     <Compile Include="Sensors\SensorNotifications.fs" />
     <Compile Include="Sensors\SensorHistoryStorage.fs" />
     <Compile Include="Sensors\SensorStateStorage.fs" />
     <Compile Include="Sensors\SensorEventStorage.fs" />
-    <Compile Include="Event.fs" />
-    <Compile Include="Command.fs" />
     <Compile Include="Queries\SensorStatusQuery.fs" />
     <Compile Include="Queries\SensorHistoryQuery.fs" />
+    <Compile Include="Event.fs" />
+    <Compile Include="Command.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.2.3" />
