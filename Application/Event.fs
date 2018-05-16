@@ -56,7 +56,8 @@ module Event =
                 do! SensorNotifications.SendPushNotifications httpSend event.SensorState event.PreviousMeasurement
 
             | SensorNameChanged event ->
-                do! SensorSettingsStorage.ChangeSensorName event.DeviceGroupId event.SensorId event.SensorName
+                let filter = SensorStatusBsonStorage.FilterSensorsBy event.DeviceGroupId event.SensorId
+                do! SensorStatusBsonStorage.ChangeSensorName filter event.SensorName
 
             | SavedMasterKey event ->
                 do! KeyStorage.StoreMasterKey event.Key

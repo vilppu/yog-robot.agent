@@ -33,6 +33,17 @@ module SensorStatusBsonStorage =
         let deviceGroupId = deviceGroupId.AsString
         let expr = Expressions.Lambda.Create<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
+
+    let ChangeSensorName filter sensorName =
+        
+        let update =
+            Builders<StorableSensorStatus>.Update.Set((fun s -> s.SensorName), sensorName)
+
+        async {
+            do! SensorsCollection.UpdateOneAsync<StorableSensorStatus>(filter, update)
+                |> Async.AwaitTask
+                |> Async.Ignore
+        }
         
     let Drop() =
         BsonStorage.Database.DropCollection(SensorsCollectionName)

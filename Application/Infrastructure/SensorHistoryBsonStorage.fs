@@ -5,7 +5,6 @@ module SensorHistoryBsonStorage =
     open System.Collections.Generic
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
-    open MongoDB.Driver
     open YogRobot.Expressions
 
     [<CLIMutable>]
