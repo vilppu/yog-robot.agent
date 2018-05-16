@@ -34,7 +34,7 @@ module SensorStatusBsonStorage =
         let expr = Expressions.Lambda.Create<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
 
-    let ChangeSensorName filter sensorName =
+    let StoreSensorName filter sensorName =
         
         let update =
             Builders<StorableSensorStatus>.Update.Set((fun s -> s.SensorName), sensorName)

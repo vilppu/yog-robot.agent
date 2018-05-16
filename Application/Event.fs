@@ -57,7 +57,7 @@ module Event =
 
             | SensorNameChanged event ->
                 let filter = SensorStatusBsonStorage.FilterSensorsBy event.DeviceGroupId event.SensorId
-                do! SensorStatusBsonStorage.ChangeSensorName filter event.SensorName
+                do! SensorStatusBsonStorage.StoreSensorName filter event.SensorName
 
             | SavedMasterKey event ->
                 do! KeyStorage.StoreMasterKey event.Key
