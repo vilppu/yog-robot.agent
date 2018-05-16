@@ -22,14 +22,6 @@ module SensorHistoryStorage =
             { SensorId = stored.SensorId
               MeasuredProperty= stored.MeasuredProperty
               Entries = stored |> toHistoryEntries }
-
-    let private readSensorHistory (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
-        async {
-            let filter = SensorHistoryBsonStorage.FilterHistoryBy deviceGroupId sensorId
-            let history = SensorHistoryBsonStorage.SensorHistoryCollection.Find<SensorHistoryBsonStorage.StorableSensorHistory>(filter)
-            let! first = history.FirstOrDefaultAsync<SensorHistoryBsonStorage.StorableSensorHistory>() |> Async.AwaitTask
-            return first |> toHistory
-        }
     
     let private entryToStorable (entry : SensorHistoryEntry) : SensorHistoryBsonStorage.StorableSensorHistoryEntry =
         { Id = ObjectId.Empty
@@ -64,18 +56,25 @@ module SensorHistoryStorage =
         SensorHistoryBsonStorage.SensorHistoryCollection.ReplaceOneAsync<SensorHistoryBsonStorage.StorableSensorHistory>(filter, storable, options)
         |> Async.AwaitTask
         |> Async.Ignore
-         
-    let UpdateSensorHistory (sensorState : SensorState) =
+
+    let ReadSensorHistory (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
         async {
-            let measurement = StorableTypes.StorableMeasurement sensorState.Measurement
-            let! history = readSensorHistory sensorState.DeviceGroupId sensorState.SensorId
+            let filter = SensorHistoryBsonStorage.FilterHistoryBy deviceGroupId sensorId
+            let history = SensorHistoryBsonStorage.SensorHistoryCollection.Find<SensorHistoryBsonStorage.StorableSensorHistory>(filter)
+            let! first = history.FirstOrDefaultAsync<SensorHistoryBsonStorage.StorableSensorHistory>() |> Async.AwaitTask
+            return first |> toHistory
+        }
+         
+    let UpdateSensorHistory (sensonHistory : SensorHistory) (sensorState : SensorState) =
+        async {
+            let measurement = StorableTypes.StorableMeasurement sensorState.Measurement            
             let changed =
-                match history.Entries with
+                match sensonHistory.Entries with
                 | head::tail ->
                     head.MeasuredValue <> measurement.Value
                 | _ -> true
 
             match changed with
-            | true -> do! upsertHistory sensorState history
+            | true -> do! upsertHistory sensorState sensonHistory
             | false -> ()
         }

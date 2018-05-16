@@ -51,8 +51,10 @@ module Event =
                 do! PushNotifications.StorePushNotificationSubscription event.DeviceGroupId event.Subscription
 
             | SensorStateChanged event ->
+                let! history = SensorHistoryStorage.ReadSensorHistory event.SensorState.DeviceGroupId event.SensorState.SensorId
+
                 do! SensorStateStorage.UpdateSensorState event.SensorState event.PreviousTimestamp event.PreviousMeasurement
-                do! SensorHistoryStorage.UpdateSensorHistory event.SensorState
+                do! SensorHistoryStorage.UpdateSensorHistory history event.SensorState
                 do! SensorNotifications.SendPushNotifications httpSend event.SensorState event.PreviousMeasurement
 
             | SensorNameChanged event ->
