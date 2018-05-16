@@ -50,10 +50,8 @@ module SensorHistoryStorage =
               Entries = new List<SensorHistoryBsonStorage.StorableSensorHistoryEntry>(updatedEntries) }            
           
         let filter = SensorHistoryBsonStorage.FilterHistoryBy sensorState.DeviceGroupId sensorState.SensorId
-        let options = UpdateOptions()
-        options.IsUpsert <- true
         
-        SensorHistoryBsonStorage.SensorHistoryCollection.ReplaceOneAsync<SensorHistoryBsonStorage.StorableSensorHistory>(filter, storable, options)
+        SensorHistoryBsonStorage.SensorHistoryCollection.ReplaceOneAsync<SensorHistoryBsonStorage.StorableSensorHistory>(filter, storable, BsonStorage.Upsert)
         |> Async.AwaitTask
         |> Async.Ignore
 

@@ -2,6 +2,9 @@ namespace YogRobot
 
 module Event =
 
+    open MongoDB.Bson
+    open MongoDB.Driver
+
     type SubscribedToPushNotifications =
         { DeviceGroupId : DeviceGroupId
           Subscription : PushNotification.Subscription }
@@ -23,7 +26,7 @@ module Event =
         { Key : DeviceGroupKey }
     
     type SavedSensorKey =
-        { Key : SensorKey }  
+        { Key : SensorKey }
 
     type Event =
         | SubscribedToPushNotifications of SubscribedToPushNotifications
@@ -53,7 +56,13 @@ module Event =
             | SensorStateChanged event ->
                 let! history = SensorHistoryStorage.ReadSensorHistory event.SensorState.DeviceGroupId event.SensorState.SensorId
 
-                do! SensorStateStorage.UpdateSensorState event.SensorState event.PreviousTimestamp event.PreviousMeasurement
+                let (filter, update) = SensorStateStorage.UpdateSensorState event.SensorState event.PreviousTimestamp event.PreviousMeasurement
+                
+                do!
+                    SensorStatusBsonStorage.SensorsCollection.UpdateOneAsync<SensorStatusBsonStorage.StorableSensorStatus>(filter, update, BsonStorage.Upsert)
+                    :> System.Threading.Tasks.Task
+                    |> Async.AwaitTask
+
                 do! SensorHistoryStorage.UpdateSensorHistory history event.SensorState
                 do! SensorNotifications.SendPushNotifications httpSend event.SensorState event.PreviousMeasurement
 

@@ -39,3 +39,8 @@ module BsonStorage =
         let key = builder.Descending(field)
         collection.Indexes.CreateOne key |> ignore
         collection
+
+    let Upsert =
+        let options = UpdateOptions()
+        options.IsUpsert <- true
+        options

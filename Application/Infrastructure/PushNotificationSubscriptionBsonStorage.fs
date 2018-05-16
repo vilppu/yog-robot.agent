@@ -33,10 +33,8 @@ module PushNotificationSubscriptionBsonStorage =
         async {
             let! stored = stored.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>() |> Async.AwaitTask
             stored.Tokens.RemoveAll (fun token -> tokens.Contains(token)) |> ignore
-            let options = UpdateOptions()
-            options.IsUpsert <- true
             return!
-                collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
+                collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, BsonStorage.Upsert)
                 |> Async.AwaitTask
                 |> Async.Ignore
         }
@@ -59,9 +57,7 @@ module PushNotificationSubscriptionBsonStorage =
             if not(toBeAdded |> List.isEmpty) then
                 do!
                     stored.Tokens.AddRange toBeAdded
-                    let options = UpdateOptions()
-                    options.IsUpsert <- true    
-                    collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, options)
+                    collection.ReplaceOneAsync<StorablePushNotificationSubscriptions>((fun x -> x.DeviceGroupId = deviceGroupId), stored, BsonStorage.Upsert)
                     |> Async.AwaitTask
                     |> Async.Ignore
         }

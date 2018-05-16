@@ -3,31 +3,11 @@ namespace YogRobot
 module SensorStateStorage =
     open MongoDB.Bson
     open MongoDB.Driver
-    open System.Threading.Tasks
+    
 
-    let private insertNew (sensorState : SensorState) =
-        let measurement = StorableTypes.StorableMeasurement sensorState.Measurement
-
-        let storable : SensorStatusBsonStorage.StorableSensorStatus =
-            { Id = ObjectId.Empty
-              DeviceGroupId = sensorState.DeviceGroupId.AsString
-              DeviceId = sensorState.DeviceId.AsString
-              SensorId = sensorState.SensorId.AsString
-              SensorName = sensorState.DeviceId.AsString + "." + measurement.Name
-              MeasuredProperty = measurement.Name
-              MeasuredValue = measurement.Value
-              BatteryVoltage = (float)sensorState.BatteryVoltage
-              SignalStrength = (float)sensorState.SignalStrength
-              LastUpdated = sensorState.Timestamp
-              LastActive = sensorState.Timestamp }
-        let result = SensorStatusBsonStorage.SensorsCollection.InsertOneAsync(storable)
-        result
-
-    let private updateExisting (sensorState : SensorState) previousTimestamp previousMeasurement =
+    let UpdateSensorState (sensorState : SensorState) previousTimestamp previousMeasurement =
     
         let measurement = StorableTypes.StorableMeasurement sensorState.Measurement
-        let voltage = (float)sensorState.BatteryVoltage
-        let signalStrength = (float)sensorState.SignalStrength
         let hasChanged = measurement.Value <> previousMeasurement
         let lastActive = sensorState.Timestamp
         let lastUpdated =
@@ -39,22 +19,19 @@ module SensorStateStorage =
         let update =
             Builders<SensorStatusBsonStorage.StorableSensorStatus>.Update
              .Set((fun s -> s.MeasuredProperty), measurement.Name)
+             .Set((fun s -> s.Id), ObjectId.Empty)
+             .Set((fun s -> s.DeviceGroupId), sensorState.DeviceGroupId.AsString)
+             .Set((fun s -> s.DeviceId), sensorState.DeviceId.AsString)
+             .Set((fun s -> s.SensorId), sensorState.SensorId.AsString)
+             .Set((fun s -> s.SensorName), sensorState.DeviceId.AsString + "." + measurement.Name)
+             .Set((fun s -> s.MeasuredProperty), measurement.Name)
              .Set((fun s -> s.MeasuredValue), measurement.Value)
-             .Set((fun s -> s.BatteryVoltage), voltage)
-             .Set((fun s -> s.SignalStrength), signalStrength)
-             .Set((fun s -> s.LastActive), lastActive)
+             .Set((fun s -> s.BatteryVoltage), (float)sensorState.BatteryVoltage)
+             .Set((fun s -> s.SignalStrength), (float)sensorState.SignalStrength)
              .Set((fun s -> s.LastUpdated), lastUpdated)
-        let result = SensorStatusBsonStorage.SensorsCollection.UpdateOneAsync<SensorStatusBsonStorage.StorableSensorStatus>(filter, update)
-        result :> Task |> Async.AwaitTask      
-    
-    let UpdateSensorState (sensorState : SensorState) previousTimestamp previousMeasurement =
-        async {             
-            do!
-                if previousMeasurement |> isNull then
-                    sensorState |> insertNew |> Async.AwaitTask
-                else
-                    updateExisting sensorState previousTimestamp previousMeasurement 
-        }
+             .Set((fun s -> s.LastActive), lastActive)
+        
+        (filter, update)
 
     let ReadPreviousState deviceGroupId sensorId : Async<System.DateTime * obj> =
         async {
