@@ -17,9 +17,7 @@ module SensorStateStorage =
         let filter = SensorStatusBsonStorage.FilterSensorsBy sensorState.DeviceGroupId sensorState.SensorId
         
         let update =
-            Builders<SensorStatusBsonStorage.StorableSensorStatus>.Update
-             .Set((fun s -> s.MeasuredProperty), measurement.Name)
-             .Set((fun s -> s.Id), ObjectId.Empty)
+            Builders<SensorStatusBsonStorage.StorableSensorStatus>.Update             
              .Set((fun s -> s.DeviceGroupId), sensorState.DeviceGroupId.AsString)
              .Set((fun s -> s.DeviceId), sensorState.DeviceId.AsString)
              .Set((fun s -> s.SensorId), sensorState.SensorId.AsString)
