@@ -7,7 +7,7 @@ module TokenTest =
     [<Fact>]
     let MasterKeyIsRequiredToCreateMasterTokens() = 
         use context = SetupContext()
-        let response = GetMasterTokenWithKey(MasterKeyToken(InvalidToken)) |> Async.RunSynchronously
+        let response = GetMasterTokenWithKey(InvalidToken) |> Async.RunSynchronously
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
     
     [<Fact>]
@@ -20,7 +20,7 @@ module TokenTest =
     [<Fact>]
     let DeviceGroupKeyIsRequiredToCreateDeviceGroupTokens() = 
         use context = SetupContext()
-        let response = GetDeviceGroupTokenWithKey (DeviceGroupKeyToken(InvalidToken)) context.DeviceGroupId |> Async.RunSynchronously
+        let response = GetDeviceGroupTokenWithKey InvalidToken context.DeviceGroupId |> Async.RunSynchronously
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
     
     [<Fact>]
@@ -33,6 +33,6 @@ module TokenTest =
     [<Fact>]
     let SensorKeyIsRequiredToCreateSensorTokens() = 
         use context = SetupContext()
-        let response = GetSensorTokenWithKey (SensorKeyToken(InvalidToken)) context.DeviceGroupId |> Async.RunSynchronously
+        let response = GetSensorTokenWithKey InvalidToken context.DeviceGroupId |> Async.RunSynchronously
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
     

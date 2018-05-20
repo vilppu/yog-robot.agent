@@ -1,6 +1,6 @@
 namespace YogRobot
 
-module Command =
+module internal Command =
    
     type SubscribeToPushNotifications =
         { DeviceGroupId : DeviceGroupId
@@ -41,7 +41,7 @@ module Command =
     
     let private sensorStateChangedEvent (command : ChangeSensorState) =
         async {
-            let! (lastUpdated, measuredValue) = SensorStateStorage.ReadPreviousState command.SensorState.DeviceGroupId command.SensorState.SensorId
+            let! (lastUpdated, measuredValue) = SensorStateStorage.ReadPreviousState command.SensorState.DeviceGroupId.AsString command.SensorState.SensorId.AsString
             let event : Event.SensorStateChanged =
                 { SensorState = command.SensorState
                   PreviousTimestamp = lastUpdated

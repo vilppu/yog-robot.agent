@@ -9,9 +9,6 @@
     <RuntimeIdentifiers>win10-x64;debian.8-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Application\Application.fsproj" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.0.1" />
@@ -25,13 +22,15 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.5" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SensorApiTypes.fs" />
-    <Compile Include="Mapping.fs" />
     <Compile Include="Http.fs" />
     <Compile Include="Authorization.fs" />
     <Compile Include="Api.fs" />
     <Compile Include="SelfHost.fs" />
     <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.fsproj" />
+    <ProjectReference Include="..\Types\Types.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.2.3" />

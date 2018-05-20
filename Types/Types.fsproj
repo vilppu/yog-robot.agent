@@ -7,11 +7,10 @@
     <AssemblyName>Types</AssemblyName>
     <PackageId>Types</PackageId>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="Measurement.fs" />
-    <Compile Include="PushNotification.fs" />
-    <Compile Include="Sensors.fs" />
-    <Compile Include="Security.fs" />
+    <Compile Include="SensorApiTypes.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.2.3" />

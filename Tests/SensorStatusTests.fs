@@ -5,6 +5,7 @@ module SensorStatusTests =
     open System.Net
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     open Xunit
+    open SensorApiTypes
     
     [<Fact>]
     let AuthenticationTokenIsChecked() = 

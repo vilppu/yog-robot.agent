@@ -1,7 +1,7 @@
 ﻿namespace YogRobot
 
 [<AutoOpen>]
-module Security =     
+module internal Security =     
     open System
 
     type MasterKeyToken = 
@@ -37,6 +37,7 @@ module Security =
           ValidThrough : DateTime }
      
     let StoredMasterKey() = Environment.GetEnvironmentVariable("YOG_MASTER_KEY")
+
     let StoredTokenSecret() =
         let tokenSecret = Environment.GetEnvironmentVariable("YOG_TOKEN_SECRET")
         if tokenSecret |> isNull then

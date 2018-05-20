@@ -1,9 +1,10 @@
 ﻿namespace YogRobot
 
-module Mapping =
+module internal Mapping =
     open System
     open System.Text.RegularExpressions
-    open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols    
+    open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
+    open SensorApiTypes
 
     let private measuredProperty (datum : SensorDatum) =
         if String.IsNullOrEmpty(datum.name)

@@ -26,8 +26,8 @@ module PushNotificationSubscriptionBsonStorage =
     let Drop() =
         BsonStorage.Database.DropCollection(PushNotificationSubscriptionCollectionName)
     
-    let private removePushNotificationSubscriptions (deviceGroupId : DeviceGroupId) (tokens : string list)=
-        let deviceGroupId = deviceGroupId.AsString
+    let private removePushNotificationSubscriptions (deviceGroupId : string) (tokens : string list)=
+        let deviceGroupId = deviceGroupId
         let collection = PushNotificationSubscriptionCollection
         let stored = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
         async {
@@ -39,10 +39,10 @@ module PushNotificationSubscriptionBsonStorage =
                 |> Async.Ignore
         }
     
-    let StorePushNotificationSubscriptions (deviceGroupId : DeviceGroupId) (tokens : string list) =
+    let StorePushNotificationSubscriptions (deviceGroupId : string) (tokens : string list) =
         async {
             let collection = PushNotificationSubscriptionCollection
-            let deviceGroupId = deviceGroupId.AsString
+            let deviceGroupId = deviceGroupId
             let stored = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
             let! stored = stored.FirstOrDefaultAsync<StorablePushNotificationSubscriptions>() |> Async.AwaitTask
             let stored : StorablePushNotificationSubscriptions =
@@ -62,10 +62,10 @@ module PushNotificationSubscriptionBsonStorage =
                     |> Async.Ignore
         }
     
-    let ReadPushNotificationSubscriptions (deviceGroupId : DeviceGroupId) : Async<List<String>> =         
+    let ReadPushNotificationSubscriptions (deviceGroupId : string) : Async<List<String>> =         
         async {
             let collection = PushNotificationSubscriptionCollection
-            let deviceGroupId = deviceGroupId.AsString
+            let deviceGroupId = deviceGroupId
             let tokens = collection.Find<StorablePushNotificationSubscriptions>(fun x -> x.DeviceGroupId = deviceGroupId)
 
             let! subscriptionsForDeviceGroup =
@@ -80,7 +80,7 @@ module PushNotificationSubscriptionBsonStorage =
             return result
         }
 
-    let RemoveRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
+    let RemoveRegistrations (deviceGroupId : string) (tokens : string list) =
         async {
             if not(tokens.IsEmpty) then
                 return! removePushNotificationSubscriptions deviceGroupId tokens
@@ -88,7 +88,7 @@ module PushNotificationSubscriptionBsonStorage =
                 return ()
         }
 
-    let AddRegistrations (deviceGroupId : DeviceGroupId) (tokens : string list) =
+    let AddRegistrations (deviceGroupId : string) (tokens : string list) =
         async {
             if not(tokens.IsEmpty) then
                 return! StorePushNotificationSubscriptions deviceGroupId tokens

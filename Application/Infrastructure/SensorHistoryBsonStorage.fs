@@ -34,9 +34,9 @@ module SensorHistoryBsonStorage =
         |> BsonStorage.WithDescendingIndex "DeviceId"
         |> BsonStorage.WithDescendingIndex "MeasuredProperty"
     
-    let FilterHistoryBy (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
-        let sensorId = sensorId.AsString
-        let deviceGroupId = deviceGroupId.AsString
+    let FilterHistoryBy (deviceGroupId : string) (sensorId : string) =
+        let sensorId = sensorId
+        let deviceGroupId = deviceGroupId
         let expr = Lambda.Create<StorableSensorHistory>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
     

@@ -7,9 +7,6 @@
     <PackageId>Application</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Types\Types.fsproj" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
@@ -17,23 +14,36 @@
   <ItemGroup>
     <Compile Include="Infrastructure\FirebaseApi.fs" />
     <Compile Include="Infrastructure\Expressions.fs" />
-    <Compile Include="Infrastructure\StorableTypes.fs" />
     <Compile Include="Infrastructure\BsonStorage.fs" />
     <Compile Include="Infrastructure\SensorHistoryBsonStorage.fs" />
     <Compile Include="Infrastructure\SensorStatusBsonStorage.fs" />
+    <Compile Include="Infrastructure\SensorEventBsonStorage.fs" />
     <Compile Include="Infrastructure\PushNotificationSubscriptionBsonStorage.fs" />
-    <Compile Include="Infrastructure\KeyStorage.fs" />
+    <Compile Include="Infrastructure\KeyBsonStorage.fs" />
+    <Compile Include="Sensors\StorableTypes.fs" />
+    <Compile Include="Sensors\Sensors.fs" />
+    <Compile Include="Sensors\Security.fs" />
+    <Compile Include="Sensors\PushNotification.fs" />
     <Compile Include="Sensors\PushNotifications.fs" />
     <Compile Include="Sensors\SensorNotifications.fs" />
     <Compile Include="Sensors\SensorHistoryStorage.fs" />
-    <Compile Include="Sensors\SensorStateStorage.fs" />
     <Compile Include="Sensors\SensorEventStorage.fs" />
-    <Compile Include="Queries\SensorStatusQuery.fs" />
-    <Compile Include="Queries\SensorHistoryQuery.fs" />
+    <Compile Include="Sensors\SensorStateStorage.fs" />
+    <Compile Include="Sensors\KeyStorage.fs" />
+    <Compile Include="Sensors\SensorStatusQuery.fs" />
+    <Compile Include="Sensors\SensorHistoryQuery.fs" />
     <Compile Include="Event.fs" />
     <Compile Include="Command.fs" />
+    <Compile Include="Mapping.fs" />
+    <Compile Include="Application.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.2.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Queries\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Types\Types.fsproj" />
   </ItemGroup>
 </Project>

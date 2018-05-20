@@ -1,6 +1,6 @@
 ﻿namespace YogRobot
 
-module StorableTypes =
+module internal StorableTypes =
     open Microsoft.FSharp.Reflection
     
     type StorableMeasurement = 

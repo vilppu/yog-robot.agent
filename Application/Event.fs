@@ -1,8 +1,7 @@
 namespace YogRobot
 
-module Event =
+module internal Event =
 
-    open MongoDB.Bson
     open MongoDB.Driver
 
     type SubscribedToPushNotifications =
@@ -67,7 +66,7 @@ module Event =
                 do! SensorNotifications.SendPushNotifications httpSend event.SensorState event.PreviousMeasurement
 
             | SensorNameChanged event ->
-                let filter = SensorStatusBsonStorage.FilterSensorsBy event.DeviceGroupId event.SensorId
+                let filter = SensorStatusBsonStorage.FilterSensorsBy event.DeviceGroupId.AsString event.SensorId.AsString
                 do! SensorStatusBsonStorage.StoreSensorName filter event.SensorName
 
             | SavedMasterKey event ->

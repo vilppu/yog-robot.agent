@@ -24,7 +24,7 @@ module Authorization =
         let Sensor = "RequiresSensorToken"
     
     let SigningKey=
-        let secretKey = StoredTokenSecret()
+        let secretKey = Application.StoredTokenSecret()
         SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey))
 
     let SecureSigningCredentials = 
@@ -46,7 +46,7 @@ module Authorization =
             match headers with
             | key :: _ -> 
                 let now = DateTime.UtcNow
-                return! KeyStorage.IsValidMasterKeyToken (MasterKeyToken key) now
+                return! Application.IsValidMasterKeyToken key now
             | [] -> return false
         }
     
@@ -62,7 +62,7 @@ module Authorization =
             | head :: _ -> 
                 let (deviceGroupId, key) = head
                 let now = DateTime.UtcNow
-                return! KeyStorage.IsValidDeviceGroupKeyToken (DeviceGroupId deviceGroupId) (DeviceGroupKeyToken key) now
+                return! Application.IsValidDeviceGroupKeyToken deviceGroupId key now
             | [] -> return false
         }
 
@@ -80,7 +80,7 @@ module Authorization =
             | head :: _ -> 
                 let (deviceGroupId, key) = head
                 let now = DateTime.UtcNow
-                return! KeyStorage.IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken key) now
+                return! Application.IsValidSensorKeyToken deviceGroupId key now
             | [] -> return false
         }
     
@@ -111,18 +111,9 @@ module Authorization =
         let headers = deviceGroupIdHeader |> List.append botIdIdHeader 
 
         headers
-        |> List.map DeviceGroupId
-        |> List.head
-
-    let GenerateSecureToken() = 
-        let randomNumberGenerator = RandomNumberGenerator.Create()
-        let tokenBytes = Array.zeroCreate<byte> 16
-        randomNumberGenerator.GetBytes tokenBytes
-        let tokenWithDashes = BitConverter.ToString tokenBytes
-        tokenWithDashes.Replace("-", "")    
+        |> List.head 
 
     let BuildRoleToken role deviceGroupId = 
-        let (DeviceGroupId deviceGroupId) = deviceGroupId
         let roleClaim = Claim(ClaimTypes.Role, role)
         let deviceGroupIdClaim = Claim("DeviceGroupId", deviceGroupId)
         let claimsIdentity = ClaimsIdentity([roleClaim; deviceGroupIdClaim], "YogRobot")
@@ -134,7 +125,7 @@ module Authorization =
         token   
         
     let GenerateMasterAccessToken() =
-        BuildRoleToken Roles.Administrator (DeviceGroupId "")
+        BuildRoleToken Roles.Administrator ""
 
     let GenerateDeviceGroupAccessToken deviceGroupId = 
         BuildRoleToken Roles.User deviceGroupId
@@ -142,35 +133,6 @@ module Authorization =
     let GenerateSensorAccessToken deviceGroupId = 
         BuildRoleToken Roles.Sensor deviceGroupId
 
-    let RegisterMasterKey() = 
-        let key : MasterKey = 
-            { Token = MasterKeyToken(GenerateSecureToken())
-              ValidThrough = DateTime.UtcNow.AddYears(10) }
-        async { 
-            do! KeyStorage.StoreMasterKey key
-            return key.Token
-        }
-    
-    let RegisterDeviceGroupKey deviceGroupId = 
-        let key : DeviceGroupKey = 
-            { Token = DeviceGroupKeyToken(GenerateSecureToken())
-              DeviceGroupId = deviceGroupId
-              ValidThrough = DateTime.UtcNow.AddYears(10) }
-        async { 
-            do! KeyStorage.StoreDeviceGroupKey key
-            return key.Token
-        }
-    
-    let RegisterSensorKey deviceGroupId = 
-        let key : SensorKey = 
-            { Token = SensorKeyToken(GenerateSecureToken())
-              DeviceGroupId = deviceGroupId
-              ValidThrough = DateTime.UtcNow.AddYears(10) }
-        async { 
-            do! KeyStorage.StoreSensorKey key
-            return key.Token
-        }
-    
     type PermissionRequirement(role) = 
         interface IAuthorizationRequirement
         member val Permission = role with get

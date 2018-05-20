@@ -1,6 +1,6 @@
 ﻿namespace YogRobot
 
-module SensorStatusQuery =
+module internal SensorStatusQuery =
     open MongoDB.Driver  
     
     let private toSensorStatus (storable : SensorStatusBsonStorage.StorableSensorStatus) : SensorStatus =

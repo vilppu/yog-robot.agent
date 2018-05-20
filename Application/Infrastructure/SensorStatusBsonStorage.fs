@@ -28,9 +28,9 @@ module SensorStatusBsonStorage =
         BsonStorage.Database.GetCollection<StorableSensorStatus> SensorsCollectionName
         |> BsonStorage.WithDescendingIndex "DeviceGroupId"
     
-    let FilterSensorsBy (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
-        let sensorId = sensorId.AsString
-        let deviceGroupId = deviceGroupId.AsString
+    let FilterSensorsBy (deviceGroupId : string) (sensorId : string) =
+        let sensorId = sensorId
+        let deviceGroupId = deviceGroupId
         let expr = Expressions.Lambda.Create<StorableSensorStatus>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
 

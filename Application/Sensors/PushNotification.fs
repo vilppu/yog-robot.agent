@@ -1,6 +1,6 @@
 namespace YogRobot
 
-module PushNotification =
+module internal PushNotification =
     
     type Subscription =
         { Token : string }

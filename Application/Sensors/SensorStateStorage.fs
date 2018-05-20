@@ -1,6 +1,6 @@
 namespace YogRobot
 
-module SensorStateStorage =
+module internal SensorStateStorage =
     open MongoDB.Bson
     open MongoDB.Driver
     
@@ -14,7 +14,7 @@ module SensorStateStorage =
                     if hasChanged
                     then lastActive
                     else previousTimestamp
-        let filter = SensorStatusBsonStorage.FilterSensorsBy sensorState.DeviceGroupId sensorState.SensorId
+        let filter = SensorStatusBsonStorage.FilterSensorsBy sensorState.DeviceGroupId.AsString sensorState.SensorId.AsString
         
         let update =
             Builders<SensorStatusBsonStorage.StorableSensorStatus>.Update             

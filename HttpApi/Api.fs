@@ -4,16 +4,16 @@ open System.Net.Http
 open Microsoft.AspNetCore.Authorization
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
+open SensorApiTypes
 
 [<Route("api")>]
 type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) = 
     inherit Controller()
-    member private this.DeviceGroupId = DeviceGroupId(GetDeviceGroupId this.User)
-    member private this.Execute = Command.Execute httpSend
+    member private this.DeviceGroupId = GetDeviceGroupId this.User
     
     [<Route("secure-token")>]
     [<HttpGet>]
-    member this.GetRandomKey() : string = GenerateSecureToken()
+    member this.GetRandomKey() : string = Application.GenerateSecureToken()
 
     [<Route("tokens/master")>]
     [<HttpGet>]
@@ -49,18 +49,15 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 let deviceGroupId = FindDeviceGroupId this.Request
                 return this.Json(GenerateSensorAccessToken(deviceGroupId)) :> IActionResult
         }
+
     [<Route("keys/master-keys")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.Administrator)>]
     member this.PostMasterKey() : Async<JsonResult> = 
         async {
-            let token = MasterKeyToken(GenerateSecureToken())
-            let key : MasterKey = 
-                { Token = token
-                  ValidThrough = System.DateTime.UtcNow.AddYears(10) }
-            let command = Command.SaveMasterKey { Key = key }
-            do! this.Execute command
-            return this.Json(key.Token.AsString)
+            let token = Application.GenerateSecureToken()
+            let! key = Application.PostMasterKey httpSend token
+            return this.Json(key)
         }
     
     [<Route("keys/device-group-keys/{deviceGroupId}")>]
@@ -68,14 +65,9 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.Administrator)>]
     member this.PostDeviceGroupKey(deviceGroupId : string) : Async<JsonResult> = 
         async {
-            let token = DeviceGroupKeyToken(GenerateSecureToken())
-            let key : DeviceGroupKey = 
-                { Token = token
-                  DeviceGroupId = DeviceGroupId deviceGroupId
-                  ValidThrough = System.DateTime.UtcNow.AddYears(10) }
-            let command = Command.SaveDeviceGroupKey { Key = key }
-            do! this.Execute command
-            return this.Json(key.Token.AsString)
+            let token = Application.GenerateSecureToken()
+            let! key = Application.PostDeviceGroupKey httpSend deviceGroupId token
+            return this.Json(key)
         }
     
     [<Route("keys/sensor-keys/{deviceGroupId}")>]
@@ -83,27 +75,17 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.Administrator)>]
     member this.PostSensorKey(deviceGroupId : string) : Async<JsonResult> = 
         async {
-            let token = SensorKeyToken(GenerateSecureToken())
-            let key : SensorKey = 
-                { Token = token
-                  DeviceGroupId = DeviceGroupId deviceGroupId
-                  ValidThrough = System.DateTime.UtcNow.AddYears(10) }
-            let command = Command.SaveSensorKey { Key = key }
-            do! this.Execute command
-            return this.Json(key.Token.AsString)
+            let token = Application.GenerateSecureToken()
+            let! key = Application.PostSensorKey httpSend deviceGroupId token
+            return this.Json(key)
         }
     
     [<Route("sensor/{sensorId}/name/{sensorName}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.User)>]
     member this.PostSensorName (sensorId : string) (sensorName : string) : Async<unit> = 
-        async {    
-            let changeSensorName : Command.ChangeSensorName =
-                { SensorId = SensorId sensorId
-                  DeviceGroupId = this.DeviceGroupId
-                  SensorName = sensorName}
-            let command = Command.ChangeSensorName changeSensorName
-            do! this.Execute command
+        async {
+            do! Application.PostSensorName httpSend this.DeviceGroupId sensorId sensorName
         }    
     
     [<Route("sensors")>]
@@ -111,9 +93,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.User)>]
     member this.GetSensorStatuses() : Async<SensorStatusResult list> = 
         async {
-            let! statuses = SensorStatusQuery.GetSensorStatuses (this.DeviceGroupId)
-            let result = statuses |> Mapping.ToSensorStatusResults
-            return result
+            return! Application.GetSensorStatuses this.DeviceGroupId
         }
 
     [<Route("sensor/{sensorId}/history/")>]
@@ -121,9 +101,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.User)>]
     member this.GetSensorHistory (sensorId : string) : Async<SensorHistoryResult> =
         async {
-            let! history = SensorHistoryQuery.GetSensorHistory (this.DeviceGroupId) (SensorId sensorId)
-            let result = history |> Mapping.ToSensorHistoryResult
-            return result
+            return! Application.GetSensorHistory this.DeviceGroupId sensorId
         }
     
     [<Route("push-notifications/subscribe/{token}")>]
@@ -131,13 +109,7 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
     [<Authorize(Policy = Roles.User)>]
     member this.SubscribeToPushNotifications (token : string) : Async<unit> = 
         async {
-            let subscription = PushNotification.Subscription token
-            let deviceGroupId = this.DeviceGroupId
-            let subscribeToPushNotifications : Command.SubscribeToPushNotifications =
-                { DeviceGroupId = deviceGroupId
-                  Subscription = subscription }
-            let command = Command.SubscribeToPushNotifications subscribeToPushNotifications
-            do! this.Execute command
+            return! Application.SubscribeToPushNotifications httpSend this.DeviceGroupId token
         }
     
     [<Route("sensor-data")>]
@@ -149,9 +121,6 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 return this.StatusCode(StatusCodes.Status401Unauthorized)
             else
                 let deviceGroupId = FindDeviceGroupId this.Request
-                let changeSensorStates = sensorData |> Mapping.ToChangeSensorStateCommands deviceGroupId
-                for changeSensorState in changeSensorStates do
-                    let command = Command.ChangeSensorState changeSensorState
-                    do! this.Execute command
+                return! Application.PostSensorData httpSend deviceGroupId sensorData
                 return this.StatusCode(StatusCodes.Status201Created)
         }

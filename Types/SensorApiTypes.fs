@@ -1,16 +1,13 @@
 ﻿namespace YogRobot
 
-[<AutoOpen>]
 module SensorApiTypes =
 
-    [<CLIMutable>] 
     type SensorDatum = 
         { name : string
           value : string
           scale : int
           formattedValue : string }
     
-    [<CLIMutable>] 
     type SensorData = 
         { event : string
           gatewayId : string
@@ -20,12 +17,10 @@ module SensorApiTypes =
           batteryVoltage : string
           rssi : string }
           
-    [<CLIMutable>] 
     type SensorHistoryResultEntry = 
         { MeasuredValue : obj
           Timestamp : System.DateTime }
     
-    [<CLIMutable>] 
     type SensorHistoryResult = 
         { SensorId : string
           MeasuredProperty : string

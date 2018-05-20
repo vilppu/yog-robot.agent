@@ -3,8 +3,9 @@
 [<AutoOpen>]
 module TokenServiceClient = 
     open Newtonsoft.Json
+    open System.Net.Http
     
-    let GetMasterTokenWithKey(key : MasterKeyToken) = 
+    let GetMasterTokenWithKey(key) = 
         let apiUrl = "api/tokens/master"
         Agent.GetWithMasterKey key apiUrl
     
@@ -14,10 +15,9 @@ module TokenServiceClient =
             return JsonConvert.DeserializeObject<string>(response)
         }
     
-    let GetDeviceGroupTokenWithKey botKey deviceGroupId = 
-        let (DeviceGroupId deviceGroupId) = deviceGroupId
+    let GetDeviceGroupTokenWithKey botKey deviceGroupId : Async<HttpResponseMessage> =
         let apiUrl = "api/tokens/device-group"
-        Agent.GetWithDeviceGroupKey botKey (DeviceGroupId deviceGroupId) apiUrl
+        Agent.GetWithDeviceGroupKey botKey deviceGroupId apiUrl
     
     let GetDeviceGroupToken botKey deviceGroupId =
         async {
@@ -25,10 +25,9 @@ module TokenServiceClient =
             return JsonConvert.DeserializeObject<string>(response)
         }
     
-    let GetSensorTokenWithKey sensorKey deviceGroupId = 
-        let (DeviceGroupId deviceGroupId) = deviceGroupId
+    let GetSensorTokenWithKey sensorKey deviceGroupId =
         let apiUrl = "api/tokens/sensor"
-        Agent.GetWithSensorKey sensorKey (DeviceGroupId deviceGroupId) apiUrl
+        Agent.GetWithSensorKey sensorKey deviceGroupId apiUrl
     
     let GetSensorToken sensorKey deviceGroupId =
         async {

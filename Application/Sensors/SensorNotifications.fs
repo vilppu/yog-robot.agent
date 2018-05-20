@@ -1,6 +1,6 @@
 namespace YogRobot
 
-module SensorNotifications =
+module internal SensorNotifications =
     
     let SendPushNotifications httpSend (sensorState : SensorState) previousMeasurement =
         async {               

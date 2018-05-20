@@ -1,7 +1,7 @@
 namespace YogRobot
 
 [<AutoOpen>]
-module Sensors =
+module internal Sensors =
     open System
 
     type DeviceGroupId = 

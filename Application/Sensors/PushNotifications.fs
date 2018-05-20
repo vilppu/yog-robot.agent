@@ -1,6 +1,6 @@
 namespace YogRobot
 
-module PushNotifications =
+module internal PushNotifications =
     open System
 
     type DevicePushNotification =
@@ -20,7 +20,7 @@ module PushNotifications =
             let sensorName = reason.SensorState.SensorId.AsString       
             
             let deviceGroupId = reason.SensorState.DeviceGroupId
-            let! subscriptions = PushNotificationSubscriptionBsonStorage.ReadPushNotificationSubscriptions deviceGroupId
+            let! subscriptions = PushNotificationSubscriptionBsonStorage.ReadPushNotificationSubscriptions deviceGroupId.AsString
 
             let pushNotification : DevicePushNotification =
                 { DeviceId = reason.SensorState.DeviceId.AsString
@@ -44,12 +44,12 @@ module PushNotifications =
                   registration_ids = subscriptions }
                   
             let! subsriptionChanges = FirebaseApi.SendFirebaseMessages httpSend subscriptions pushNotification
-            do! PushNotificationSubscriptionBsonStorage.RemoveRegistrations deviceGroupId subsriptionChanges.SubscriptionsToBeRemoved
-            do! PushNotificationSubscriptionBsonStorage.AddRegistrations deviceGroupId subsriptionChanges.SubscriptionsToBeAdded
+            do! PushNotificationSubscriptionBsonStorage.RemoveRegistrations deviceGroupId.AsString subsriptionChanges.SubscriptionsToBeRemoved
+            do! PushNotificationSubscriptionBsonStorage.AddRegistrations deviceGroupId.AsString subsriptionChanges.SubscriptionsToBeAdded
         }
     
     let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : PushNotification.Subscription) =
-        PushNotificationSubscriptionBsonStorage.StorePushNotificationSubscriptions deviceGroupId [subscription.Token]
+        PushNotificationSubscriptionBsonStorage.StorePushNotificationSubscriptions deviceGroupId.AsString [subscription.Token]
 
     let SendPushNotifications httpSend reason =
         async {

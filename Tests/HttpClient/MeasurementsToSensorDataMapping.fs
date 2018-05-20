@@ -4,6 +4,7 @@
 module MeasurementsToSensorDataMapping = 
     open System.Globalization
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
+    open SensorApiTypes
     
     let private toDatum measurement = 
         match measurement with

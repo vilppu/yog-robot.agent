@@ -1,39 +1,13 @@
 ﻿namespace YogRobot
 
-module SensorEventStorage = 
-    open System
+module internal SensorEventStorage = 
     open MongoDB.Bson
     open MongoDB.Driver
-    open MongoDB.Bson.Serialization.Attributes
-
-    [<CLIMutable>]
-    type StorableSensorEvent = 
-        { [<BsonIgnoreIfDefault>]
-          Id : ObjectId
-          DeviceGroupId : string
-          DeviceId : string
-          SensorId : string
-          MeasuredProperty : string
-          MeasuredValue : obj
-          Voltage : float
-          SignalStrength : float
-          Timestamp : DateTime }
-    
-    let private sensorEvents (deviceGroupId : DeviceGroupId) =
-        let collectionName = "SensorEvents." + deviceGroupId.AsString
-        BsonStorage.Database.GetCollection<StorableSensorEvent> collectionName
-        |> BsonStorage.WithDescendingIndex "DeviceGroupId"
-        |> BsonStorage.WithDescendingIndex "DeviceId"
-        |> BsonStorage.WithDescendingIndex "Timestamp"
-    
-    let Drop deviceGroupId =
-        let collection = sensorEvents deviceGroupId
-        BsonStorage.Database.DropCollection(collection.CollectionNamespace.CollectionName)
 
     let private stateHasChanged (sensorState : SensorState) : Async<bool> =
         async {
             let measurement = StorableTypes.StorableMeasurement sensorState.Measurement
-            let filter = SensorStatusBsonStorage.FilterSensorsBy sensorState.DeviceGroupId sensorState.SensorId
+            let filter = SensorStatusBsonStorage.FilterSensorsBy sensorState.DeviceGroupId.AsString sensorState.SensorId.AsString
             let! sensorStatus =
                 SensorStatusBsonStorage.SensorsCollection.FindSync<SensorStatusBsonStorage.StorableSensorStatus>(filter).SingleOrDefaultAsync()
                 |> Async.AwaitTask
@@ -43,8 +17,8 @@ module SensorEventStorage =
         }
     
     let StoreSensorEvent (sensorState : SensorState) = 
-        let collection = sensorEvents sensorState.DeviceGroupId
-        let eventToBeStored : StorableSensorEvent = 
+        let collection = SensorEventBsonStorage.SensorEvents sensorState.DeviceGroupId.AsString
+        let eventToBeStored : SensorEventBsonStorage.StorableSensorEvent = 
             let measurement = StorableTypes.StorableMeasurement sensorState.Measurement
             { Id = ObjectId.Empty
               DeviceGroupId =  sensorState.DeviceGroupId.AsString

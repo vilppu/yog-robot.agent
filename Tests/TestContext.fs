@@ -15,8 +15,8 @@ module TestContext =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0.03f329983b86f7d9a9f5fef85305880101d5e302afafa20154d094b229f75773"
     let TheMasterKey = "D4C144DA78C8FF923F3C56ADEB4F5113"
     let AnotherMasterKey = "F4C155DA78C8FF923F3C56ADEB4F5113"
-    let TestDeviceGroupId = DeviceGroupId "TestDeviceGroup"
-    let AnotherTestDeviceGroupId = DeviceGroupId "AnotherTestDeviceGroupId"
+    let TestDeviceGroupId = "TestDeviceGroup"
+    let AnotherTestDeviceGroupId = "AnotherTestDeviceGroupId"
 
     let SetupEmptyEnvironmentUsing httpSend = 
         Environment.SetEnvironmentVariable("YOG_BOT_BASE_URL", "http://127.0.0.1:18888/yog-robot/")
@@ -24,9 +24,9 @@ module TestContext =
         Environment.SetEnvironmentVariable("YOG_MASTER_KEY", TheMasterKey)
         Environment.SetEnvironmentVariable("YOG_TOKEN_SECRET", "fake-token-secret")
         Environment.SetEnvironmentVariable("YOG_FCM_KEY", "fake")
-        KeyStorage.Drop()
-        SensorEventStorage.Drop TestDeviceGroupId
-        SensorEventStorage.Drop AnotherTestDeviceGroupId
+        KeyBsonStorage.Drop()
+        SensorEventBsonStorage.Drop TestDeviceGroupId
+        SensorEventBsonStorage.Drop AnotherTestDeviceGroupId
         SensorStatusBsonStorage.Drop()
         SensorHistoryBsonStorage.Drop()
     
@@ -49,14 +49,14 @@ module TestContext =
     type Context() = 
         do
             SetupEmptyEnvironment()
-        member this.ExampleMasterKey = MasterKeyToken TheMasterKey
-        member this.NotRegisteredMasterKey = MasterKeyToken AnotherMasterKey
-        member val DeviceGroupId = DeviceGroupId(GenerateSecureToken()) with get, set
-        member val AnotherDeviceGroupId = DeviceGroupId(GenerateSecureToken()) with get, set
-        member val DeviceGroupKeyToken = DeviceGroupKeyToken(GenerateSecureToken()) with get, set
-        member val AnotherDeviceGroupKey = DeviceGroupKeyToken(GenerateSecureToken()) with get, set
-        member val SensorKeyToken = SensorKeyToken(GenerateSecureToken()) with get, set
-        member val AnotherSensorKey = SensorKeyToken(GenerateSecureToken()) with get, set
+        member this.ExampleMasterKey = TheMasterKey
+        member this.NotRegisteredMasterKey = AnotherMasterKey
+        member val DeviceGroupId = Application.GenerateSecureToken() with get, set
+        member val AnotherDeviceGroupId = Application.GenerateSecureToken() with get, set
+        member val DeviceGroupKeyToken = Application.GenerateSecureToken() with get, set
+        member val AnotherDeviceGroupKey = Application.GenerateSecureToken() with get, set
+        member val SensorKeyToken = Application.GenerateSecureToken() with get, set
+        member val AnotherSensorKey = Application.GenerateSecureToken() with get, set
         member val MasterToken = "MasterToken" with get, set
         member val DeviceGroupToken = "DeviceGroupToken" with get, set
         member val AnotherDeviceGroupToken = "AnotherDeviceGroupToken" with get, set
@@ -74,10 +74,10 @@ module TestContext =
         let context = new Context()
         context.DeviceGroupId <- TestDeviceGroupId
         context.AnotherDeviceGroupId <- AnotherTestDeviceGroupId
-        context.DeviceGroupKeyToken <- RegisterDeviceGroupKey context.DeviceGroupId |> Async.RunSynchronously
-        context.AnotherDeviceGroupKey <- RegisterDeviceGroupKey context.AnotherDeviceGroupId |> Async.RunSynchronously
-        context.SensorKeyToken <- RegisterSensorKey context.DeviceGroupId |> Async.RunSynchronously
-        context.AnotherSensorKey <- RegisterSensorKey context.AnotherDeviceGroupId |> Async.RunSynchronously
+        context.DeviceGroupKeyToken <- Application.RegisterDeviceGroupKey context.DeviceGroupId |> Async.RunSynchronously
+        context.AnotherDeviceGroupKey <- Application.RegisterDeviceGroupKey context.AnotherDeviceGroupId |> Async.RunSynchronously
+        context.SensorKeyToken <- Application.RegisterSensorKey context.DeviceGroupId |> Async.RunSynchronously
+        context.AnotherSensorKey <- Application.RegisterSensorKey context.AnotherDeviceGroupId |> Async.RunSynchronously
         context.MasterToken <- GenerateMasterAccessToken()
         context.DeviceGroupToken <- GenerateDeviceGroupAccessToken context.DeviceGroupId
         context.AnotherDeviceGroupToken <- GenerateDeviceGroupAccessToken context.AnotherDeviceGroupId

@@ -1,76 +1,38 @@
 ﻿namespace YogRobot
 
-module KeyStorage = 
+module internal KeyStorage = 
     open System
     open MongoDB.Bson
     open MongoDB.Driver
     open MongoDB.Bson.Serialization.Attributes
-
-    [<CLIMutable>]
-    type StorableMasterKey = 
-        { [<BsonIgnoreIfDefault>]
-          Id : ObjectId
-          Key : string
-          ValidThrough : DateTime
-          Timestamp : DateTime }
-
-    [<CLIMutable>]
-    type StorableDeviceGroupKey = 
-        { [<BsonIgnoreIfDefault>]
-          Id : ObjectId
-          Key : string
-          DeviceGroupId : string 
-          ValidThrough : DateTime
-          Timestamp : DateTime }
-
-    [<CLIMutable>]
-    type StorableSensorKey = 
-        { [<BsonIgnoreIfDefault>]
-          Id : ObjectId
-          Key : string
-          DeviceGroupId : string 
-          ValidThrough : DateTime
-          Timestamp : DateTime }
-    
-    let private masterKeys = BsonStorage.Database.GetCollection<StorableMasterKey> "MasterKeys" |> BsonStorage.WithDescendingIndex "ValidThrough"
-    
-    let private botKeys = 
-        BsonStorage.Database.GetCollection<StorableDeviceGroupKey> "DeviceGroupKeys"
-        |> BsonStorage.WithDescendingIndex "ValidThrough"
-        |> BsonStorage.WithDescendingIndex "DeviceGroupId"
-    
-    let private sensorKeys = 
-        BsonStorage.Database.GetCollection<StorableSensorKey> "SensorKeys"
-        |> BsonStorage.WithDescendingIndex "ValidThrough"
-        |> BsonStorage.WithDescendingIndex "DeviceGroupId"
     
     let StoreMasterKey(key : MasterKey) = 
-        let keyToBeStored : StorableMasterKey =
+        let keyToBeStored : KeyBsonStorage.StorableMasterKey =
             { Id = ObjectId.Empty
               Key = key.Token.AsString
               ValidThrough = key.ValidThrough
               Timestamp = DateTime.UtcNow }
-        masterKeys.InsertOneAsync(keyToBeStored)
+        KeyBsonStorage.MasterKeys.InsertOneAsync(keyToBeStored)
         |> Async.AwaitTask
     
     let StoreDeviceGroupKey(key : DeviceGroupKey) = 
-        let keyToBeStored : StorableDeviceGroupKey =
+        let keyToBeStored : KeyBsonStorage.StorableDeviceGroupKey =
             { Id = ObjectId.Empty
               Key = key.Token.AsString
               DeviceGroupId = key.DeviceGroupId.AsString
               ValidThrough = key.ValidThrough
               Timestamp = DateTime.UtcNow }
-        botKeys.InsertOneAsync(keyToBeStored)
+        KeyBsonStorage.BotKeys.InsertOneAsync(keyToBeStored)
         |> Async.AwaitTask
     
     let StoreSensorKey(key : SensorKey) = 
-        let keyToBeStored : StorableSensorKey =
+        let keyToBeStored : KeyBsonStorage.StorableSensorKey =
             { Id = ObjectId.Empty
               Key = key.Token.AsString
               DeviceGroupId = key.DeviceGroupId.AsString
               ValidThrough = key.ValidThrough
               Timestamp = DateTime.UtcNow }
-        sensorKeys.InsertOneAsync(keyToBeStored)
+        KeyBsonStorage.SensorKeys.InsertOneAsync(keyToBeStored)
         |> Async.AwaitTask
     
     let IsValidMasterKeyToken (token : MasterKeyToken) (validationTime : DateTime) =
@@ -86,7 +48,7 @@ module KeyStorage =
             let! keys =
                 async {
                     let! result =
-                        masterKeys.FindAsync<StorableMasterKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token)
+                        KeyBsonStorage.MasterKeys.FindAsync<KeyBsonStorage.StorableMasterKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token)
                         |> Async.AwaitTask
                     
                     return
@@ -108,7 +70,7 @@ module KeyStorage =
             let! keys =
                 async {
                     let! result =
-                        botKeys.FindAsync<StorableDeviceGroupKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId)
+                        KeyBsonStorage.BotKeys.FindAsync<KeyBsonStorage.StorableDeviceGroupKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId)
                         |> Async.AwaitTask
                     return result.ToList()
                  }
@@ -125,7 +87,7 @@ module KeyStorage =
             let! keys =
                 async {
                     let! result =
-                        sensorKeys.FindAsync<StorableSensorKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId)
+                        KeyBsonStorage.SensorKeys.FindAsync<KeyBsonStorage.StorableSensorKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId)
                         |> Async.AwaitTask
                     return result.ToList() |> List.ofSeq
                 }
@@ -137,8 +99,3 @@ module KeyStorage =
         
             return matchingKeys.Length > 0
         }
-    
-    let Drop() =
-        BsonStorage.Database.DropCollection(masterKeys.CollectionNamespace.CollectionName)
-        BsonStorage.Database.DropCollection(botKeys.CollectionNamespace.CollectionName)
-        BsonStorage.Database.DropCollection(sensorKeys.CollectionNamespace.CollectionName)

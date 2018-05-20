@@ -1,6 +1,6 @@
 namespace YogRobot
 
-module SensorHistoryStorage =
+module internal SensorHistoryStorage =
     open System.Collections.Generic
     open MongoDB.Bson
     open MongoDB.Driver
@@ -49,7 +49,7 @@ module SensorHistoryStorage =
               MeasuredProperty = measurement.Name
               Entries = new List<SensorHistoryBsonStorage.StorableSensorHistoryEntry>(updatedEntries) }            
           
-        let filter = SensorHistoryBsonStorage.FilterHistoryBy sensorState.DeviceGroupId sensorState.SensorId
+        let filter = SensorHistoryBsonStorage.FilterHistoryBy sensorState.DeviceGroupId.AsString sensorState.SensorId.AsString
         
         SensorHistoryBsonStorage.SensorHistoryCollection.ReplaceOneAsync<SensorHistoryBsonStorage.StorableSensorHistory>(filter, storable, BsonStorage.Upsert)
         |> Async.AwaitTask
@@ -57,7 +57,7 @@ module SensorHistoryStorage =
 
     let ReadSensorHistory (deviceGroupId : DeviceGroupId) (sensorId : SensorId) =
         async {
-            let filter = SensorHistoryBsonStorage.FilterHistoryBy deviceGroupId sensorId
+            let filter = SensorHistoryBsonStorage.FilterHistoryBy deviceGroupId.AsString sensorId.AsString
             let history = SensorHistoryBsonStorage.SensorHistoryCollection.Find<SensorHistoryBsonStorage.StorableSensorHistory>(filter)
             let! first = history.FirstOrDefaultAsync<SensorHistoryBsonStorage.StorableSensorHistory>() |> Async.AwaitTask
             return first |> toHistory

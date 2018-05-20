@@ -2,6 +2,7 @@
 
 module Fake = 
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
+    open SensorApiTypes
     
     let private exampleMeasurement = Measurement.Temperature 15.0<C>
     let Measurement measurement = (measurement, "ExampleDevice")

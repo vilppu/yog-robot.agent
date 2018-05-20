@@ -8,8 +8,7 @@ module Agent =
     let private getBaseUrl() = Environment.GetEnvironmentVariable("YOG_BOT_BASE_URL")
     let private httpClient = new HttpClient(BaseAddress = Uri(getBaseUrl()))
     
-    let PostWithMasterKey (key : MasterKeyToken) (url : string) data = 
-        let (MasterKeyToken key) = key
+    let PostWithMasterKey (key : string) (url : string) data =
         let json = JsonConvert.SerializeObject data
         async { 
             use content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
@@ -18,9 +17,7 @@ module Agent =
             return response |> Http.FailOnServerError
         }
     
-    let PostWithDeviceGroupKey (key : DeviceGroupKeyToken) (deviceGroupId : DeviceGroupId) (url : string) data = 
-        let (DeviceGroupKeyToken key) = key
-        let (DeviceGroupId deviceGroupId) = deviceGroupId
+    let PostWithDeviceGroupKey (key : string) (deviceGroupId : string) (url : string) data =
         let json = JsonConvert.SerializeObject data
         async { 
             use content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
@@ -30,9 +27,7 @@ module Agent =
             return response |> Http.FailOnServerError
         }
     
-    let PostWithSensorKey (key : SensorKeyToken) (deviceGroupId : DeviceGroupId) (url : string) data = 
-        let (SensorKeyToken key) = key
-        let (DeviceGroupId deviceGroupId) = deviceGroupId
+    let PostWithSensorKey (key : string) (deviceGroupId : string) (url : string) data =
         let json = JsonConvert.SerializeObject data
         async { 
             use content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
@@ -42,8 +37,7 @@ module Agent =
             return response |> Http.FailOnServerError
         }
     
-    let GetWithMasterKey (key : MasterKeyToken) (url : string) = 
-        let (MasterKeyToken key) = key
+    let GetWithMasterKey (key : string) (url : string) =
         async { 
             use request = new HttpRequestMessage(HttpMethod.Get, url)
             request.Headers.Add("Accept", "application/json")
@@ -52,9 +46,7 @@ module Agent =
             return response |> Http.FailOnServerError
         }
     
-    let GetWithDeviceGroupKey (key : DeviceGroupKeyToken) (deviceGroupId : DeviceGroupId) (url : string) = 
-        let (DeviceGroupKeyToken key) = key
-        let (DeviceGroupId deviceGroupId) = deviceGroupId
+    let GetWithDeviceGroupKey (key : string) (deviceGroupId : string) (url : string) =
         async { 
             use request = new HttpRequestMessage(HttpMethod.Get, url)
             request.Headers.Add("Accept", "application/json")
@@ -64,9 +56,7 @@ module Agent =
             return response |> Http.FailOnServerError
         }
     
-    let GetWithSensorKey (key : SensorKeyToken) (deviceGroupId : DeviceGroupId) (url : string) = 
-        let (SensorKeyToken key) = key
-        let (DeviceGroupId deviceGroupId) = deviceGroupId
+    let GetWithSensorKey (key : string) (deviceGroupId : string) (url : string) = 
         async { 
             use request = new HttpRequestMessage(HttpMethod.Get, url)
             request.Headers.Add("Accept", "application/json")
@@ -76,9 +66,7 @@ module Agent =
             return response |> Http.FailOnServerError
         }
     
-    let GetWithBotKey (key : SensorKeyToken) (deviceGroupId : DeviceGroupId) (url : string) = 
-        let (SensorKeyToken key) = key
-        let (DeviceGroupId deviceGroupId) = deviceGroupId
+    let GetWithBotKey (key : string) (deviceGroupId : string) (url : string) =
         async { 
             use request = new HttpRequestMessage(HttpMethod.Get, url)
             request.Headers.Add("Accept", "application/json")

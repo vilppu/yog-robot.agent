@@ -3,6 +3,7 @@
 [<AutoOpen>]
 module SensorStatusesClient = 
     open Newtonsoft.Json
+    open SensorApiTypes
     
     let GetSensorStatusesResponse token = 
         let apiUrl = "api/sensors"
