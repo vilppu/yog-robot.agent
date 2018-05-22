@@ -30,17 +30,17 @@ module internal SensorHistoryStorage =
 
     let private updatedHistoryEntries (sensorState :  SensorState) (history : SensorHistory) =
         let maxNumberOfEntries = 30
-        let measurement = StorableTypes.StorableMeasurement sensorState.Measurement
+        let measurement = DataTransferObject.Measurement sensorState.Measurement
         let newEntry  = 
             { MeasuredValue = measurement.Value
-              Timestamp = sensorState.Timestamp }
+              Timestamp = sensorState.LastUpdated }
         let newHistory = newEntry :: history.Entries
         newHistory
         |> List.truncate maxNumberOfEntries
         |> List.map entryToStorable
         
     let private upsertHistory (sensorState : SensorState) (history : SensorHistory) =
-        let measurement = StorableTypes.StorableMeasurement sensorState.Measurement
+        let measurement = DataTransferObject.Measurement sensorState.Measurement
         let updatedEntries = updatedHistoryEntries sensorState history
         let storable : SensorHistoryBsonStorage.StorableSensorHistory =
             { Id = ObjectId.Empty
@@ -65,7 +65,7 @@ module internal SensorHistoryStorage =
          
     let UpdateSensorHistory (sensonHistory : SensorHistory) (sensorState : SensorState) =
         async {
-            let measurement = StorableTypes.StorableMeasurement sensorState.Measurement            
+            let measurement = DataTransferObject.Measurement sensorState.Measurement            
             let changed =
                 match sensonHistory.Entries with
                 | head::tail ->

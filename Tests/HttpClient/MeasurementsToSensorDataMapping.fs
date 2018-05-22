@@ -4,7 +4,6 @@
 module MeasurementsToSensorDataMapping = 
     open System.Globalization
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
-    open SensorApiTypes
     
     let private toDatum measurement = 
         match measurement with
@@ -13,20 +12,20 @@ module MeasurementsToSensorDataMapping =
             { name = "TEMPERATURE"
               value = ""
               scale = 1
-              formattedValue = sprintf "%s C" value }
+              formattedValue = sprintf "%s C" value } : DataTransferObject.SensorDatum
         | Measurement.RelativeHumidity relativeHumidity -> 
             let value = float(relativeHumidity).ToString(CultureInfo.InvariantCulture)
             { name = "RH"
               value = ""
               scale = 2
-              formattedValue = sprintf "%s %%" value }
+              formattedValue = sprintf "%s %%" value } : DataTransferObject.SensorDatum
         | Measurement.PresenceOfWater presenceOfWater -> 
             { name = "DETECT"
               value = 
                   if presenceOfWater = Measurement.Present then "1"
                   else "0"
               scale = 0
-              formattedValue = "" }
+              formattedValue = "" } : DataTransferObject.SensorDatum
         | Measurement.Contact contact -> 
             let value = contact.ToString()
             { name = "CONTACT"
@@ -34,7 +33,7 @@ module MeasurementsToSensorDataMapping =
                   if contact = Measurement.Open then "1"
                   else "0"
               scale = 0
-              formattedValue = "" }
+              formattedValue = "" } : DataTransferObject.SensorDatum
         | Measurement.Measurement.Motion motion -> 
             let value = motion.ToString()
             { name = "pir"
@@ -42,19 +41,19 @@ module MeasurementsToSensorDataMapping =
                   if motion = Measurement.Motion then "1"
                   else "0"
               scale = 0
-              formattedValue = "" }
+              formattedValue = "" } : DataTransferObject.SensorDatum
         | Measurement.Voltage voltage ->
             let value = float(voltage).ToString(CultureInfo.InvariantCulture)
             { name = "voltage"
               value = value
               scale = 2
-              formattedValue = "" }
+              formattedValue = "" } : DataTransferObject.SensorDatum
         | Measurement.Rssi rssi -> 
             let value = float(rssi).ToString(CultureInfo.InvariantCulture)
             { name = "rssi"
               value = value
               scale = 0
-              formattedValue = "" }
+              formattedValue = "" } : DataTransferObject.SensorDatum
     
     let EmptySensorDataEvent() = 
         { event = "sensor data"
@@ -63,7 +62,7 @@ module MeasurementsToSensorDataMapping =
           sensorId = ""
           data = []
           batteryVoltage = ""
-          rssi = "" }
+          rssi = "" } : DataTransferObject.SensorData
     
     let SensorDataEventWithSensorId sensorId = 
         { event = "sensor data"
@@ -72,8 +71,8 @@ module MeasurementsToSensorDataMapping =
           sensorId = sensorId
           data = []
           batteryVoltage = ""
-          rssi = "" }
+          rssi = "" } : DataTransferObject.SensorData
     
     let WithMeasurement measurement sensorData =
-        { sensorData with data = [ toDatum measurement ] }
+        { sensorData with data = [ toDatum measurement ] } : DataTransferObject.SensorData
 

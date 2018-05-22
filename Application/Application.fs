@@ -2,7 +2,7 @@
 
 module Application =
     open System
-    open SensorApiTypes
+    open DataTransferObject
     open System.Security.Cryptography
 
     let GenerateSecureToken() = 
@@ -101,17 +101,17 @@ module Application =
             do! Command.Execute httpSend command
         }    
     
-    let GetSensorStatuses deviceGroupId : Async<SensorStatusResult list> = 
+    let GetSensorState deviceGroupId : Async<DataTransferObject.SensorState list> = 
         async {
-            let! statuses = SensorStatusQuery.GetSensorStatuses (DeviceGroupId deviceGroupId)
-            let result = statuses |> Mapping.ToSensorStatusResults
+            let! statuses = SensorStateQuery.GetSensorState (DeviceGroupId deviceGroupId)
+            let result = statuses |> SensorStateToDataTransferObject
             return result
         }
 
-    let GetSensorHistory deviceGroupId sensorId : Async<SensorHistoryResult> =
+    let GetSensorHistory deviceGroupId sensorId : Async<DataTransferObject.SensorHistory> =
         async {
             let! history = SensorHistoryQuery.GetSensorHistory (DeviceGroupId deviceGroupId) (SensorId sensorId)
-            let result = history |> Mapping.ToSensorHistoryResult
+            let result = history |> SensorHistoryToDataTransferObject
             return result
         }
     
@@ -127,7 +127,7 @@ module Application =
 
     let PostSensorData httpSend deviceGroupId (sensorData : SensorData) =
         async {
-            let changeSensorStates = sensorData |> Mapping.ToChangeSensorStateCommands (DeviceGroupId deviceGroupId)
+            let changeSensorStates = sensorData |> Command.ToChangeSensorStateCommands (DeviceGroupId deviceGroupId)
             for changeSensorState in changeSensorStates do
                 let command = Command.ChangeSensorState changeSensorState
                 do! Command.Execute httpSend command

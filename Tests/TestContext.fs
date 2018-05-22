@@ -27,7 +27,7 @@ module TestContext =
         KeyBsonStorage.Drop()
         SensorEventBsonStorage.Drop TestDeviceGroupId
         SensorEventBsonStorage.Drop AnotherTestDeviceGroupId
-        SensorStatusBsonStorage.Drop()
+        SensorStateBsonStorage.Drop()
         SensorHistoryBsonStorage.Drop()
     
         if serverTask |> isNull then

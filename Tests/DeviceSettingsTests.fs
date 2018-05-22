@@ -25,6 +25,6 @@ module DeviceSettingsTest =
 
         ChangeSensorName context.DeviceGroupToken sensorId expectedName |> Async.RunSynchronously
 
-        let result = context |> GetExampleSensorStatuses
+        let result = context |> GetExampleSensorState
         let entry = result.Head
         Assert.Equal(expectedName, entry.SensorName)

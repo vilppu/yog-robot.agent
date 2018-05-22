@@ -9,11 +9,11 @@ module TestHelpers =
     let WriteMeasurementSynchronously (measurement, deviceId) (context : Context) = 
         WriteMeasurement (measurement, deviceId) context |> Async.RunSynchronously |> ignore
     
-    let GetExampleSensorStatusesResponse (context : Context) = 
-        GetSensorStatusesResponse context.DeviceGroupToken |> Async.RunSynchronously
+    let GetExampleSensorStateResponse (context : Context) = 
+        GetSensorStateResponse context.DeviceGroupToken |> Async.RunSynchronously
     
-    let GetExampleSensorStatuses(context : Context) = 
-        GetSensorStatuses context.DeviceGroupToken |> Async.RunSynchronously
+    let GetExampleSensorState(context : Context) = 
+        GetSensorState context.DeviceGroupToken |> Async.RunSynchronously
     
     let SetupToReceivePushNotifications(context : Context) = 
         let result =

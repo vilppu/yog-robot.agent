@@ -27,7 +27,7 @@ module TokenTest =
     let DeviceGroupTokenCanBeUsedToAccessDeviceGroup() = 
         use context = SetupContext()
         let botToken = GetDeviceGroupToken context.DeviceGroupKeyToken context.DeviceGroupId |> Async.RunSynchronously
-        let response = GetSensorStatusesResponse botToken |> Async.RunSynchronously
+        let response = GetSensorStateResponse botToken |> Async.RunSynchronously
         Assert.Equal(HttpStatusCode.OK, response.StatusCode)
     
     [<Fact>]

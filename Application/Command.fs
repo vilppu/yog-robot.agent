@@ -1,13 +1,20 @@
 namespace YogRobot
 
 module internal Command =
+    open DataTransferObject
    
     type SubscribeToPushNotifications =
         { DeviceGroupId : DeviceGroupId
           Subscription : PushNotification.Subscription }
 
     type ChangeSensorState =
-        { SensorState : SensorState }
+        { SensorId : SensorId
+          DeviceGroupId : DeviceGroupId
+          DeviceId : DeviceId
+          Measurement : Measurement.Measurement
+          BatteryVoltage : Measurement.Voltage
+          SignalStrength : Measurement.Rssi
+          Timestamp : System.DateTime }
 
     type ChangeSensorName = 
         { SensorId : SensorId
@@ -40,12 +47,16 @@ module internal Command =
         }
     
     let private sensorStateChangedEvent (command : ChangeSensorState) =
-        async {
-            let! (lastUpdated, measuredValue) = SensorStateStorage.ReadPreviousState command.SensorState.DeviceGroupId.AsString command.SensorState.SensorId.AsString
-            let event : Event.SensorStateChanged =
-                { SensorState = command.SensorState
-                  PreviousTimestamp = lastUpdated
-                  PreviousMeasurement = measuredValue}
+        async {            
+            let event : Event.SensorStateChanged =                
+                { SensorId = command.SensorId
+                  DeviceGroupId = command.DeviceGroupId
+                  DeviceId = command.DeviceId
+                  Measurement = command.Measurement
+                  BatteryVoltage = command.BatteryVoltage
+                  SignalStrength = command.SignalStrength
+                  Timestamp = command.Timestamp }
+
             return Event.SensorStateChanged event
         }
 
@@ -92,6 +103,46 @@ module internal Command =
             | SaveSensorKey saveSensorKey ->
                 return saveSensorKeyEvent saveSensorKey
        }
+    
+    let private toChangeSensorStateCommand
+        (deviceGroupId : DeviceGroupId)
+        (sensorData : SensorData)
+        (datum : SensorDatum)
+        (timestamp : System.DateTime)
+        : Option<ChangeSensorState> =
+        
+        let measurementOption = DataTransferObject.SensorDatumToMeasurement datum
+
+        match measurementOption with
+        | Some measurement ->
+            let property = datum |> DataTransferObject.MeasuredPropertyName
+            let deviceId = DeviceId sensorData.sensorId
+
+            let command : ChangeSensorState =
+                { SensorId = SensorId (deviceId.AsString + "." + property)
+                  DeviceGroupId = deviceGroupId
+                  DeviceId = deviceId
+                  Measurement = measurement
+                  BatteryVoltage = ToBatteryVoltage sensorData
+                  SignalStrength = ToRssi sensorData
+                  Timestamp = timestamp }
+
+            Some command
+        | None -> None
+
+    let private toChangeSensorStateCommands (deviceGroupId : DeviceGroupId) (sensorData : SensorData) timestamp =
+        sensorData.data
+        |> Seq.toList
+        |> List.map (fun datum -> toChangeSensorStateCommand deviceGroupId sensorData datum timestamp)
+        |> List.choose (id)
+    
+    let ToChangeSensorStateCommands (deviceGroupId : DeviceGroupId) (sensorData : SensorData) : ChangeSensorState list = 
+        let timestamp = System.DateTime.UtcNow
+        let sensorData = ToGatewayEvent sensorData
+        match sensorData with
+        | GatewayEvent.SensorDataEvent sensorData ->
+            toChangeSensorStateCommands deviceGroupId sensorData timestamp
+        | _ -> []
   
     let Execute httpSend (command : Command) =     
         async {

@@ -2,7 +2,6 @@
 
 module Fake = 
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
-    open SensorApiTypes
     
     let private exampleMeasurement = Measurement.Temperature 15.0<C>
     let Measurement measurement = (measurement, "ExampleDevice")
@@ -10,7 +9,7 @@ module Fake =
     let SomeMeasurementFromDevice deviceId = (exampleMeasurement, deviceId)
     let SensorId = "ExampleSensor"   
     
-    let SomeSensorData = 
+    let SomeSensorData : DataTransferObject.SensorData = 
         { event = "sensor data"
           gatewayId = ""
           channel = ""
@@ -19,8 +18,8 @@ module Fake =
           batteryVoltage = ""
           rssi = "" }
     
-    let SensorEventWithEmptyDatumValues = 
-        let data = 
+    let SensorEventWithEmptyDatumValues : DataTransferObject.SensorData = 
+        let data : DataTransferObject.SensorDatum list = 
           [ { name = "CONTACT"
               value = ""
               scale = 0
@@ -42,8 +41,8 @@ module Fake =
           batteryVoltage = ""
           rssi = "" }
     
-    let SensorEventWithInvalidDatumValues = 
-        let data = 
+    let SensorEventWithInvalidDatumValues : DataTransferObject.SensorData = 
+        let data : DataTransferObject.SensorDatum list = 
               [ { name = "TEMPERATURE"
                   value = "INVALID"
                   scale = 0
@@ -56,7 +55,7 @@ module Fake =
           batteryVoltage = ""
           rssi = "" }
     
-    let SensorEventWithInvalidDeviceProperties = 
+    let SensorEventWithInvalidDeviceProperties : DataTransferObject.SensorData = 
         { event = "sensor data"
           gatewayId = ""
           channel = ""
@@ -65,8 +64,8 @@ module Fake =
           batteryVoltage = "INVALID"
           rssi = "INVALID" }
     
-    let SensorEventWithUnknownDatumValues = 
-        let  data = 
+    let SensorEventWithUnknownDatumValues : DataTransferObject.SensorData = 
+        let data : DataTransferObject.SensorDatum list =
               [ { name = ""
                   value = "1"
                   scale = 0

@@ -10,7 +10,8 @@
 
   <ItemGroup>
     <Compile Include="Measurement.fs" />
-    <Compile Include="SensorApiTypes.fs" />
+    <Compile Include="DataTransferObject.fs" />
+    <Compile Include="Sensors.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.2.3" />

@@ -2,7 +2,7 @@
 
 [<AutoOpen>]
 module SensorDataServiceClient = 
-    open SensorApiTypes
+    open DataTransferObject
     
     let PostSensorData key deviceGroupId (sensorData : SensorData) = 
         let apiUrl = "api/sensor-data"

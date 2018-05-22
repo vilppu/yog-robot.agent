@@ -1,7 +1,6 @@
 namespace YogRobot
 
 module PushNotificationTests = 
-    open System
     open Xunit
 
     let WaitForBackgroundProcessingToComplete() =
