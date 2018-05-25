@@ -31,12 +31,8 @@ module internal SensorStateQuery =
     
     let private ReadSensorState (deviceGroupId : DeviceGroupId) : Async<SensorState list> =
         async {
-            let deviceGroupId = deviceGroupId.AsString
-            let result = SensorStateBsonStorage.SensorsCollection.Find<SensorStateBsonStorage.StorableSensorState>(fun x -> x.DeviceGroupId = deviceGroupId)
-            let! storable =
-                result.ToListAsync<SensorStateBsonStorage.StorableSensorState>()
-                |> Async.AwaitTask
-            let statuses = storable |> toSensorStates
+            let! result = SensorStateBsonStorage.ReadSensorStates deviceGroupId.AsString
+            let statuses = result |> toSensorStates
             
             return statuses
         }

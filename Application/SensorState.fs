@@ -2,7 +2,6 @@ namespace YogRobot
 
 module internal SensorStateStorage =
     open MongoDB.Bson
-    open MongoDB.Driver
 
     let UpdateSensorState (sensorState : SensorState)
         : SensorStateBsonStorage.StorableSensorState =

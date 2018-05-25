@@ -54,7 +54,7 @@ module internal Event =
                       Voltage = (float)sensorStateChanged.BatteryVoltage
                       SignalStrength = (float)sensorStateChanged.SignalStrength
                       Timestamp = sensorStateChanged.Timestamp }
-                do! SensorEventStorage.StoreSensorEvent eventToBeStored
+                do! SensorEventBsonStorage.StoreSensorEvent eventToBeStored
             | SensorNameChanged _ -> ()
             | SavedMasterKey _ -> ()
             | SavedDeviceGroupKey _ -> ()
@@ -102,8 +102,7 @@ module internal Event =
                 do! Notification.Send httpSend sensorState previousState.MeasuredValue
 
             | SensorNameChanged event ->
-                let filter = SensorStateBsonStorage.FilterSensorsBy event.DeviceGroupId.AsString event.SensorId.AsString
-                do! SensorStateBsonStorage.StoreSensorName filter event.SensorName
+                do! SensorStateBsonStorage.StoreSensorName event.DeviceGroupId.AsString event.SensorId.AsString event.SensorName
 
             | SavedMasterKey event ->
                 do! KeyStorage.StoreMasterKey event.Key
