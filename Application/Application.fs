@@ -117,7 +117,7 @@ module Application =
     
     let SubscribeToPushNotifications httpSend deviceGroupId (token : string) : Async<unit> = 
         async {
-            let subscription = PushNotification.Subscription token
+            let subscription = Notification.Subscription token
             let subscribeToPushNotifications : Command.SubscribeToPushNotifications =
                 { DeviceGroupId = (DeviceGroupId deviceGroupId)
                   Subscription = subscription }

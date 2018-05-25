@@ -5,7 +5,7 @@ module internal Event =
 
     type SubscribedToPushNotifications =
         { DeviceGroupId : DeviceGroupId
-          Subscription : PushNotification.Subscription }
+          Subscription : Notification.Subscription }
 
     type SensorStateChanged = 
         { SensorId : SensorId
@@ -65,7 +65,7 @@ module internal Event =
         async {
             match event with
             | SubscribedToPushNotifications event ->
-                do! PushNotification.StorePushNotificationSubscription event.DeviceGroupId event.Subscription
+                do! Notification.StorePushNotificationSubscription event.DeviceGroupId event.Subscription
 
             | SensorStateChanged event ->
                 let! history = SensorHistoryStorage.ReadSensorHistory event.DeviceGroupId event.SensorId
@@ -99,7 +99,7 @@ module internal Event =
                 
                 do! SensorStateBsonStorage.StoreSensorState storable
                 do! SensorHistoryStorage.UpdateSensorHistory history sensorState
-                do! SensorNotifications.SendPushNotifications httpSend sensorState previousState.MeasuredValue
+                do! Notification.Send httpSend sensorState previousState.MeasuredValue
 
             | SensorNameChanged event ->
                 let filter = SensorStateBsonStorage.FilterSensorsBy event.DeviceGroupId.AsString event.SensorId.AsString

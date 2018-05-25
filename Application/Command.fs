@@ -5,7 +5,7 @@ module internal Command =
    
     type SubscribeToPushNotifications =
         { DeviceGroupId : DeviceGroupId
-          Subscription : PushNotification.Subscription }
+          Subscription : Notification.Subscription }
 
     type ChangeSensorState =
         { SensorId : SensorId
