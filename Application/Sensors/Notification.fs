@@ -64,9 +64,6 @@ module internal Notification =
                 do! sendFirebasePushNotifications httpSend reason
         }
     
-    let StorePushNotificationSubscription (deviceGroupId : DeviceGroupId) (subscription : Subscription) =
-        PushNotificationSubscriptionBsonStorage.StorePushNotificationSubscriptions deviceGroupId.AsString [subscription.Token]
-    
     let Send httpSend (sensorState : SensorState) previousMeasurement =
         async {               
             let reason : PushNotificationReason =
