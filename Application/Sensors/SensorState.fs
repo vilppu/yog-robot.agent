@@ -21,15 +21,3 @@ module internal SensorStateStorage =
           LastUpdated = sensorState.LastUpdated
           LastActive = sensorState.LastActive
         }
-
-    let ReadPreviousState deviceGroupId sensorId : Async<System.DateTime * obj> =
-        async {
-            let filter = SensorStateBsonStorage.FilterSensorsBy deviceGroupId sensorId
-            let! status =
-                SensorStateBsonStorage.SensorsCollection.FindSync<SensorStateBsonStorage.StorableSensorState>(filter).SingleOrDefaultAsync()
-                |> Async.AwaitTask
-            if status :> obj |> isNull then
-                return (System.DateTime.UtcNow, null)
-            else
-                return (status.LastUpdated, status.MeasuredValue)
-        }
