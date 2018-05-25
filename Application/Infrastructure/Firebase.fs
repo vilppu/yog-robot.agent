@@ -1,6 +1,6 @@
 namespace YogRobot
 
-module FirebaseApi =
+module Firebase =
     open System
     open System.Collections.Generic
     open System.Net

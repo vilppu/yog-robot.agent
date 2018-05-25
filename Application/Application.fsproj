@@ -12,14 +12,7 @@
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Infrastructure\FirebaseApi.fs" />
-    <Compile Include="Infrastructure\Expressions.fs" />
-    <Compile Include="Infrastructure\BsonStorage.fs" />
-    <Compile Include="Infrastructure\SensorHistoryBsonStorage.fs" />
-    <Compile Include="Infrastructure\SensorStateBsonStorage.fs" />
-    <Compile Include="Infrastructure\SensorEventBsonStorage.fs" />
-    <Compile Include="Infrastructure\PushNotificationSubscriptionBsonStorage.fs" />
-    <Compile Include="Infrastructure\KeyBsonStorage.fs" />
+    <Compile Include="Infrastructure\Firebase.fs" />
     <Compile Include="Sensors\Security.fs" />
     <Compile Include="Sensors\PushNotification.fs" />
     <Compile Include="Sensors\PushNotifications.fs" />
@@ -38,6 +31,7 @@
     <PackageReference Update="FSharp.Core" Version="4.2.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Storage\Storage.fsproj" />
     <ProjectReference Include="..\Types\Types.fsproj" />
   </ItemGroup>
 </Project>

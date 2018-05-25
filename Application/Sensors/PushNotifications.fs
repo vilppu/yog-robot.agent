@@ -29,21 +29,21 @@ module internal PushNotifications =
                   MeasuredValue = measurement.Value
                   Timestamp = reason.SensorState.LastUpdated }
             
-            let notification : FirebaseApi.FirebaseDeviceNotificationContent =
+            let notification : Firebase.FirebaseDeviceNotificationContent =
                 { deviceId = pushNotification.DeviceId
                   sensorName = pushNotification.SensorName
                   measuredProperty = pushNotification.MeasuredProperty
                   measuredValue = pushNotification.MeasuredValue
                   timestamp = pushNotification.Timestamp }
 
-            let pushNotificationRequestData : FirebaseApi.FirebasePushNotificationRequestData =
+            let pushNotificationRequestData : Firebase.FirebasePushNotificationRequestData =
                 { deviceNotification = notification }
 
-            let pushNotification : FirebaseApi.FirebasePushNotification =
+            let pushNotification : Firebase.FirebasePushNotification =
                 { data = pushNotificationRequestData
                   registration_ids = subscriptions }
                   
-            let! subsriptionChanges = FirebaseApi.SendFirebaseMessages httpSend subscriptions pushNotification
+            let! subsriptionChanges = Firebase.SendFirebaseMessages httpSend subscriptions pushNotification
             do! PushNotificationSubscriptionBsonStorage.RemoveRegistrations deviceGroupId.AsString subsriptionChanges.SubscriptionsToBeRemoved
             do! PushNotificationSubscriptionBsonStorage.AddRegistrations deviceGroupId.AsString subsriptionChanges.SubscriptionsToBeAdded
         }
