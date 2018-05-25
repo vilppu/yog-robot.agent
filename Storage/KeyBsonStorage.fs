@@ -33,7 +33,7 @@ module KeyBsonStorage =
     
     let MasterKeys = BsonStorage.Database.GetCollection<StorableMasterKey> "MasterKeys" |> BsonStorage.WithDescendingIndex "ValidThrough"
     
-    let BotKeys = 
+    let DeviceGroupKeys = 
         BsonStorage.Database.GetCollection<StorableDeviceGroupKey> "DeviceGroupKeys"
         |> BsonStorage.WithDescendingIndex "ValidThrough"
         |> BsonStorage.WithDescendingIndex "DeviceGroupId"
@@ -45,5 +45,5 @@ module KeyBsonStorage =
 
     let Drop() =
         BsonStorage.Database.DropCollection(MasterKeys.CollectionNamespace.CollectionName)
-        BsonStorage.Database.DropCollection(BotKeys.CollectionNamespace.CollectionName)
+        BsonStorage.Database.DropCollection(DeviceGroupKeys.CollectionNamespace.CollectionName)
         BsonStorage.Database.DropCollection(SensorKeys.CollectionNamespace.CollectionName)

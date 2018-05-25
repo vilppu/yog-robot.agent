@@ -4,7 +4,6 @@ module internal KeyStorage =
     open System
     open MongoDB.Bson
     open MongoDB.Driver
-    open MongoDB.Bson.Serialization.Attributes
     
     let StoreMasterKey(key : MasterKey) = 
         let keyToBeStored : KeyBsonStorage.StorableMasterKey =
@@ -22,7 +21,7 @@ module internal KeyStorage =
               DeviceGroupId = key.DeviceGroupId.AsString
               ValidThrough = key.ValidThrough
               Timestamp = DateTime.UtcNow }
-        KeyBsonStorage.BotKeys.InsertOneAsync(keyToBeStored)
+        KeyBsonStorage.DeviceGroupKeys.InsertOneAsync(keyToBeStored)
         |> Async.AwaitTask
     
     let StoreSensorKey(key : SensorKey) = 
@@ -70,7 +69,7 @@ module internal KeyStorage =
             let! keys =
                 async {
                     let! result =
-                        KeyBsonStorage.BotKeys.FindAsync<KeyBsonStorage.StorableDeviceGroupKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId)
+                        KeyBsonStorage.DeviceGroupKeys.FindAsync<KeyBsonStorage.StorableDeviceGroupKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token && k.DeviceGroupId = deviceGroupId)
                         |> Async.AwaitTask
                     return result.ToList()
                  }
