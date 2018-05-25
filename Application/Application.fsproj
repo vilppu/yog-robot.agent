@@ -15,7 +15,6 @@
     <Compile Include="Infrastructure\Firebase.fs" />
     <Compile Include="Sensors\Security.fs" />
     <Compile Include="Sensors\PushNotification.fs" />
-    <Compile Include="Sensors\PushNotifications.fs" />
     <Compile Include="Sensors\SensorNotifications.fs" />
     <Compile Include="Sensors\SensorHistoryStorage.fs" />
     <Compile Include="Sensors\SensorEventStorage.fs" />

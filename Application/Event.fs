@@ -65,7 +65,7 @@ module internal Event =
         async {
             match event with
             | SubscribedToPushNotifications event ->
-                do! PushNotifications.StorePushNotificationSubscription event.DeviceGroupId event.Subscription
+                do! PushNotification.StorePushNotificationSubscription event.DeviceGroupId event.Subscription
 
             | SensorStateChanged event ->
                 let! history = SensorHistoryStorage.ReadSensorHistory event.DeviceGroupId event.SensorId
