@@ -38,5 +38,5 @@ module SensorDataTest =
         batchWriteMeasurements()
 
         timer.Stop()
-        Assert.True(timer.ElapsedMilliseconds < int64(10000))
+        Assert.True(timer.ElapsedMilliseconds < int64(5000))
         

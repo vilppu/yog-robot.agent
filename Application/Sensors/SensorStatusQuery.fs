@@ -2,28 +2,10 @@
 
 module internal SensorStateQuery =
     open MongoDB.Driver
-    open Microsoft.FSharp.Reflection
-    open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
-
-    let private measurementCases = FSharpType.GetUnionCases typeof<Measurement.Measurement>
-    
-    let private toMeasurement measuredProperty (measuredValue : obj) = 
-        let toMeasurementUnionCase case =
-            FSharpValue.MakeUnion(case, [| measuredValue |])
-            :?>Measurement.Measurement
-        
-        let measuredValue = 
-            measurementCases
-            |> Array.toList
-            |> List.filter (fun case -> case.Name = measuredProperty)
-            |> List.map toMeasurementUnionCase
-        
-        match measuredValue with
-        | [] -> None
-        | head :: tail -> Some(head)
+    open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols   
     
     let private toSensorState (storable : SensorStateBsonStorage.StorableSensorState) : SensorState =
-        let measurement = toMeasurement storable.MeasuredProperty storable.MeasuredValue
+        let measurement = Measurement.From storable.MeasuredProperty storable.MeasuredValue
         let batteryVoltage : Measurement.Voltage = storable.BatteryVoltage * 1.0<V>
         let signalStrength : Measurement.Rssi = storable.SignalStrength
 
@@ -31,7 +13,7 @@ module internal SensorStateQuery =
           DeviceGroupId = DeviceGroupId storable.DeviceGroupId
           DeviceId = DeviceId storable.DeviceId
           SensorName = storable.SensorName
-          Measurement = measurement.Value
+          Measurement = measurement
           BatteryVoltage = batteryVoltage
           SignalStrength = signalStrength
           LastActive = storable.LastActive

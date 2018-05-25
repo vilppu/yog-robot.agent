@@ -169,23 +169,4 @@ module DataTransferObject =
         | unionCaseInfo, _ -> 
             { Name = unionCaseInfo.Name
               Value = measurement |> storableMeasurementValue }
-    
-    let ToMeasurement (measurement : Measurement) = 
-
-        let measurementCases =
-            FSharpType.GetUnionCases typeof<Measurement.Measurement>
-
-        let toMeasurementUnionCase case =
-            FSharpValue.MakeUnion(case, [| measurement.Value |])
-            :?>Measurement.Measurement
-        
-        let measuredValue = 
-            measurementCases
-            |> Array.toList
-            |> List.filter (fun case -> case.Name = measurement.Name)
-            |> List.map toMeasurementUnionCase
-        
-        match measuredValue with
-        | [] -> None
-        | head :: _ -> Some(head)
  

@@ -4,7 +4,7 @@ module PushNotificationTests =
     open Xunit
 
     let WaitForBackgroundProcessingToComplete() =
-        System.Threading.Tasks.Task.Delay(1000) |> Async.AwaitTask
+        System.Threading.Tasks.Task.Delay(100) |> Async.AwaitTask
 
     [<Fact>]
     let NotifyAboutContact() = 
