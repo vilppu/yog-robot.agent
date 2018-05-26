@@ -28,13 +28,13 @@ module SensorStateBsonStorage =
         BsonStorage.Database.GetCollection<StorableSensorState> SensorsCollectionName
         |> BsonStorage.WithDescendingIndex "DeviceGroupId"
     
-    let private FindSensor (deviceGroupId : string) (sensorId : string) =
+    let private GetSensorExpression (deviceGroupId : string) (sensorId : string) =
         let sensorId = sensorId
         let deviceGroupId = deviceGroupId
         let expr = Expressions.Lambda.Create<StorableSensorState>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
     
-    let private FindSensors (deviceGroupId : string) =        
+    let private GetSensorsExpression (deviceGroupId : string) =        
         let deviceGroupId = deviceGroupId
         let expr = Expressions.Lambda.Create<StorableSensorState>(fun x -> x.DeviceGroupId = deviceGroupId)
         expr
@@ -42,7 +42,7 @@ module SensorStateBsonStorage =
     let StoreSensorName (deviceGroupId : string) (sensorId : string) (sensorName : string) =
         
         let filter =
-            FindSensor deviceGroupId sensorId
+            GetSensorExpression deviceGroupId sensorId
 
         let update =
             Builders<StorableSensorState>.Update.Set((fun s -> s.SensorName), sensorName)
@@ -55,7 +55,7 @@ module SensorStateBsonStorage =
 
     let StoreSensorState (sensorState : StorableSensorState) =
     
-        let filter = FindSensor sensorState.DeviceGroupId sensorState.SensorId
+        let filter = GetSensorExpression sensorState.DeviceGroupId sensorState.SensorId
         
         let update =
             Builders<StorableSensorState>.Update             
@@ -74,9 +74,9 @@ module SensorStateBsonStorage =
         :> System.Threading.Tasks.Task
         |> Async.AwaitTask
 
-    let ReadSensorState deviceGroupId sensorId : Async<StorableSensorState> =
+    let GetSensorState deviceGroupId sensorId : Async<StorableSensorState> =
         async {
-            let filter = FindSensor deviceGroupId sensorId
+            let filter = GetSensorExpression deviceGroupId sensorId
 
             let! sensorState =
                 SensorsCollection.FindSync<StorableSensorState>(filter).SingleOrDefaultAsync()
@@ -85,9 +85,9 @@ module SensorStateBsonStorage =
             return sensorState
         }
 
-    let ReadSensorStates deviceGroupId : Async<StorableSensorState list> =
+    let GetSensorStates deviceGroupId : Async<StorableSensorState list> =
         async {
-            let filter = FindSensors deviceGroupId
+            let filter = GetSensorsExpression deviceGroupId
 
             let! sensorStates =
                 SensorsCollection.FindSync<StorableSensorState>(filter).ToListAsync()

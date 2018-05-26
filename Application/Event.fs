@@ -2,6 +2,7 @@ namespace YogRobot
 
 module internal Event =
     open SensorStateBsonStorage
+    open SensorHistoryBsonStorage
 
     type SubscribedToPushNotifications =
         { DeviceGroupId : DeviceGroupId
@@ -68,8 +69,9 @@ module internal Event =
                 do! PushNotificationSubscriptionBsonStorage.StorePushNotificationSubscriptions event.DeviceGroupId.AsString [event.Subscription.Token]
 
             | SensorStateChanged event ->
-                let! history = SensorHistoryStorage.ReadSensorHistory event.DeviceGroupId event.SensorId
-                let! previousState = SensorStateBsonStorage.ReadSensorState event.DeviceGroupId.AsString event.SensorId.AsString
+                let! sensorHistory = SensorHistoryBsonStorage.GetSensorHistory event.DeviceGroupId.AsString event.SensorId.AsString
+                let sensorHistory = ConvertSensorHistory.FromStorable sensorHistory
+                let! previousState = SensorStateBsonStorage.GetSensorState event.DeviceGroupId.AsString event.SensorId.AsString
                 let measurement = DataTransferObject.Measurement event.Measurement
 
                 let previousState =
@@ -98,7 +100,12 @@ module internal Event =
                 let storable = ConvertSensortState.ToStorable sensorState
                 
                 do! SensorStateBsonStorage.StoreSensorState storable
-                do! SensorHistoryStorage.UpdateSensorHistory history sensorState
+
+
+                if hasChanged then
+                    let storableSensorHistory = ConvertSensorHistory.ToStorable sensorState sensorHistory
+                    do! SensorHistoryBsonStorage.UpsertSensorHistory storableSensorHistory
+
                 do! Notification.Send httpSend sensorState previousState.MeasuredValue
 
             | SensorNameChanged event ->

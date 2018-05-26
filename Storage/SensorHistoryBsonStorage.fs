@@ -5,6 +5,7 @@ module SensorHistoryBsonStorage =
     open System.Collections.Generic
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes
+    open MongoDB.Driver
     open YogRobot.Expressions
 
     [<CLIMutable>]
@@ -28,16 +29,34 @@ module SensorHistoryBsonStorage =
 
     let private sensorHistoryCollectionName = "SensorHistory"
 
-    let SensorHistoryCollection = 
+    let private sensorHistoryCollection = 
         BsonStorage.Database.GetCollection<StorableSensorHistory> sensorHistoryCollectionName
         |> BsonStorage.WithDescendingIndex "DeviceGroupId"        
         |> BsonStorage.WithDescendingIndex "DeviceId"
         |> BsonStorage.WithDescendingIndex "MeasuredProperty"
     
-    let FilterHistoryBy (deviceGroupId : string) (sensorId : string) =
+    let private filterHistoryBy (deviceGroupId : string) (sensorId : string) =
         let sensorId = sensorId
         let deviceGroupId = deviceGroupId
         let expr = Lambda.Create<StorableSensorHistory>(fun x -> x.DeviceGroupId = deviceGroupId && x.SensorId = sensorId)
         expr
+
+    let GetSensorHistory (deviceGroupId : string) (sensorId : string)
+        : Async<StorableSensorHistory> =
+        async {
+            let filter = filterHistoryBy deviceGroupId sensorId
+            let! history =
+                sensorHistoryCollection.Find<StorableSensorHistory>(filter).FirstOrDefaultAsync<StorableSensorHistory>()
+                |> Async.AwaitTask
+            return history
+        }
+        
+    let UpsertSensorHistory (history : StorableSensorHistory) =       
+          
+        let filter = filterHistoryBy history.DeviceGroupId history.SensorId
+        
+        sensorHistoryCollection.ReplaceOneAsync<StorableSensorHistory>(filter, history, BsonStorage.Upsert)
+        |> Async.AwaitTask
+        |> Async.Ignore
     
     let Drop() = BsonStorage.Database.DropCollection(sensorHistoryCollectionName)

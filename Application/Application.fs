@@ -104,16 +104,16 @@ module Application =
     let GetSensorState (deviceGroupId : string) : Async<DataTransferObject.SensorState list> = 
         async {
         
-            let! statuses = SensorStateBsonStorage.ReadSensorStates deviceGroupId
+            let! statuses = SensorStateBsonStorage.GetSensorStates deviceGroupId
             let statuses = statuses |> ConvertSensortState.FromStorables
             let result = statuses |> SensorStateToDataTransferObject
             return result
         }
 
-    let GetSensorHistory deviceGroupId sensorId : Async<DataTransferObject.SensorHistory> =
+    let GetSensorHistory (deviceGroupId : string) (sensorId : string) : Async<DataTransferObject.SensorHistory> =
         async {
-            let! history = SensorHistoryQuery.GetSensorHistory (DeviceGroupId deviceGroupId) (SensorId sensorId)
-            let result = history |> SensorHistoryToDataTransferObject
+            let! history = SensorHistoryBsonStorage.GetSensorHistory deviceGroupId sensorId
+            let result = history |> ConvertSensorHistory.FromStorable |> SensorHistoryToDataTransferObject
             return result
         }
     
