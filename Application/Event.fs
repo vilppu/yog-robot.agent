@@ -95,7 +95,7 @@ module internal Event =
                       LastUpdated = lastUpdated
                       LastActive = lastActive }
 
-                let storable = SensorStateStorage.UpdateSensorState sensorState
+                let storable = ConvertSensortState.ToStorable sensorState
                 
                 do! SensorStateBsonStorage.StoreSensorState storable
                 do! SensorHistoryStorage.UpdateSensorHistory history sensorState

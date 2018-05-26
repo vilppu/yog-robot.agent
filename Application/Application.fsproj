@@ -16,9 +16,8 @@
     <Compile Include="Security.fs" />
     <Compile Include="Notification.fs" />
     <Compile Include="SensorHistoryStorage.fs" />
-    <Compile Include="SensorState.fs" />
+    <Compile Include="ConvertSensortState.fs" />
     <Compile Include="KeyStorage.fs" />
-    <Compile Include="SensorStatusQuery.fs" />
     <Compile Include="SensorHistoryQuery.fs" />
     <Compile Include="Event.fs" />
     <Compile Include="Command.fs" />

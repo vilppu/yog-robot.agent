@@ -101,9 +101,11 @@ module Application =
             do! Command.Execute httpSend command
         }    
     
-    let GetSensorState deviceGroupId : Async<DataTransferObject.SensorState list> = 
+    let GetSensorState (deviceGroupId : string) : Async<DataTransferObject.SensorState list> = 
         async {
-            let! statuses = SensorStateQuery.GetSensorState (DeviceGroupId deviceGroupId)
+        
+            let! statuses = SensorStateBsonStorage.ReadSensorStates deviceGroupId
+            let statuses = statuses |> ConvertSensortState.FromStorables
             let result = statuses |> SensorStateToDataTransferObject
             return result
         }
