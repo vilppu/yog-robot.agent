@@ -33,12 +33,12 @@ module KeyBsonStorage =
           Timestamp : DateTime }
     
     let private deviceGroupKeys = 
-        BsonStorage.Database.GetCollection<StorableDeviceGroupKey> "deviceGroupKeys"
+        BsonStorage.Database.GetCollection<StorableDeviceGroupKey> "DeviceGroupKeys"
         |> BsonStorage.WithDescendingIndex "ValidThrough"
         |> BsonStorage.WithDescendingIndex "DeviceGroupId"
     
     let private sensorKeys = 
-        BsonStorage.Database.GetCollection<StorableSensorKey> "sensorKeys"
+        BsonStorage.Database.GetCollection<StorableSensorKey> "SensorKeys"
         |> BsonStorage.WithDescendingIndex "ValidThrough"
         |> BsonStorage.WithDescendingIndex "DeviceGroupId"
     

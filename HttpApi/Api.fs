@@ -5,6 +5,7 @@ open Microsoft.AspNetCore.Authorization
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
 open DataTransferObject
+open Microsoft.AspNetCore.Cors
 
 [<Route("api")>]
 type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) = 

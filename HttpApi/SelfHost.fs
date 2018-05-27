@@ -12,6 +12,7 @@ module SelfHost =
     open Microsoft.AspNetCore.Builder
     open Microsoft.AspNetCore.Hosting
     open Microsoft.AspNetCore.Mvc
+    open Microsoft.AspNetCore.Cors.Infrastructure
     open Microsoft.Extensions.DependencyInjection
     open Microsoft.Extensions.Logging
     open Microsoft.IdentityModel.Tokens
@@ -28,6 +29,7 @@ module SelfHost =
         new Uri(url)
     
     type Startup(environment : IHostingEnvironment) =
+        let corsPolicy = "CorsPolicy"
 
         member this.Configure(app : IApplicationBuilder, env : IHostingEnvironment, loggerFactory : ILoggerFactory, httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) =             
             loggerFactory
@@ -38,6 +40,12 @@ module SelfHost =
             app
                 .UsePathBase(new Microsoft.AspNetCore.Http.PathString(GetUrl().PathAndQuery))
                 .UseAuthentication()
+                .UseCors(fun options ->
+                    options
+                     .AllowAnyOrigin()
+                     .AllowAnyMethod()
+                     .AllowAnyHeader()
+                     .AllowCredentials()|> ignore)
                 .UseMvc()
                 |> ignore
             
@@ -47,6 +55,7 @@ module SelfHost =
             let configureJsonAction = new Action<MvcJsonOptions>(configureJson)            
 
             services
+                .AddCors()
                 .AddMvc()
                 .AddJsonOptions(configureJsonAction)
                 |> ignore
@@ -73,7 +82,8 @@ module SelfHost =
                 options.AddPolicy(Roles.Administrator, configureAdminPolicy)
                 options.AddPolicy(Roles.User, configureUserPolicy)
                 options.AddPolicy(Roles.Sensor, configureSensorPolicy)
-            ) |> ignore               
+            ) |> ignore            
+
                 
             let tokenValidationParameters = TokenValidationParameters()
             tokenValidationParameters.ValidateIssuerSigningKey <- true
