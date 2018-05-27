@@ -26,13 +26,13 @@ module Application =
 
     let IsValidDeviceGroupKey deviceGroupId token validationTime =
         async {
-            let! keys = KeyBsonStorage.GetDeviceGroupKeys deviceGroupId token validationTime
+            let! keys = KeyStorage.GetDeviceGroupKeys deviceGroupId token validationTime
             return keys.Length > 0
         }
 
     let IsValidSensorKey deviceGroupId token validationTime = 
         async {
-            let! keys = KeyBsonStorage.GetSensorKeys deviceGroupId token validationTime
+            let! keys = KeyStorage.GetSensorKeys deviceGroupId token validationTime
             return keys.Length > 0
         }
     
@@ -42,7 +42,7 @@ module Application =
               DeviceGroupId = DeviceGroupId deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! KeyBsonStorage.StoreDeviceGroupKey (key |> ConvertKey.ToStorableDeviceGroupKeykey)
+            do! KeyStorage.StoreDeviceGroupKey (key |> ConvertKey.ToStorableDeviceGroupKeykey)
             return key.Token.AsString
         }
     
@@ -52,7 +52,7 @@ module Application =
               DeviceGroupId = DeviceGroupId deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! KeyBsonStorage.StoreSensorKey (key |> ConvertKey.ToStorableSensorKey)
+            do! KeyStorage.StoreSensorKey (key |> ConvertKey.ToStorableSensorKey)
             return key.Token.AsString
         }
     
@@ -91,7 +91,7 @@ module Application =
     let GetSensorState (deviceGroupId : string) : Async<DataTransferObject.SensorState list> = 
         async {
         
-            let! statuses = SensorStateBsonStorage.GetSensorStates deviceGroupId
+            let! statuses = SensorStateStorage.GetSensorStates deviceGroupId
             let statuses = statuses |> ConvertSensortState.FromStorables
             let result = statuses |> SensorStateToDataTransferObject
             return result
@@ -99,7 +99,7 @@ module Application =
 
     let GetSensorHistory (deviceGroupId : string) (sensorId : string) : Async<DataTransferObject.SensorHistory> =
         async {
-            let! history = SensorHistoryBsonStorage.GetSensorHistory deviceGroupId sensorId
+            let! history = SensorHistoryStorage.GetSensorHistory deviceGroupId sensorId
             let result = history |> ConvertSensorHistory.FromStorable |> SensorHistoryToDataTransferObject
             return result
         }

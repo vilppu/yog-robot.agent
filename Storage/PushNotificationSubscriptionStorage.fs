@@ -1,6 +1,6 @@
 namespace YogRobot
 
-module PushNotificationSubscriptionBsonStorage =
+module PushNotificationSubscriptionStorage =
     open System
     open System.Collections.Generic
     open System.Linq    

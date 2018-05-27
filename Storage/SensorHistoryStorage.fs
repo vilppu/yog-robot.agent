@@ -1,6 +1,6 @@
 namespace YogRobot
 
-module SensorHistoryBsonStorage =
+module SensorHistoryStorage =
     open System
     open System.Collections.Generic
     open MongoDB.Bson

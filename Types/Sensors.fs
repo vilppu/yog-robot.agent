@@ -55,6 +55,15 @@ module Sensors =
           SignalStrength : Measurement.Rssi
           LastUpdated : System.DateTime
           LastActive : System.DateTime }
+
+    type SensorStateUpdate = 
+        { SensorId : SensorId
+          DeviceGroupId : DeviceGroupId
+          DeviceId : DeviceId
+          Measurement : Measurement.Measurement
+          BatteryVoltage : Measurement.Voltage
+          SignalStrength : Measurement.Rssi
+          Timestamp : System.DateTime }
    
     let SensorStateToDataTransferObject (statuses : SensorState list) : DataTransferObject.SensorState list = 
         statuses

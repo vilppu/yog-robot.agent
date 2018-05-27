@@ -24,11 +24,11 @@ module TestContext =
         Environment.SetEnvironmentVariable("YOG_MASTER_KEY", TheMasterKey)
         Environment.SetEnvironmentVariable("YOG_TOKEN_SECRET", "fake-token-secret")
         Environment.SetEnvironmentVariable("YOG_FCM_KEY", "fake")
-        KeyBsonStorage.Drop()
-        SensorEventBsonStorage.Drop TestDeviceGroupId
-        SensorEventBsonStorage.Drop AnotherTestDeviceGroupId
-        SensorStateBsonStorage.Drop()
-        SensorHistoryBsonStorage.Drop()
+        KeyStorage.Drop()
+        SensorEventStorage.Drop TestDeviceGroupId
+        SensorEventStorage.Drop AnotherTestDeviceGroupId
+        SensorStateStorage.Drop()
+        SensorHistoryStorage.Drop()
     
         if serverTask |> isNull then
             serverTask <- CreateHttpServer httpSend

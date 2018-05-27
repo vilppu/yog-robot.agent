@@ -1,6 +1,6 @@
 ﻿namespace YogRobot
 
-module SensorEventBsonStorage = 
+module SensorEventStorage = 
     open System
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes

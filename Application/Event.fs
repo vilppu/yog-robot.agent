@@ -37,7 +37,7 @@ module internal Event =
         | SavedSensorKey of SavedSensorKey
     
 
-    let private toSensorStateUpdate (event : SensorStateChanged) : Action.SensorStateUpdate = 
+    let private toSensorStateUpdate (event : SensorStateChanged) : SensorStateUpdate = 
         { SensorId = event.SensorId
           DeviceGroupId = event.DeviceGroupId
           DeviceId = event.DeviceId
@@ -62,7 +62,7 @@ module internal Event =
         async {
             match event with
             | SubscribedToPushNotifications event ->
-                do! PushNotificationSubscriptionBsonStorage.StorePushNotificationSubscriptions event.DeviceGroupId.AsString [event.Subscription.Token]
+                do! PushNotificationSubscriptionStorage.StorePushNotificationSubscriptions event.DeviceGroupId.AsString [event.Subscription.Token]
 
             | SensorStateChanged event ->
                 let sensorStateUpdate = event |> toSensorStateUpdate
@@ -73,12 +73,12 @@ module internal Event =
                 do! Action.SendNotifications httpSend sensorState
 
             | SensorNameChanged event ->
-                do! SensorStateBsonStorage.StoreSensorName event.DeviceGroupId.AsString event.SensorId.AsString event.SensorName
+                do! SensorStateStorage.StoreSensorName event.DeviceGroupId.AsString event.SensorId.AsString event.SensorName
 
             | SavedDeviceGroupKey event ->
-                do! KeyBsonStorage.StoreDeviceGroupKey (event.Key |> ConvertKey.ToStorableDeviceGroupKeykey)
+                do! KeyStorage.StoreDeviceGroupKey (event.Key |> ConvertKey.ToStorableDeviceGroupKeykey)
 
             | SavedSensorKey event ->
-                do! KeyBsonStorage.StoreSensorKey (event.Key |> ConvertKey.ToStorableSensorKey)
+                do! KeyStorage.StoreSensorKey (event.Key |> ConvertKey.ToStorableSensorKey)
         }
   

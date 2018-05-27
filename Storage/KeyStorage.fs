@@ -1,6 +1,6 @@
 ﻿namespace YogRobot
 
-module KeyBsonStorage = 
+module KeyStorage = 
     open System
     open MongoDB.Bson
     open MongoDB.Bson.Serialization.Attributes

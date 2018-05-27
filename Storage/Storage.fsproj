@@ -7,11 +7,11 @@
   <ItemGroup>
     <Compile Include="Expressions.fs" />
     <Compile Include="BsonStorage.fs" />
-    <Compile Include="KeyBsonStorage.fs" />
-    <Compile Include="PushNotificationSubscriptionBsonStorage.fs" />
-    <Compile Include="SensorHistoryBsonStorage.fs" />
-    <Compile Include="SensorStateBsonStorage.fs" />
-    <Compile Include="SensorEventBsonStorage.fs" />
+    <Compile Include="KeyStorage.fs" />
+    <Compile Include="PushNotificationSubscriptionStorage.fs" />
+    <Compile Include="SensorHistoryStorage.fs" />
+    <Compile Include="SensorStateStorage.fs" />
+    <Compile Include="SensorEventStorage.fs" />
   </ItemGroup>
 
   <ItemGroup>

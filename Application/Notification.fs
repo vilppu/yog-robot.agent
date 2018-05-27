@@ -25,7 +25,7 @@ module internal Notification =
             let sensorName = reason.SensorState.SensorId.AsString       
             
             let deviceGroupId = reason.SensorState.DeviceGroupId
-            let! subscriptions = PushNotificationSubscriptionBsonStorage.ReadPushNotificationSubscriptions deviceGroupId.AsString
+            let! subscriptions = PushNotificationSubscriptionStorage.ReadPushNotificationSubscriptions deviceGroupId.AsString
 
             let pushNotification : DevicePushNotification =
                 { DeviceId = reason.SensorState.DeviceId.AsString
@@ -49,8 +49,8 @@ module internal Notification =
                   registration_ids = subscriptions }
                   
             let! subsriptionChanges = Firebase.SendFirebaseMessages httpSend subscriptions pushNotification
-            do! PushNotificationSubscriptionBsonStorage.RemoveRegistrations deviceGroupId.AsString subsriptionChanges.SubscriptionsToBeRemoved
-            do! PushNotificationSubscriptionBsonStorage.AddRegistrations deviceGroupId.AsString subsriptionChanges.SubscriptionsToBeAdded
+            do! PushNotificationSubscriptionStorage.RemoveRegistrations deviceGroupId.AsString subsriptionChanges.SubscriptionsToBeRemoved
+            do! PushNotificationSubscriptionStorage.AddRegistrations deviceGroupId.AsString subsriptionChanges.SubscriptionsToBeAdded
         }
 
     let private sendPushNotifications httpSend reason =

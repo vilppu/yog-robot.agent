@@ -4,7 +4,7 @@ module internal ConvertSensortState =
     open MongoDB.Bson
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols   
     
-    let private fromStorable (storable : SensorStateBsonStorage.StorableSensorState) : SensorState =
+    let private fromStorable (storable : SensorStateStorage.StorableSensorState) : SensorState =
         let measurement = Measurement.From storable.MeasuredProperty storable.MeasuredValue
         let batteryVoltage : Measurement.Voltage = storable.BatteryVoltage * 1.0<V>
         let signalStrength : Measurement.Rssi = storable.SignalStrength
@@ -19,7 +19,7 @@ module internal ConvertSensortState =
           LastActive = storable.LastActive
           LastUpdated = storable.LastUpdated }
     
-    let FromStorables (storable : seq<SensorStateBsonStorage.StorableSensorState>) : SensorState list =        
+    let FromStorables (storable : seq<SensorStateStorage.StorableSensorState>) : SensorState list =        
         let statuses =
             if storable :> obj |> isNull then
                 List.empty
@@ -27,10 +27,36 @@ module internal ConvertSensortState =
                 storable
                 |> Seq.toList
                 |> List.map fromStorable
-        statuses 
+        statuses
+        
+
+    let FromSensorStateUpdate (update : SensorStateUpdate) (previousState : SensorStateStorage.StorableSensorState) : SensorState =                    
+            let measurement = DataTransferObject.Measurement update.Measurement
+
+            let previousState =
+                if previousState :> obj |> isNull
+                then SensorStateStorage.DefaultState
+                else previousState
+
+            let hasChanged = measurement.Value <> previousState.MeasuredValue
+            let lastActive = update.Timestamp
+            let lastUpdated =
+                if hasChanged
+                then lastActive
+                else previousState.LastUpdated
+
+            { SensorId = update.SensorId
+              DeviceGroupId = update.DeviceGroupId
+              DeviceId = update.DeviceId
+              SensorName = previousState.SensorName
+              Measurement = update.Measurement
+              BatteryVoltage = update.BatteryVoltage
+              SignalStrength = update.SignalStrength
+              LastUpdated = lastUpdated
+              LastActive = lastActive }
 
     let ToStorable (sensorState : SensorState)
-        : SensorStateBsonStorage.StorableSensorState =
+        : SensorStateStorage.StorableSensorState =
     
         let measurement = DataTransferObject.Measurement sensorState.Measurement
 
