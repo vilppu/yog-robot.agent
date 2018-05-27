@@ -13,7 +13,7 @@ module KeyTest =
     [<Fact>]
     let MasterKeyCanBeUsedToCreateMasterTokens() = 
         use context = SetupContext()
-        let masterKey = CreateMasterKey context.MasterToken |> Async.RunSynchronously
+        let masterKey = context.ExampleMasterKey
         let response = GetMasterTokenWithKey masterKey |> Async.RunSynchronously
         let token = response.Content.ReadAsStringAsync()|> Async.AwaitTask  |> Async.RunSynchronously
         Assert.Equal(HttpStatusCode.OK, response.StatusCode)

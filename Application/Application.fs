@@ -16,18 +16,24 @@ module Application =
         Security.StoredTokenSecret()
 
     let IsValidMasterKeyToken token validationTime = 
-        async {
-            return! KeyStorage.IsValidMasterKeyToken (MasterKeyToken token) validationTime
+        async {        
+            let keys = 
+                match StoredMasterKey() with
+                | null -> []
+                | key -> [ key ] |> List.filter (fun key -> key = token)
+            return keys.Length > 0
         }
 
     let IsValidDeviceGroupKeyToken deviceGroupId token validationTime =
         async {
-            return! KeyStorage.IsValidDeviceGroupKeyToken (DeviceGroupId deviceGroupId) (DeviceGroupKeyToken token) validationTime
+            let! keys = KeyBsonStorage.GetDeviceGroupKeys deviceGroupId token validationTime
+            return keys.Length > 0
         }
 
     let IsValidSensorKeyToken deviceGroupId token validationTime = 
         async {
-            return! KeyStorage.IsValidSensorKeyToken (DeviceGroupId deviceGroupId) (SensorKeyToken token) validationTime
+            let! keys = KeyBsonStorage.GetSensorKeys deviceGroupId token validationTime
+            return keys.Length > 0
         }
 
     let RegisterMasterKey() = 
@@ -35,7 +41,7 @@ module Application =
             { Token = MasterKeyToken(GenerateSecureToken())
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! KeyStorage.StoreMasterKey key
+            do! KeyBsonStorage.StoreMasterKey (key |> ConvertKey.ToStorableMasterKey)
             return key.Token.AsString
         }
     
@@ -45,7 +51,7 @@ module Application =
               DeviceGroupId = DeviceGroupId deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! KeyStorage.StoreDeviceGroupKey key
+            do! KeyBsonStorage.StoreDeviceGroupKey (key |> ConvertKey.ToStorableDeviceGroupKeykey)
             return key.Token.AsString
         }
     
@@ -55,7 +61,7 @@ module Application =
               DeviceGroupId = DeviceGroupId deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! KeyStorage.StoreSensorKey key
+            do! KeyBsonStorage.StoreSensorKey (key |> ConvertKey.ToStorableSensorKey)
             return key.Token.AsString
         }
 

@@ -112,12 +112,12 @@ module internal Event =
                 do! SensorStateBsonStorage.StoreSensorName event.DeviceGroupId.AsString event.SensorId.AsString event.SensorName
 
             | SavedMasterKey event ->
-                do! KeyStorage.StoreMasterKey event.Key
+                do! KeyBsonStorage.StoreMasterKey (event.Key |> ConvertKey.ToStorableMasterKey)
 
             | SavedDeviceGroupKey event ->
-                do! KeyStorage.StoreDeviceGroupKey event.Key
+                do! KeyBsonStorage.StoreDeviceGroupKey (event.Key |> ConvertKey.ToStorableDeviceGroupKeykey)
 
             | SavedSensorKey event ->
-                do! KeyStorage.StoreSensorKey event.Key
+                do! KeyBsonStorage.StoreSensorKey (event.Key |> ConvertKey.ToStorableSensorKey)
         }
   
