@@ -17,8 +17,7 @@ module internal Notification =
           Timestamp : DateTime }
    
     type private PushNotificationReason =
-        { SensorState : SensorState
-          PreviousMeasurement : obj }
+        { SensorState : SensorState }
     
     let private sendFirebasePushNotifications httpSend reason =
         async {
@@ -56,19 +55,13 @@ module internal Notification =
 
     let private sendPushNotifications httpSend reason =
         async {
-            let eventMeasurement = DataTransferObject.Measurement reason.SensorState.Measurement
-            let hasChanged =
-                if reason.PreviousMeasurement |> isNull then true
-                else eventMeasurement.Value <> reason.PreviousMeasurement
-            if hasChanged then
-                do! sendFirebasePushNotifications httpSend reason
+            do! sendFirebasePushNotifications httpSend reason
         }
     
-    let Send httpSend (sensorState : SensorState) previousMeasurement =
+    let Send httpSend (sensorState : SensorState) =
         async {               
             let reason : PushNotificationReason =
-                { SensorState = sensorState
-                  PreviousMeasurement = previousMeasurement}
+                { SensorState = sensorState }
             sendPushNotifications httpSend reason
             // Do not wait for push notifications to be sent to notification provider.
             // This is to ensure that IoT hub does not need to wait for request to complete 
