@@ -1,8 +1,8 @@
 ﻿namespace YogRobot
 
-[<AutoOpen>]
 module internal Security =     
     open System
+    open MongoDB.Bson
 
     type MasterKeyToken = 
         | MasterKeyToken of string
@@ -43,3 +43,23 @@ module internal Security =
         if tokenSecret |> isNull then
             eprintfn "Environment variable YOG_TOKEN_SECRET is not set."
         tokenSecret
+    
+    let ToStorableMasterKey (key : MasterKey) : KeyStorage.StorableMasterKey =
+        { Id = ObjectId.Empty
+          Key = key.Token.AsString
+          ValidThrough = key.ValidThrough
+          Timestamp = DateTime.UtcNow }
+    
+    let ToStorableDeviceGroupKeykey (key : DeviceGroupKey) : KeyStorage.StorableDeviceGroupKey = 
+        { Id = ObjectId.Empty
+          Key = key.Token.AsString
+          DeviceGroupId = key.DeviceGroupId.AsString
+          ValidThrough = key.ValidThrough
+          Timestamp = DateTime.UtcNow }
+    
+    let ToStorableSensorKey (key : SensorKey) : KeyStorage.StorableSensorKey = 
+        { Id = ObjectId.Empty
+          Key = key.Token.AsString
+          DeviceGroupId = key.DeviceGroupId.AsString
+          ValidThrough = key.ValidThrough
+          Timestamp = DateTime.UtcNow }

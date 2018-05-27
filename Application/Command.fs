@@ -22,10 +22,10 @@ module internal Command =
           SensorName : string }
     
     type SaveDeviceGroupKey = 
-        { Key : DeviceGroupKey }
+        { Key : Security.DeviceGroupKey }
     
     type SaveSensorKey =
-        { Key : SensorKey }
+        { Key : Security.SensorKey }
     
     type Command =
         | SubscribeToPushNotifications of SubscribeToPushNotifications

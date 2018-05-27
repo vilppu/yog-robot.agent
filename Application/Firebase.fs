@@ -1,12 +1,9 @@
 namespace YogRobot
 
-module Firebase =
+module internal Firebase =
     open System
     open System.Collections.Generic
-    open System.Net
     open System.Net.Http
-    open System.Net.Http.Headers
-    open System.Text    
     open Newtonsoft.Json
 
     let StoredFirebaseKey() = Environment.GetEnvironmentVariable("YOG_FCM_KEY")

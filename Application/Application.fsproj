@@ -17,7 +17,6 @@
     <Compile Include="Security.fs" />
     <Compile Include="ConvertSensorHistory.fs" />
     <Compile Include="ConvertSensortState.fs" />
-    <Compile Include="ConvertKey.fs" />
     <Compile Include="Action.fs" />
     <Compile Include="Event.fs" />
     <Compile Include="Command.fs" />

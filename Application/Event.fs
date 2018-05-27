@@ -21,13 +21,13 @@ module internal Event =
           SensorName : string }
 
     type SavedMasterKey =
-        { Key : MasterKey }
+        { Key : Security.MasterKey }
     
     type SavedDeviceGroupKey = 
-        { Key : DeviceGroupKey }
+        { Key : Security.DeviceGroupKey }
     
     type SavedSensorKey =
-        { Key : SensorKey }
+        { Key : Security.SensorKey }
 
     type Event =
         | SubscribedToPushNotifications of SubscribedToPushNotifications
@@ -76,9 +76,9 @@ module internal Event =
                 do! SensorStateStorage.StoreSensorName event.DeviceGroupId.AsString event.SensorId.AsString event.SensorName
 
             | SavedDeviceGroupKey event ->
-                do! KeyStorage.StoreDeviceGroupKey (event.Key |> ConvertKey.ToStorableDeviceGroupKeykey)
+                do! KeyStorage.StoreDeviceGroupKey (event.Key |> Security.ToStorableDeviceGroupKeykey)
 
             | SavedSensorKey event ->
-                do! KeyStorage.StoreSensorKey (event.Key |> ConvertKey.ToStorableSensorKey)
+                do! KeyStorage.StoreSensorKey (event.Key |> Security.ToStorableSensorKey)
         }
   

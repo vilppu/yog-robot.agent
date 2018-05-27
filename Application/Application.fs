@@ -18,7 +18,7 @@ module Application =
     let IsValidMasterKey token = 
         async {        
             let keys = 
-                match StoredMasterKey() with
+                match Security.StoredMasterKey() with
                 | null -> []
                 | key -> [ key ] |> List.filter (fun key -> key = token)
             return keys.Length > 0
@@ -37,29 +37,29 @@ module Application =
         }
     
     let RegisterDeviceGroupKey deviceGroupId = 
-        let key : DeviceGroupKey = 
-            { Token = DeviceGroupKeyToken(GenerateSecureToken())
+        let key : Security.DeviceGroupKey = 
+            { Token = Security.DeviceGroupKeyToken(GenerateSecureToken())
               DeviceGroupId = DeviceGroupId deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! KeyStorage.StoreDeviceGroupKey (key |> ConvertKey.ToStorableDeviceGroupKeykey)
+            do! KeyStorage.StoreDeviceGroupKey (key |> Security.ToStorableDeviceGroupKeykey)
             return key.Token.AsString
         }
     
     let RegisterSensorKey deviceGroupId = 
-        let key : SensorKey = 
-            { Token = SensorKeyToken(GenerateSecureToken())
+        let key : Security.SensorKey = 
+            { Token = Security.SensorKeyToken(GenerateSecureToken())
               DeviceGroupId = DeviceGroupId deviceGroupId
               ValidThrough = DateTime.UtcNow.AddYears(10) }
         async { 
-            do! KeyStorage.StoreSensorKey (key |> ConvertKey.ToStorableSensorKey)
+            do! KeyStorage.StoreSensorKey (key |> Security.ToStorableSensorKey)
             return key.Token.AsString
         }
     
     let PostDeviceGroupKey httpSend deviceGroupId token : Async<string> = 
         async {
-            let key : DeviceGroupKey = 
-                { Token = DeviceGroupKeyToken token
+            let key : Security.DeviceGroupKey = 
+                { Token = Security.DeviceGroupKeyToken token
                   DeviceGroupId = DeviceGroupId deviceGroupId
                   ValidThrough = System.DateTime.UtcNow.AddYears(10) }
             let command = Command.SaveDeviceGroupKey { Key = key }
@@ -69,8 +69,8 @@ module Application =
     
     let PostSensorKey httpSend deviceGroupId token : Async<string> = 
         async {
-            let key : SensorKey = 
-                { Token = SensorKeyToken token
+            let key : Security.SensorKey = 
+                { Token = Security.SensorKeyToken token
                   DeviceGroupId = DeviceGroupId deviceGroupId
                   ValidThrough = System.DateTime.UtcNow.AddYears(10) }
             let command = Command.SaveSensorKey { Key = key }
