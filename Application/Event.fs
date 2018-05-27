@@ -35,65 +35,24 @@ module internal Event =
         | SensorNameChanged of SensorNameChanged
         | SavedDeviceGroupKey of SavedDeviceGroupKey
         | SavedSensorKey of SavedSensorKey
+    
 
-    let private getSensorState (event : SensorStateChanged) : Async<SensorState> =
-        async {
-            let! previousState = SensorStateBsonStorage.GetSensorState event.DeviceGroupId.AsString event.SensorId.AsString
-            let measurement = DataTransferObject.Measurement event.Measurement
-
-            let previousState =
-                if previousState :> obj |> isNull
-                then SensorStateBsonStorage.DefaultState
-                else previousState
-
-            let hasChanged = measurement.Value <> previousState.MeasuredValue
-            let lastActive = event.Timestamp
-            let lastUpdated =
-                if hasChanged
-                then lastActive
-                else previousState.LastUpdated
-
-            let sensorState : SensorState = 
-                { SensorId = event.SensorId
-                  DeviceGroupId = event.DeviceGroupId
-                  DeviceId = event.DeviceId
-                  SensorName = previousState.SensorName
-                  Measurement = event.Measurement
-                  BatteryVoltage = event.BatteryVoltage
-                  SignalStrength = event.SignalStrength
-                  LastUpdated = lastUpdated
-                  LastActive = lastActive }
-
-            return sensorState
-        }
-
-    let private getSensorHistory (event : SensorStateChanged) : Async<SensorHistory> =
-        async {
-            let! sensorHistory = SensorHistoryBsonStorage.GetSensorHistory event.DeviceGroupId.AsString event.SensorId.AsString
-            return ConvertSensorHistory.FromStorable sensorHistory
-        }
-
-    let StoreSensorStateChangedEvent (event : SensorStateChanged) : Async<unit> =
-        async {
-            let storableSensorEvent : SensorEventBsonStorage.StorableSensorEvent = 
-                let measurement = DataTransferObject.Measurement event.Measurement
-                { Id = MongoDB.Bson.ObjectId.Empty
-                  DeviceGroupId =  event.DeviceGroupId.AsString
-                  DeviceId = event.DeviceId.AsString
-                  SensorId = event.SensorId.AsString
-                  MeasuredProperty = measurement.Name
-                  MeasuredValue = measurement.Value
-                  Voltage = (float)event.BatteryVoltage
-                  SignalStrength = (float)event.SignalStrength
-                  Timestamp = event.Timestamp }
-            do! SensorEventBsonStorage.StoreSensorEvent storableSensorEvent
-        }
+    let private toSensorStateUpdate (event : SensorStateChanged) : Action.SensorStateUpdate = 
+        { SensorId = event.SensorId
+          DeviceGroupId = event.DeviceGroupId
+          DeviceId = event.DeviceId
+          Measurement = event.Measurement
+          BatteryVoltage = event.BatteryVoltage
+          SignalStrength = event.SignalStrength
+          Timestamp = event.Timestamp }
 
     let Store (event : Event) : Async<unit> =
         async {
             match event with
             | SubscribedToPushNotifications _ -> ()
-            | SensorStateChanged sensorStateChanged -> do! StoreSensorStateChangedEvent sensorStateChanged
+            | SensorStateChanged sensorStateChanged ->
+                let sensorStateUpdate = sensorStateChanged |> toSensorStateUpdate
+                do! Action.StoreSensorStateChangedEvent sensorStateUpdate
             | SensorNameChanged _ -> ()
             | SavedDeviceGroupKey _ -> ()
             | SavedSensorKey _ -> ()
@@ -106,8 +65,9 @@ module internal Event =
                 do! PushNotificationSubscriptionBsonStorage.StorePushNotificationSubscriptions event.DeviceGroupId.AsString [event.Subscription.Token]
 
             | SensorStateChanged event ->
-                let! sensorState = getSensorState event
-                let! sensorHistory = getSensorHistory event               
+                let sensorStateUpdate = event |> toSensorStateUpdate
+                let! sensorState = Action.GetSensorState sensorStateUpdate
+                let! sensorHistory = Action.GetSensorHistory sensorStateUpdate               
                 do! Action.StoreSensorState sensorState
                 do! Action.StoreSensorHistory sensorState sensorHistory
                 do! Action.SendNotifications httpSend sensorState
