@@ -72,3 +72,15 @@ module internal ConvertSensortState =
           LastUpdated = sensorState.LastUpdated
           LastActive = sensorState.LastActive
         }
+
+    let UpdateToStorable (update : SensorStateUpdate) : SensorEventStorage.StorableSensorEvent  =
+            let measurement = DataTransferObject.Measurement update.Measurement
+            { Id = MongoDB.Bson.ObjectId.Empty
+              DeviceGroupId =  update.DeviceGroupId.AsString
+              DeviceId = update.DeviceId.AsString
+              SensorId = update.SensorId.AsString
+              MeasuredProperty = measurement.Name
+              MeasuredValue = measurement.Value
+              Voltage = (float)update.BatteryVoltage
+              SignalStrength = (float)update.SignalStrength
+              Timestamp = update.Timestamp }
