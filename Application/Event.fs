@@ -35,7 +35,6 @@ module internal Event =
         | SubscribedToPushNotifications of SubscribedToPushNotifications
         | SensorStateChanged of SensorStateChanged
         | SensorNameChanged of SensorNameChanged
-        | SavedMasterKey of SavedMasterKey
         | SavedDeviceGroupKey of SavedDeviceGroupKey
         | SavedSensorKey of SavedSensorKey
 
@@ -57,7 +56,6 @@ module internal Event =
                       Timestamp = sensorStateChanged.Timestamp }
                 do! SensorEventBsonStorage.StoreSensorEvent eventToBeStored
             | SensorNameChanged _ -> ()
-            | SavedMasterKey _ -> ()
             | SavedDeviceGroupKey _ -> ()
             | SavedSensorKey _ -> ()
         }
@@ -110,9 +108,6 @@ module internal Event =
 
             | SensorNameChanged event ->
                 do! SensorStateBsonStorage.StoreSensorName event.DeviceGroupId.AsString event.SensorId.AsString event.SensorName
-
-            | SavedMasterKey event ->
-                do! KeyBsonStorage.StoreMasterKey (event.Key |> ConvertKey.ToStorableMasterKey)
 
             | SavedDeviceGroupKey event ->
                 do! KeyBsonStorage.StoreDeviceGroupKey (event.Key |> ConvertKey.ToStorableDeviceGroupKeykey)

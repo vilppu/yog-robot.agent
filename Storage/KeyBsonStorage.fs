@@ -32,8 +32,6 @@ module KeyBsonStorage =
           ValidThrough : DateTime
           Timestamp : DateTime }
     
-    let private masterKeys = BsonStorage.Database.GetCollection<StorableMasterKey> "masterKeys" |> BsonStorage.WithDescendingIndex "ValidThrough"
-    
     let private deviceGroupKeys = 
         BsonStorage.Database.GetCollection<StorableDeviceGroupKey> "deviceGroupKeys"
         |> BsonStorage.WithDescendingIndex "ValidThrough"
@@ -44,29 +42,13 @@ module KeyBsonStorage =
         |> BsonStorage.WithDescendingIndex "ValidThrough"
         |> BsonStorage.WithDescendingIndex "DeviceGroupId"
     
-    let StoreMasterKey(key : StorableMasterKey) =
-        masterKeys.InsertOneAsync(key)
-        |> Async.AwaitTask
-    
     let StoreDeviceGroupKey(key : StorableDeviceGroupKey) =
         deviceGroupKeys.InsertOneAsync(key)
         |> Async.AwaitTask
     
     let StoreSensorKey(key : StorableSensorKey) =
         sensorKeys.InsertOneAsync(key)
-        |> Async.AwaitTask
-    
-    let GetMasterKeys (token : string) (validationTime : DateTime) : Async<string list> =
-        async {
-            let! result =
-                masterKeys.FindAsync<StorableMasterKey>(fun k -> k.ValidThrough >= validationTime && k.Key = token)
-                |> Async.AwaitTask
-                    
-            return
-                result.ToList()
-                |> List.ofSeq
-                |> List.map (fun k -> k.Key)
-        }        
+        |> Async.AwaitTask       
     
     let GetDeviceGroupKeys (deviceGroupId : string) (token : string) (validationTime : DateTime) : Async<string list> =
         async {
@@ -93,6 +75,5 @@ module KeyBsonStorage =
         }
 
     let Drop() =
-        BsonStorage.Database.DropCollection(masterKeys.CollectionNamespace.CollectionName)
         BsonStorage.Database.DropCollection(deviceGroupKeys.CollectionNamespace.CollectionName)
         BsonStorage.Database.DropCollection(sensorKeys.CollectionNamespace.CollectionName)

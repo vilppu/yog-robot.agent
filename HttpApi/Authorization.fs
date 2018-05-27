@@ -44,9 +44,8 @@ module Authorization =
         async {
             let headers = request |> FindHeader "yog-robot-key"
             match headers with
-            | key :: _ -> 
-                let now = DateTime.UtcNow
-                return! Application.IsValidMasterKeyToken key now
+            | key :: _ ->                 
+                return! Application.IsValidMasterKey key
             | [] -> return false
         }
     
@@ -62,7 +61,7 @@ module Authorization =
             | head :: _ -> 
                 let (deviceGroupId, key) = head
                 let now = DateTime.UtcNow
-                return! Application.IsValidDeviceGroupKeyToken deviceGroupId key now
+                return! Application.IsValidDeviceGroupKey deviceGroupId key now
             | [] -> return false
         }
 
@@ -80,7 +79,7 @@ module Authorization =
             | head :: _ -> 
                 let (deviceGroupId, key) = head
                 let now = DateTime.UtcNow
-                return! Application.IsValidSensorKeyToken deviceGroupId key now
+                return! Application.IsValidSensorKey deviceGroupId key now
             | [] -> return false
         }
     

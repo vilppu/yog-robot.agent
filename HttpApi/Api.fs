@@ -49,16 +49,6 @@ type ApiController(httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) 
                 let deviceGroupId = FindDeviceGroupId this.Request
                 return this.Json(GenerateSensorAccessToken(deviceGroupId)) :> IActionResult
         }
-
-    [<Route("keys/master-keys")>]
-    [<HttpPost>]
-    [<Authorize(Policy = Roles.Administrator)>]
-    member this.PostMasterKey() : Async<JsonResult> = 
-        async {
-            let token = Application.GenerateSecureToken()
-            let! key = Application.PostMasterKey httpSend token
-            return this.Json(key)
-        }
     
     [<Route("keys/device-group-keys/{deviceGroupId}")>]
     [<HttpPost>]

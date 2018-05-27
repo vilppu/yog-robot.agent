@@ -11,13 +11,6 @@ module TokenTest =
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
     
     [<Fact>]
-    let MasterTokenCanBeUsedToCreateMasterKey() = 
-        use context = SetupContext()
-        let masterToken = GetMasterToken context.ExampleMasterKey |> Async.RunSynchronously
-        let response = PostCreateMasterKey masterToken |> Async.RunSynchronously
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode)
-    
-    [<Fact>]
     let DeviceGroupKeyIsRequiredToCreateDeviceGroupTokens() = 
         use context = SetupContext()
         let response = GetDeviceGroupTokenWithKey InvalidToken context.DeviceGroupId |> Async.RunSynchronously

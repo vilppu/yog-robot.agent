@@ -20,9 +20,6 @@ module internal Command =
         { SensorId : SensorId
           DeviceGroupId : DeviceGroupId
           SensorName : string }
-
-    type SaveMasterKey =
-        { Key : MasterKey }
     
     type SaveDeviceGroupKey = 
         { Key : DeviceGroupKey }
@@ -34,7 +31,6 @@ module internal Command =
         | SubscribeToPushNotifications of SubscribeToPushNotifications
         | ChangeSensorState of ChangeSensorState
         | ChangeSensorName of ChangeSensorName
-        | SaveMasterKey of SaveMasterKey
         | SaveDeviceGroupKey of SaveDeviceGroupKey
         | SaveSensorKey of SaveSensorKey
 
@@ -67,11 +63,6 @@ module internal Command =
               SensorName = command.SensorName }
         Event.SensorNameChanged event
 
-    let private saveMasterKeyEvent (command : SaveMasterKey) =
-        let event : Event.SavedMasterKey =
-            { Key = command.Key }
-        Event.SavedMasterKey event
-
     let private saveDeviceGroupKeyEvent (command : SaveDeviceGroupKey) =
         let event : Event.SavedDeviceGroupKey =
             { Key = command.Key }
@@ -93,9 +84,6 @@ module internal Command =
 
             | ChangeSensorName changeSensorName ->
                 return sensorNameChangedEvent changeSensorName
-
-            | SaveMasterKey saveMasterKey ->
-                return saveMasterKeyEvent saveMasterKey
 
             | SaveDeviceGroupKey saveDeviceGroupKey ->
                 return saveDeviceGroupKeyEvent saveDeviceGroupKey

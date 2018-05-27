@@ -5,12 +5,6 @@ module KeyTest =
     open Xunit
     
     [<Fact>]
-    let MasterTokenIsRequiredToCreateMasterKey() = 
-        use context = SetupContext()
-        let response = PostCreateMasterKey InvalidToken |> Async.RunSynchronously
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
-    
-    [<Fact>]
     let MasterKeyCanBeUsedToCreateMasterTokens() = 
         use context = SetupContext()
         let masterKey = context.ExampleMasterKey
