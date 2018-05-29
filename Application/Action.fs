@@ -40,7 +40,10 @@ module internal Action =
     let SendNotifications httpSend (sensorState : SensorState) : Async<unit> =
         async {
             match sensorState.Measurement with
-            | Measurement.Contact _ ->                
+            | Measurement.Contact _ ->
+                if sensorState.LastUpdated = sensorState.LastActive then
+                    do! Notification.Send httpSend sensorState
+            | Measurement.PresenceOfWater presenceOfWater ->                
                 if sensorState.LastUpdated = sensorState.LastActive then
                     do! Notification.Send httpSend sensorState
             | _ -> ()

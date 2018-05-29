@@ -40,12 +40,12 @@ module SelfHost =
             app
                 .UsePathBase(new Microsoft.AspNetCore.Http.PathString(GetUrl().PathAndQuery))
                 .UseAuthentication()
-                .UseCors(fun options ->
-                    options
-                     .AllowAnyOrigin()
-                     .AllowAnyMethod()
-                     .AllowAnyHeader()
-                     .AllowCredentials()|> ignore)
+                //.UseCors(fun options ->
+                //    options
+                //     .AllowAnyOrigin()
+                //     .AllowAnyMethod()
+                //     .AllowAnyHeader()
+                //     .AllowCredentials()|> ignore)
                 .UseMvc()
                 |> ignore
             
@@ -55,7 +55,7 @@ module SelfHost =
             let configureJsonAction = new Action<MvcJsonOptions>(configureJson)            
 
             services
-                .AddCors()
+                //.AddCors()
                 .AddMvc()
                 .AddJsonOptions(configureJsonAction)
                 |> ignore
