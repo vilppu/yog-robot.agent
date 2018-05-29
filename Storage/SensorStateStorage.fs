@@ -96,12 +96,12 @@ module SensorStateStorage =
             return sensorStates |> List.ofSeq
         }
 
-    let DefaultState =
+    let InitialState defaultName =
         { Id = ObjectId.Empty
           DeviceGroupId = ""
           DeviceId = ""
           SensorId = ""
-          SensorName = ""
+          SensorName = defaultName
           MeasuredProperty = ""
           MeasuredValue = null
           BatteryVoltage = 0.0

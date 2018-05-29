@@ -35,7 +35,9 @@ module internal ConvertSensortState =
 
             let previousState =
                 if previousState :> obj |> isNull
-                then SensorStateStorage.DefaultState
+                then
+                    let defaultName = update.DeviceId.AsString + "." + measurement.Name
+                    SensorStateStorage.InitialState defaultName
                 else previousState
 
             let hasChanged = measurement.Value <> previousState.MeasuredValue
@@ -64,7 +66,7 @@ module internal ConvertSensortState =
           DeviceGroupId = sensorState.DeviceGroupId.AsString
           DeviceId = sensorState.DeviceId.AsString
           SensorId = sensorState.SensorId.AsString
-          SensorName = sensorState.DeviceId.AsString + "." + measurement.Name
+          SensorName = sensorState.SensorName
           MeasuredProperty = measurement.Name
           MeasuredValue = measurement.Value
           BatteryVoltage = (float)sensorState.BatteryVoltage
