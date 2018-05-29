@@ -51,8 +51,9 @@ module internal Event =
             match event with
             | SubscribedToPushNotifications _ -> ()
             | SensorStateChanged sensorStateChanged ->
-                let sensorStateUpdate = sensorStateChanged |> toSensorStateUpdate
-                do! Action.StoreSensorStateChangedEvent sensorStateUpdate
+                if false then
+                    let sensorStateUpdate = sensorStateChanged |> toSensorStateUpdate
+                    do! Action.StoreSensorStateChangedEvent sensorStateUpdate
             | SensorNameChanged _ -> ()
             | SavedDeviceGroupKey _ -> ()
             | SavedSensorKey _ -> ()
