@@ -1,6 +1,6 @@
 namespace YogRobot
 
-module internal Firebase =
+module Firebase =
     open System
     open System.Collections.Generic
     open System.Net.Http

@@ -28,8 +28,7 @@ module SelfHost =
 
         new Uri(url)
     
-    type Startup(environment : IHostingEnvironment) =
-        let corsPolicy = "CorsPolicy"
+    type Startup(environment : IHostingEnvironment) =       
 
         member this.Configure(app : IApplicationBuilder, env : IHostingEnvironment, loggerFactory : ILoggerFactory, httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) =             
             loggerFactory
