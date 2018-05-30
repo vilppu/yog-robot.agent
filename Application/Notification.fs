@@ -22,7 +22,7 @@ module internal Notification =
     let private sendFirebasePushNotifications httpSend reason =
         async {
             let measurement = DataTransferObject.Measurement reason.SensorState.Measurement
-            let sensorName = reason.SensorState.SensorId.AsString       
+            let sensorName = reason.SensorState.SensorName
             
             let deviceGroupId = reason.SensorState.DeviceGroupId
             let! subscriptions = PushNotificationSubscriptionStorage.ReadPushNotificationSubscriptions deviceGroupId.AsString
@@ -34,17 +34,17 @@ module internal Notification =
                   MeasuredValue = measurement.Value
                   Timestamp = reason.SensorState.LastUpdated }
             
-            let notification : Firebase.FirebaseDeviceNotificationContent =
+            let notification : FirebaseObjects.FirebaseDeviceNotificationContent =
                 { deviceId = pushNotification.DeviceId
                   sensorName = pushNotification.SensorName
                   measuredProperty = pushNotification.MeasuredProperty
                   measuredValue = pushNotification.MeasuredValue
                   timestamp = pushNotification.Timestamp }
 
-            let pushNotificationRequestData : Firebase.FirebasePushNotificationRequestData =
+            let pushNotificationRequestData : FirebaseObjects.FirebasePushNotificationRequestData =
                 { deviceNotification = notification }
 
-            let pushNotification : Firebase.FirebasePushNotification =
+            let pushNotification : FirebaseObjects.FirebasePushNotification =
                 { data = pushNotificationRequestData
                   registration_ids = subscriptions }
                   

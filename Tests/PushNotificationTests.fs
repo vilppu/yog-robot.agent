@@ -6,6 +6,11 @@ module PushNotificationTests =
     let WaitForBackgroundProcessingToComplete() =
         System.Threading.Tasks.Task.Delay(100) |> Async.AwaitTask
 
+    let sentNotifications() =
+        SentHttpRequestContents
+        |> Seq.map (fun request -> request |> Newtonsoft.Json.JsonConvert.DeserializeObject<FirebaseObjects.FirebasePushNotification>)
+        |> Seq.toList
+
     [<Fact>]
     let NotifyAboutContact() = 
         async {
@@ -73,5 +78,22 @@ module PushNotificationTests =
             do! WaitForBackgroundProcessingToComplete()
 
             Assert.Equal(1, SentHttpRequests.Count)
+        }
+
+    [<Fact>]
+    let SendSensorName() = 
+        async {
+            use context = SetupContext()   
+            let expectedName = "ExampleSensorName"
+
+            context |> SetupToReceivePushNotifications
+            
+            context |> WriteMeasurementSynchronously(Fake.Measurement (Measurement.Contact Measurement.Open))
+            ChangeSensorName context.DeviceGroupToken "ExampleDevice.contact" expectedName |> Async.RunSynchronously
+            context |> WriteMeasurementSynchronously(Fake.Measurement (Measurement.Contact Measurement.Closed))
+
+            do! WaitForBackgroundProcessingToComplete()
+
+            Assert.Equal(expectedName, sentNotifications().[1].data.deviceNotification.sensorName)
         }
    

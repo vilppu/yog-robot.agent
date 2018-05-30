@@ -34,12 +34,20 @@ module TestContext =
             serverTask <- CreateHttpServer httpSend
 
     let SentHttpRequests = System.Collections.Generic.List<HttpRequestMessage>()
+    let SentHttpRequestContents = System.Collections.Generic.List<string>()
 
     let SetupEmptyEnvironment() =
         SentHttpRequests.Clear()
+        SentHttpRequestContents.Clear()
         let httpSend (request : HttpRequestMessage) : Async<HttpResponseMessage> =
             async {
+                let requestContent =
+                    request.Content.ReadAsStringAsync()                    
+                    |> Async.AwaitTask
+                    |> Async.RunSynchronously
                 SentHttpRequests.Add request
+                SentHttpRequestContents.Add requestContent
+
                 let response = new HttpResponseMessage()
                 response.Content <- new StringContent("")
                 return response

@@ -8,37 +8,6 @@ module Firebase =
 
     let StoredFirebaseKey() = Environment.GetEnvironmentVariable("YOG_FCM_KEY")
 
-    [<CLIMutable>]
-    type FirebaseDeviceNotificationContent = 
-        { deviceId : string
-          sensorName : string
-          measuredProperty : string
-          measuredValue : obj
-          timestamp : DateTime }
-
-    [<CLIMutable>]
-    type FirebasePushNotificationRequestData = 
-        { deviceNotification : FirebaseDeviceNotificationContent }
-
-    [<CLIMutable>]
-    type FirebasePushNotification = 
-        { data : FirebasePushNotificationRequestData
-          registration_ids : string seq }
-
-    [<CLIMutable>]
-    type FirebaseResult = 
-        { mutable message_id : string
-          mutable error : string
-          mutable registration_id : string }
-
-    [<CLIMutable>]
-    type FirebaseResponse = 
-        { mutable multicast_id : int64
-          mutable success : int64
-          mutable failure : int64
-          mutable canonical_ids : int64
-          mutable results : List<FirebaseResult> }
-
     type SubscriptionChanges = 
         { SubscriptionsToBeRemoved : string list
           SubscriptionsToBeAdded : string list }
@@ -47,11 +16,11 @@ module Firebase =
         { SubscriptionsToBeRemoved = []
           SubscriptionsToBeAdded = [] }
 
-    let private shouldBeRemoved (result : FirebaseResult * String) =
+    let private shouldBeRemoved (result : FirebaseObjects.FirebaseResult * String) =
         let (firebaseResult, subscription) = result
         not(String.IsNullOrWhiteSpace(firebaseResult.registration_id)) || firebaseResult.error = "InvalidRegistration"
     
-    let private getSubscriptionChanges (subscriptions : string seq) (firebaseResponse : FirebaseResponse)
+    let private getSubscriptionChanges (subscriptions : string seq) (firebaseResponse : FirebaseObjects.FirebaseResponse)
         : Async<SubscriptionChanges> =
 
         async {         
@@ -75,7 +44,7 @@ module Firebase =
                   SubscriptionsToBeAdded = subscriptionsToBeAdded }
         }
           
-    let private sendMessages (httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) (subscriptions : List<string>) (pushNotification : FirebasePushNotification)
+    let private sendMessages (httpSend : HttpRequestMessage -> Async<HttpResponseMessage>) (subscriptions : List<string>) (pushNotification : FirebaseObjects.FirebasePushNotification)
         : Async<SubscriptionChanges> =
 
         async {
@@ -92,7 +61,7 @@ module Firebase =
             
             let! response = httpSend requestMessage
             let! responseJson = response.Content.ReadAsStringAsync() |> Async.AwaitTask
-            let firebaseResponse = JsonConvert.DeserializeObject<FirebaseResponse> responseJson
+            let firebaseResponse = JsonConvert.DeserializeObject<FirebaseObjects.FirebaseResponse> responseJson
 
             if not(firebaseResponse :> obj |> isNull) then
                 return! getSubscriptionChanges subscriptions firebaseResponse
@@ -101,7 +70,7 @@ module Firebase =
 
     }
     
-    let SendFirebaseMessages httpSend (subscriptions : List<string>) (pushNotification : FirebasePushNotification) =
+    let SendFirebaseMessages httpSend (subscriptions : List<string>) (pushNotification : FirebaseObjects.FirebasePushNotification) =
         async {
             let storedFirebaseKey = StoredFirebaseKey()
             if not(String.IsNullOrWhiteSpace(storedFirebaseKey)) then

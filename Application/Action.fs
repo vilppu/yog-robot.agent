@@ -43,7 +43,7 @@ module internal Action =
             | Measurement.Contact _ ->
                 if sensorState.LastUpdated = sensorState.LastActive then
                     do! Notification.Send httpSend sensorState
-            | Measurement.PresenceOfWater presenceOfWater ->                
+            | Measurement.PresenceOfWater _ ->                
                 if sensorState.LastUpdated = sensorState.LastActive then
                     do! Notification.Send httpSend sensorState
             | _ -> ()
