@@ -81,6 +81,41 @@ module PushNotificationTests =
         }
 
     [<Fact>]
+    let NotifyAboutMotion() = 
+        async {
+            use context = SetupContext()
+            let motion = Measurement.Measurement.Motion Measurement.Motion
+            let noMotion = Measurement.Measurement.Motion Measurement.NoMotion
+
+            context |> SetupToReceivePushNotifications
+        
+            context |> WriteMeasurementSynchronously(Fake.Measurement motion)
+            context |> WriteMeasurementSynchronously(Fake.Measurement noMotion)
+            context |> WriteMeasurementSynchronously(Fake.Measurement motion)
+        
+            do! WaitForBackgroundProcessingToComplete()
+
+            Assert.Equal(3, SentHttpRequests.Count)
+            Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
+        }
+
+    [<Fact>]
+    let NotifyOnlyWhenHasMotionChanges() = 
+        async {
+            use context = SetupContext()
+            let motion = Measurement.Measurement.Motion Measurement.Motion
+
+            context |> SetupToReceivePushNotifications
+
+            context |> WriteMeasurementSynchronously(Fake.Measurement motion)
+            context |> WriteMeasurementSynchronously(Fake.Measurement motion)
+
+            do! WaitForBackgroundProcessingToComplete()
+
+            Assert.Equal(1, SentHttpRequests.Count)
+        }
+
+    [<Fact>]
     let SendSensorName() = 
         async {
             use context = SetupContext()   
