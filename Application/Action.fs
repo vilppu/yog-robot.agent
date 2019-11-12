@@ -2,6 +2,19 @@ namespace YogRobot
 
 module internal Action =
 
+    let private isChanged (sensorState : SensorState) : bool =
+        sensorState.LastUpdated = sensorState.LastActive
+
+    let private shouldBeNotified (sensorState : SensorState) : bool =
+        match sensorState.Measurement with
+        | Measurement.Measurement.Contact _ -> sensorState |> isChanged
+        | Measurement.Measurement.PresenceOfWater _ -> sensorState |> isChanged
+        | Measurement.Measurement.Motion motion ->
+            match motion with
+            | Measurement.NoMotion -> false
+            | Measurement.Motion -> sensorState |> isChanged
+        | _ -> false
+
     let GetSensorState (update : SensorStateUpdate) : Async<SensorState> =
         async {
             let! previousState = SensorStateStorage.GetSensorState update.DeviceGroupId.AsString update.SensorId.AsString
@@ -39,16 +52,7 @@ module internal Action =
 
     let SendNotifications httpSend (sensorState : SensorState) : Async<unit> =
         async {
-            match sensorState.Measurement with
-            | Measurement.Measurement.Contact _ ->
-                if sensorState.LastUpdated = sensorState.LastActive then
-                    do! Notification.Send httpSend sensorState
-            | Measurement.Measurement.PresenceOfWater _ ->                
-                if sensorState.LastUpdated = sensorState.LastActive then
-                    do! Notification.Send httpSend sensorState
-            | Measurement.Measurement.Motion _ ->                
-                if sensorState.LastUpdated = sensorState.LastActive then
-                    do! Notification.Send httpSend sensorState
-            | _ -> ()
+            if sensorState |> shouldBeNotified then
+                do! Notification.Send httpSend sensorState
         }
    
