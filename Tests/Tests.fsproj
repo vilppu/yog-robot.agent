@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>Tests</AssemblyName>
     <PackageId>Tests</PackageId>
@@ -13,10 +13,13 @@
     <ProjectReference Include="..\Types\Types.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-    <PackageReference Include="xunit.assert" Version="2.3.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="xunit" Version="2.3.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
+    <PackageReference Include="xunit.assert" Version="2.5.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit" Version="2.5.0" />
     <PackageReference Include="Microsoft.DotNet.InternalAbstractions" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
@@ -41,6 +44,6 @@
     <Compile Include="DeviceSettingsTests.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.2.3" />
+    <PackageReference Update="FSharp.Core" Version="7.0.300" />
   </ItemGroup>
 </Project>
