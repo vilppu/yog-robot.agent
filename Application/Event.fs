@@ -3,31 +3,28 @@ namespace YogRobot
 module internal Event =
 
     type SubscribedToPushNotifications =
-        { DeviceGroupId : DeviceGroupId
-          Subscription : Notification.Subscription }
+        { DeviceGroupId: DeviceGroupId
+          Subscription: Notification.Subscription }
 
-    type SensorStateChanged = 
-        { SensorId : SensorId
-          DeviceGroupId : DeviceGroupId
-          DeviceId : DeviceId
-          Measurement : Measurement.Measurement
-          BatteryVoltage : Measurement.Voltage
-          SignalStrength : Measurement.Rssi
-          Timestamp : System.DateTime }
+    type SensorStateChanged =
+        { SensorId: SensorId
+          DeviceGroupId: DeviceGroupId
+          DeviceId: DeviceId
+          Measurement: Measurement.Measurement
+          BatteryVoltage: Measurement.Voltage
+          SignalStrength: Measurement.Rssi
+          Timestamp: System.DateTime }
 
-    type SensorNameChanged = 
-        { SensorId : SensorId
-          DeviceGroupId : DeviceGroupId
-          SensorName : string }
+    type SensorNameChanged =
+        { SensorId: SensorId
+          DeviceGroupId: DeviceGroupId
+          SensorName: string }
 
-    type SavedMasterKey =
-        { Key : Security.MasterKey }
-    
-    type SavedDeviceGroupKey = 
-        { Key : Security.DeviceGroupKey }
-    
-    type SavedSensorKey =
-        { Key : Security.SensorKey }
+    type SavedMasterKey = { Key: Security.MasterKey }
+
+    type SavedDeviceGroupKey = { Key: Security.DeviceGroupKey }
+
+    type SavedSensorKey = { Key: Security.SensorKey }
 
     type Event =
         | SubscribedToPushNotifications of SubscribedToPushNotifications
@@ -35,9 +32,9 @@ module internal Event =
         | SensorNameChanged of SensorNameChanged
         | SavedDeviceGroupKey of SavedDeviceGroupKey
         | SavedSensorKey of SavedSensorKey
-    
 
-    let private toSensorStateUpdate (event : SensorStateChanged) : SensorStateUpdate = 
+
+    let private toSensorStateUpdate (event: SensorStateChanged) : SensorStateUpdate =
         { SensorId = event.SensorId
           DeviceGroupId = event.DeviceGroupId
           DeviceId = event.DeviceId
@@ -46,7 +43,7 @@ module internal Event =
           SignalStrength = event.SignalStrength
           Timestamp = event.Timestamp }
 
-    let Store (event : Event) : Async<unit> =
+    let Store (event: Event) : Async<unit> =
         async {
             match event with
             | SubscribedToPushNotifications _ -> ()
@@ -59,27 +56,32 @@ module internal Event =
             | SavedSensorKey _ -> ()
         }
 
-    let Send httpSend (event : Event) : Async<unit> =
+    let Send httpSend (event: Event) : Async<unit> =
         async {
             match event with
             | SubscribedToPushNotifications event ->
-                do! PushNotificationSubscriptionStorage.StorePushNotificationSubscriptions event.DeviceGroupId.AsString [event.Subscription.Token]
+                do!
+                    PushNotificationSubscriptionStorage.StorePushNotificationSubscriptions
+                        event.DeviceGroupId.AsString
+                        [ event.Subscription.Token ]
 
             | SensorStateChanged event ->
                 let sensorStateUpdate = event |> toSensorStateUpdate
                 let! sensorState = Action.GetSensorState sensorStateUpdate
-                let! sensorHistory = Action.GetSensorHistory sensorStateUpdate               
+                let! sensorHistory = Action.GetSensorHistory sensorStateUpdate
                 do! Action.StoreSensorState sensorState
                 do! Action.StoreSensorHistory sensorState sensorHistory
                 do! Action.SendNotifications httpSend sensorState
 
             | SensorNameChanged event ->
-                do! SensorStateStorage.StoreSensorName event.DeviceGroupId.AsString event.SensorId.AsString event.SensorName
+                do!
+                    SensorStateStorage.StoreSensorName
+                        event.DeviceGroupId.AsString
+                        event.SensorId.AsString
+                        event.SensorName
 
             | SavedDeviceGroupKey event ->
-                do! KeyStorage.StoreDeviceGroupKey (event.Key |> Security.ToStorableDeviceGroupKeykey)
+                do! KeyStorage.StoreDeviceGroupKey(event.Key |> Security.ToStorableDeviceGroupKeykey)
 
-            | SavedSensorKey event ->
-                do! KeyStorage.StoreSensorKey (event.Key |> Security.ToStorableSensorKey)
+            | SavedSensorKey event -> do! KeyStorage.StoreSensorKey(event.Key |> Security.ToStorableSensorKey)
         }
-  
