@@ -2,7 +2,7 @@
 
 [<AutoOpen>]
 module SensorStateClient =
-    open Newtonsoft.Json
+    open System.Text.Json
     open DataTransferObject
 
     let GetSensorStateResponse token =
@@ -15,8 +15,7 @@ module SensorStateClient =
         async {
             let! content = response |> Http.ContentOrFail
 
-            let result =
-                JsonConvert.DeserializeObject<List<DataTransferObject.SensorState>>(content)
+            let result = Json.Deserialize<List<DataTransferObject.SensorState>>(content)
 
             return result |> Seq.toList
         }
@@ -30,5 +29,5 @@ module SensorStateClient =
 
         async {
             let! content = response |> Http.ContentOrFail
-            return JsonConvert.DeserializeObject<DataTransferObject.SensorHistory>(content)
+            return Json.Deserialize<DataTransferObject.SensorHistory>(content)
         }

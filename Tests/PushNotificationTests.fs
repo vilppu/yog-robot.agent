@@ -11,7 +11,7 @@ module PushNotificationTests =
         SentHttpRequestContents
         |> Seq.map (fun request ->
             request
-            |> Newtonsoft.Json.JsonConvert.DeserializeObject<FirebaseObjects.FirebasePushNotification>)
+            |> Json.Deserialize<FirebaseObjects.FirebasePushNotification>)
         |> Seq.toList
 
     [<Fact>]

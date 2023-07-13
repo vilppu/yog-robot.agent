@@ -1,7 +1,6 @@
 namespace YogRobot
 
 module SensorStateTests =
-    open System
     open System.Net
     open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
     open Xunit
@@ -32,8 +31,11 @@ module SensorStateTests =
 
         let result = context |> GetExampleSensorState
 
+        let measuredValue =
+            Assert.IsType<System.Text.Json.JsonElement>(result.Head.MeasuredValue)
+
         Assert.Equal(1, result.Length)
-        Assert.Equal(78.0, result.Head.MeasuredValue :?> float)
+        Assert.Equal(78.0, measuredValue.GetDouble())
 
     [<Fact>]
     let TellTheDeviceId () =
@@ -138,9 +140,10 @@ module SensorStateTests =
 
         let result = context |> GetExampleSensorState
         let entry = result.Head
+        let measuredValue = Assert.IsType<System.Text.Json.JsonElement>(entry.MeasuredValue)
 
         Assert.Equal("Temperature", entry.MeasuredProperty)
-        Assert.Equal(25.0, entry.MeasuredValue :?> float)
+        Assert.Equal(25.0, measuredValue.GetDouble())
 
     [<Fact>]
     let TellRelativeHumidity () =
@@ -152,9 +155,10 @@ module SensorStateTests =
 
         let result = context |> GetExampleSensorState
         let entry = result.Head
+        let measuredValue = Assert.IsType<System.Text.Json.JsonElement>(entry.MeasuredValue)
 
         Assert.Equal("RelativeHumidity", entry.MeasuredProperty)
-        Assert.Equal(78.0, entry.MeasuredValue :?> float)
+        Assert.Equal(78.0, measuredValue.GetDouble())
 
     [<Fact>]
     let TellPresenceOfWater () =
@@ -166,9 +170,10 @@ module SensorStateTests =
 
         let result = context |> GetExampleSensorState
         let entry = result.Head
+        let measuredValue = Assert.IsType<System.Text.Json.JsonElement>(entry.MeasuredValue)
 
         Assert.Equal("PresenceOfWater", entry.MeasuredProperty)
-        Assert.Equal(true, entry.MeasuredValue :?> bool)
+        Assert.Equal(true, measuredValue.GetBoolean())
 
     [<Fact>]
     let TellOpenDoor () =
@@ -180,9 +185,10 @@ module SensorStateTests =
 
         let result = context |> GetExampleSensorState
         let entry = result.Head
+        let measuredValue = Assert.IsType<System.Text.Json.JsonElement>(entry.MeasuredValue)
 
         Assert.Equal("Contact", entry.MeasuredProperty)
-        Assert.Equal(false, entry.MeasuredValue :?> bool)
+        Assert.Equal(false, measuredValue.GetBoolean())
 
     [<Fact>]
     let TellClosedDoor () =
@@ -194,9 +200,10 @@ module SensorStateTests =
 
         let result = context |> GetExampleSensorState
         let entry = result.Head
+        let measuredValue = Assert.IsType<System.Text.Json.JsonElement>(entry.MeasuredValue)
 
         Assert.Equal("Contact", entry.MeasuredProperty)
-        Assert.Equal(true, entry.MeasuredValue :?> bool)
+        Assert.Equal(true, measuredValue.GetBoolean())
 
     [<Fact>]
     let TellVoltage () =
@@ -208,9 +215,10 @@ module SensorStateTests =
 
         let result = context |> GetExampleSensorState
         let entry = result.Head
+        let measuredValue = Assert.IsType<System.Text.Json.JsonElement>(entry.MeasuredValue)
 
         Assert.Equal("Voltage", entry.MeasuredProperty)
-        Assert.Equal(3.4, entry.MeasuredValue :?> float)
+        Assert.Equal(3.4, measuredValue.GetDouble())
 
     [<Fact>]
     let TellSignalStrength () =
@@ -222,9 +230,10 @@ module SensorStateTests =
 
         let result = context |> GetExampleSensorState
         let entry = result.Head
+        let measuredValue = Assert.IsType<System.Text.Json.JsonElement>(entry.MeasuredValue)
 
         Assert.Equal("Rssi", entry.MeasuredProperty)
-        Assert.Equal(3.4, entry.MeasuredValue :?> float)
+        Assert.Equal(3.4, measuredValue.GetDouble())
 
     [<Fact>]
     let TellBatteryVoltageOfDevice () =

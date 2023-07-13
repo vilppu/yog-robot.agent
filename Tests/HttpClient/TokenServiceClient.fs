@@ -2,7 +2,7 @@
 
 [<AutoOpen>]
 module TokenServiceClient =
-    open Newtonsoft.Json
+    open System.Text.Json
     open System.Net.Http
 
     let GetMasterTokenWithKey (key) =
@@ -15,7 +15,7 @@ module TokenServiceClient =
                 GetMasterTokenWithKey masterKey
                 |> Http.ContentOrFail
 
-            return JsonConvert.DeserializeObject<string>(response)
+            return Json.Deserialize<string>(response)
         }
 
     let GetDeviceGroupTokenWithKey botKey deviceGroupId : Async<HttpResponseMessage> =
@@ -28,7 +28,7 @@ module TokenServiceClient =
                 GetDeviceGroupTokenWithKey botKey deviceGroupId
                 |> Http.ContentOrFail
 
-            return JsonConvert.DeserializeObject<string>(response)
+            return Json.Deserialize<string>(response)
         }
 
     let GetSensorTokenWithKey sensorKey deviceGroupId =
@@ -41,5 +41,5 @@ module TokenServiceClient =
                 GetSensorTokenWithKey sensorKey deviceGroupId
                 |> Http.ContentOrFail
 
-            return JsonConvert.DeserializeObject<string>(response)
+            return Json.Deserialize<string>(response)
         }

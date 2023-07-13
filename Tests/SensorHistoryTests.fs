@@ -1,7 +1,6 @@
 namespace YogRobot
 
 module SensorHistoryTests =
-    open System
     open System.Net
     open Xunit
 
@@ -30,7 +29,8 @@ module SensorHistoryTests =
         let entry = result.Entries.Head
 
         Assert.Equal("RelativeHumidity", result.MeasuredProperty)
-        Assert.Equal(78.0, entry.MeasuredValue :?> float)
+        let measuredValue = Assert.IsType<System.Text.Json.JsonElement>(entry.MeasuredValue)
+        Assert.Equal(78.0, measuredValue.GetDouble())
 
     [<Fact>]
     let SensorHistoryContainsMeasurementsChronologically () =
@@ -50,8 +50,9 @@ module SensorHistoryTests =
 
         let result = context |> GetExampleSensorHistory sensorId
         let entry = result.Entries.Head
+        let measuredValue = Assert.IsType<System.Text.Json.JsonElement>(entry.MeasuredValue)
 
-        Assert.Equal(79.0, entry.MeasuredValue :?> float)
+        Assert.Equal(79.0, measuredValue.GetDouble())
 
     [<Fact>]
     let SensorHistoryEntryContainsTimestamp () =
@@ -111,7 +112,11 @@ module SensorHistoryTests =
         let result = context |> GetExampleSensorHistory sensorId
 
         Assert.Equal(expectedLimit, result.Entries.Length)
-        Assert.Equal(expectedValue, result.Entries.Head.MeasuredValue :?> float)
+
+        let measuredValue =
+            Assert.IsType<System.Text.Json.JsonElement>(result.Entries.Head.MeasuredValue)
+
+        Assert.Equal(expectedValue, measuredValue.GetDouble())
 
     [<Fact>]
     let StoreOnlyMeasurementChanges () =

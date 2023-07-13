@@ -2,7 +2,7 @@
 
 [<AutoOpen>]
 module KeyServiceClient =
-    open Newtonsoft.Json
+    open System.Text.Json
 
     let PostCreateMasterKey token =
         let apiUrl = sprintf "api/keys/master-keys"
@@ -11,7 +11,7 @@ module KeyServiceClient =
     let CreateMasterKey token =
         async {
             let! response = PostCreateMasterKey token |> Http.ContentOrFail
-            return JsonConvert.DeserializeObject<string>(response)
+            return Json.Deserialize<string>(response)
         }
 
     let PostCreateDeviceGroupKey token deviceGroupId =
@@ -24,7 +24,7 @@ module KeyServiceClient =
                 PostCreateDeviceGroupKey token deviceGroupId
                 |> Http.ContentOrFail
 
-            return JsonConvert.DeserializeObject<string>(response)
+            return Json.Deserialize<string>(response)
         }
 
     let PostCreateSensorKey token deviceGroupId =
@@ -37,5 +37,5 @@ module KeyServiceClient =
                 PostCreateSensorKey token deviceGroupId
                 |> Http.ContentOrFail
 
-            return JsonConvert.DeserializeObject<string>(response)
+            return Json.Deserialize<string>(response)
         }

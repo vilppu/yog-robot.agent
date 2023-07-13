@@ -4,7 +4,7 @@ module Http =
     open System
     open System.Net.Http
     open System.Net.Http.Headers
-    open Newtonsoft.Json
+    open System.Text.Json
 
     let private getBaseUrl () =
         Environment.GetEnvironmentVariable("YOG_BOT_BASE_URL")
@@ -18,7 +18,7 @@ module Http =
             response
 
     let Post (token: string) (url: string) data =
-        let json = JsonConvert.SerializeObject data
+        let json = JsonSerializer.Serialize data
 
         async {
             use requestMessage = new HttpRequestMessage(HttpMethod.Post, url)

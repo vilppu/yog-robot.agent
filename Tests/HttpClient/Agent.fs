@@ -3,7 +3,7 @@
 module Agent =
     open System
     open System.Net.Http
-    open Newtonsoft.Json
+    open System.Text.Json
 
     let private getBaseUrl () =
         Environment.GetEnvironmentVariable("YOG_BOT_BASE_URL")
@@ -11,7 +11,7 @@ module Agent =
     let private httpClient = new HttpClient(BaseAddress = Uri(getBaseUrl ()))
 
     let PostWithMasterKey (key: string) (url: string) data =
-        let json = JsonConvert.SerializeObject data
+        let json = JsonSerializer.Serialize data
 
         async {
             use content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
@@ -25,7 +25,7 @@ module Agent =
         }
 
     let PostWithDeviceGroupKey (key: string) (deviceGroupId: string) (url: string) data =
-        let json = JsonConvert.SerializeObject data
+        let json = JsonSerializer.Serialize data
 
         async {
             use content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
@@ -36,7 +36,7 @@ module Agent =
         }
 
     let PostWithSensorKey (key: string) (deviceGroupId: string) (url: string) data =
-        let json = JsonConvert.SerializeObject data
+        let json = JsonSerializer.Serialize data
 
         async {
             use content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")

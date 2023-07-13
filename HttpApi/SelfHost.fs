@@ -14,7 +14,7 @@ module SelfHost =
     open Microsoft.Extensions.DependencyInjection
     open Microsoft.Extensions.Logging
     open Microsoft.IdentityModel.Tokens
-    open Newtonsoft.Json.Serialization
+    open System.Text.Json.Serialization
 
     let private GetUrl () =
 
@@ -53,17 +53,13 @@ module SelfHost =
             |> ignore
 
         member this.ConfigureServices(services: IServiceCollection) =
-            let configureJson (options: MvcNewtonsoftJsonOptions) =
-                options.SerializerSettings.ContractResolver <- CamelCasePropertyNamesContractResolver()
-                options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter())
 
-            let configureJsonAction = new Action<MvcNewtonsoftJsonOptions>(configureJson)
 
             services
-                //.AddCors()
-                //.AddMvc()
                 .AddControllers()
-                .AddNewtonsoftJson(configureJsonAction)
+                .AddJsonOptions(fun options ->
+                    options.JsonSerializerOptions.PropertyNameCaseInsensitive <- true
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
             |> ignore
 
             let configureAdminPolicy =

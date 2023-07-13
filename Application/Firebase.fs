@@ -4,7 +4,7 @@ module Firebase =
     open System
     open System.Collections.Generic
     open System.Net.Http
-    open Newtonsoft.Json
+    open System.Text.Json
 
     let StoredFirebaseKey () =
         Environment.GetEnvironmentVariable("YOG_FCM_KEY")
@@ -64,7 +64,7 @@ module Firebase =
             let url = "https://fcm.googleapis.com/fcm/send"
             let token = "key=" + storedFirebaseKey
 
-            let json = JsonConvert.SerializeObject pushNotification
+            let json = JsonSerializer.Serialize pushNotification
             use requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
             use content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
 
@@ -79,8 +79,12 @@ module Firebase =
                 response.Content.ReadAsStringAsync()
                 |> Async.AwaitTask
 
+            let jsonSerializerOptions = System.Text.Json.JsonSerializerOptions()
+
+            jsonSerializerOptions.PropertyNameCaseInsensitive <- true
+
             let firebaseResponse =
-                JsonConvert.DeserializeObject<FirebaseObjects.FirebaseResponse> responseJson
+                JsonSerializer.Deserialize<FirebaseObjects.FirebaseResponse>(responseJson, jsonSerializerOptions)
 
             if not (firebaseResponse :> obj |> isNull) then
                 return! getSubscriptionChanges subscriptions firebaseResponse
