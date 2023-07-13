@@ -1,44 +1,82 @@
 ﻿namespace YogRobot
 
-module KeyTest = 
+module KeyTest =
     open System.Net
     open Xunit
-    
+
     [<Fact>]
-    let MasterKeyCanBeUsedToCreateMasterTokens() = 
+    let MasterKeyCanBeUsedToCreateMasterTokens () =
         use context = SetupContext()
         let masterKey = context.ExampleMasterKey
-        let response = GetMasterTokenWithKey masterKey |> Async.RunSynchronously
-        let token = response.Content.ReadAsStringAsync()|> Async.AwaitTask  |> Async.RunSynchronously
+
+        let response =
+            GetMasterTokenWithKey masterKey
+            |> Async.RunSynchronously
+
+        let token =
+            response.Content.ReadAsStringAsync()
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+
         Assert.Equal(HttpStatusCode.OK, response.StatusCode)
         Assert.False(token |> System.String.IsNullOrEmpty)
-    
+
     [<Fact>]
-    let MasterTokenIsRequiredToCreateDeviceGroupKey() = 
+    let MasterTokenIsRequiredToCreateDeviceGroupKey () =
         use context = SetupContext()
-        let response = PostCreateDeviceGroupKey InvalidToken context.DeviceGroupId |> Async.RunSynchronously
+
+        let response =
+            PostCreateDeviceGroupKey InvalidToken context.DeviceGroupId
+            |> Async.RunSynchronously
+
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
-    
+
     [<Fact>]
-    let DeviceGroupKeyCanBeUsedToCreateDeviceGroupTokens() = 
+    let DeviceGroupKeyCanBeUsedToCreateDeviceGroupTokens () =
         use context = SetupContext()
-        let botKey = CreateDeviceGroupKey context.MasterToken context.DeviceGroupId |> Async.RunSynchronously
-        let response = GetDeviceGroupTokenWithKey botKey context.DeviceGroupId |> Async.RunSynchronously
-        let token = response.Content.ReadAsStringAsync()|> Async.AwaitTask  |> Async.RunSynchronously
+
+        let botKey =
+            CreateDeviceGroupKey context.MasterToken context.DeviceGroupId
+            |> Async.RunSynchronously
+
+        let response =
+            GetDeviceGroupTokenWithKey botKey context.DeviceGroupId
+            |> Async.RunSynchronously
+
+        let token =
+            response.Content.ReadAsStringAsync()
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+
         Assert.Equal(HttpStatusCode.OK, response.StatusCode)
         Assert.False(token |> System.String.IsNullOrEmpty)
-    
+
     [<Fact>]
-    let MasterTokenIsRequiredToCreateSensorKey() = 
+    let MasterTokenIsRequiredToCreateSensorKey () =
         use context = SetupContext()
-        let response = PostCreateSensorKey InvalidToken context.DeviceGroupId |> Async.RunSynchronously
+
+        let response =
+            PostCreateSensorKey InvalidToken context.DeviceGroupId
+            |> Async.RunSynchronously
+
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode)
-    
+
     [<Fact>]
-    let SensorKeyCanBeUsedToCreateSensorTokens() = 
+    let SensorKeyCanBeUsedToCreateSensorTokens () =
         use context = SetupContext()
-        let sensorKey = CreateSensorKey context.MasterToken context.DeviceGroupId |> Async.RunSynchronously
-        let response = GetSensorTokenWithKey sensorKey context.DeviceGroupId |> Async.RunSynchronously
-        let token = response.Content.ReadAsStringAsync()|> Async.AwaitTask  |> Async.RunSynchronously
+
+        let sensorKey =
+            CreateSensorKey context.MasterToken context.DeviceGroupId
+            |> Async.RunSynchronously
+
+        let response =
+            GetSensorTokenWithKey sensorKey context.DeviceGroupId
+            |> Async.RunSynchronously
+
+        let token =
+            response.Content.ReadAsStringAsync()
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+
         Assert.Equal(HttpStatusCode.OK, response.StatusCode)
         Assert.False(token |> System.String.IsNullOrEmpty)

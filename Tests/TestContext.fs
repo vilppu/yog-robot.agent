@@ -34,8 +34,8 @@ module TestContext =
         if serverTask |> isNull then
             serverTask <- CreateHttpServer httpSend
 
-    let SentHttpRequests = System.Collections.Generic.List<HttpRequestMessage>()
-    let SentHttpRequestContents = System.Collections.Generic.List<string>()
+    let SentHttpRequests = Collections.Generic.List<HttpRequestMessage>()
+    let SentHttpRequestContents = Collections.Generic.List<string>()
 
     let SetupEmptyEnvironment () =
         SentHttpRequests.Clear()

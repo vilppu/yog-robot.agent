@@ -2,28 +2,28 @@
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols
 
-module Measurement = 
+module Measurement =
     type Voltage = float<V>
-    
+
     type Rssi = float
-    
+
     type Temperature = float<C>
-    
+
     type RelativeHumidity = float
-    
-    type PresenceOfWater = 
+
+    type PresenceOfWater =
         | NotPresent
         | Present
-    
-    type Contact = 
+
+    type Contact =
         | Closed
         | Open
-    
-    type Motion = 
+
+    type Motion =
         | NoMotion
         | Motion
-    
-    type Measurement = 
+
+    type Measurement =
         | Voltage of Voltage
         | Rssi of Rssi
         | Temperature of Temperature
@@ -32,22 +32,24 @@ module Measurement =
         | Contact of Contact
         | Motion of Motion
 
-    let From (measuredProperty : string) (measuredValue : obj) : Measurement =
+    let From (measuredProperty: string) (measuredValue: obj) : Measurement =
         match measuredProperty with
-        | "Voltage" ->
-            Measurement.Voltage ((measuredValue :?> float) * 1.0<V>)
-        | "Rssi" ->
-            Measurement.Rssi ((measuredValue :?> float))
-        | "Temperature" ->
-            Measurement.Temperature ((measuredValue :?> float) * 1.0<C>)
-        | "RelativeHumidity" ->
-            Measurement.RelativeHumidity (measuredValue :?> float)
+        | "Voltage" -> Measurement.Voltage((measuredValue :?> float) * 1.0<V>)
+        | "Rssi" -> Measurement.Rssi((measuredValue :?> float))
+        | "Temperature" -> Measurement.Temperature((measuredValue :?> float) * 1.0<C>)
+        | "RelativeHumidity" -> Measurement.RelativeHumidity(measuredValue :?> float)
         | "PresenceOfWater" ->
-            if (measuredValue :?> bool) then Measurement.PresenceOfWater Present
-            else Measurement.PresenceOfWater NotPresent
+            if (measuredValue :?> bool) then
+                Measurement.PresenceOfWater Present
+            else
+                Measurement.PresenceOfWater NotPresent
         | "Contact" ->
-            if (measuredValue :?> bool) then Measurement.Contact Closed
-            else Measurement.Contact Open
+            if (measuredValue :?> bool) then
+                Measurement.Contact Closed
+            else
+                Measurement.Contact Open
         | "Motion" ->
-            if (measuredValue :?> bool) then Measurement.Motion NoMotion
-            else Measurement.Motion NoMotion
+            if (measuredValue :?> bool) then
+                Measurement.Motion NoMotion
+            else
+                Measurement.Motion NoMotion
