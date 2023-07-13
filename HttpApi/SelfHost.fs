@@ -1,5 +1,7 @@
 ﻿namespace YogRobot
 
+open Microsoft.AspNetCore.Authentication.JwtBearer
+
 [<AutoOpen>]
 module SelfHost =
     open System
@@ -7,7 +9,6 @@ module SelfHost =
     open System.Net.Http
     open System.Threading.Tasks
     open Microsoft.AspNetCore.Authorization
-    open Microsoft.AspNetCore.Authentication.JwtBearer
     open Microsoft.AspNetCore.Builder
     open Microsoft.AspNetCore.Hosting
     open Microsoft.AspNetCore.Mvc
