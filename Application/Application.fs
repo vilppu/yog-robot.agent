@@ -4,6 +4,7 @@ module Application =
     open System
     open DataTransferObject
     open System.Security.Cryptography
+    open System.Threading.Tasks
 
     let GenerateSecureToken () =
         let randomNumberGenerator = RandomNumberGenerator.Create()
@@ -15,7 +16,7 @@ module Application =
     let StoredTokenSecret () = Security.StoredTokenSecret()
 
     let IsValidMasterKey token =
-        async {
+        task {
             let keys =
                 match Security.StoredMasterKey() with
                 | null -> []
@@ -25,13 +26,13 @@ module Application =
         }
 
     let IsValidDeviceGroupKey deviceGroupId token validationTime =
-        async {
+        task {
             let! keys = KeyStorage.GetDeviceGroupKeys deviceGroupId token validationTime
             return keys.Length > 0
         }
 
     let IsValidSensorKey deviceGroupId token validationTime =
-        async {
+        task {
             let! keys = KeyStorage.GetSensorKeys deviceGroupId token validationTime
             return keys.Length > 0
         }
@@ -58,43 +59,43 @@ module Application =
             return key.Token.AsString
         }
 
-    let PostDeviceGroupKey httpSend deviceGroupId token : Async<string> =
-        async {
+    let PostDeviceGroupKey sendFirebaseMulticastMessages deviceGroupId token : Task<string> =
+        task {
             let key: Security.DeviceGroupKey =
                 { Token = Security.DeviceGroupKeyToken token
                   DeviceGroupId = DeviceGroupId deviceGroupId
                   ValidThrough = System.DateTime.UtcNow.AddYears(10) }
 
             let command = Command.SaveDeviceGroupKey { Key = key }
-            do! Command.Execute httpSend command
+            do! Command.Execute sendFirebaseMulticastMessages command
             return key.Token.AsString
         }
 
-    let PostSensorKey httpSend deviceGroupId token : Async<string> =
-        async {
+    let PostSensorKey sendFirebaseMulticastMessages deviceGroupId token : Task<string> =
+        task {
             let key: Security.SensorKey =
                 { Token = Security.SensorKeyToken token
                   DeviceGroupId = DeviceGroupId deviceGroupId
                   ValidThrough = System.DateTime.UtcNow.AddYears(10) }
 
             let command = Command.SaveSensorKey { Key = key }
-            do! Command.Execute httpSend command
+            do! Command.Execute sendFirebaseMulticastMessages command
             return key.Token.AsString
         }
 
-    let PostSensorName httpSend deviceGroupId sensorId sensorName : Async<unit> =
-        async {
+    let PostSensorName sendFirebaseMulticastMessages deviceGroupId sensorId sensorName : Task<unit> =
+        task {
             let changeSensorName: Command.ChangeSensorName =
                 { SensorId = SensorId sensorId
                   DeviceGroupId = DeviceGroupId deviceGroupId
                   SensorName = sensorName }
 
             let command = Command.ChangeSensorName changeSensorName
-            do! Command.Execute httpSend command
+            do! Command.Execute sendFirebaseMulticastMessages command
         }
 
-    let GetSensorState (deviceGroupId: string) : Async<DataTransferObject.SensorState list> =
-        async {
+    let GetSensorState (deviceGroupId: string) : Task<DataTransferObject.SensorState list> =
+        task {
 
             let! statuses = SensorStateStorage.GetSensorStates deviceGroupId
             let statuses = statuses |> ConvertSensortState.FromStorables
@@ -102,8 +103,8 @@ module Application =
             return result
         }
 
-    let GetSensorHistory (deviceGroupId: string) (sensorId: string) : Async<DataTransferObject.SensorHistory> =
-        async {
+    let GetSensorHistory (deviceGroupId: string) (sensorId: string) : Task<DataTransferObject.SensorHistory> =
+        task {
             let! history = SensorHistoryStorage.GetSensorHistory deviceGroupId sensorId
 
             let result =
@@ -114,8 +115,8 @@ module Application =
             return result
         }
 
-    let SubscribeToPushNotifications httpSend deviceGroupId (token: string) : Async<unit> =
-        async {
+    let SubscribeToPushNotifications sendFirebaseMulticastMessages deviceGroupId (token: string) : Task<unit> =
+        task {
             let subscription = Notification.Subscription token
 
             let subscribeToPushNotifications: Command.SubscribeToPushNotifications =
@@ -123,16 +124,15 @@ module Application =
                   Subscription = subscription }
 
             let command = Command.SubscribeToPushNotifications subscribeToPushNotifications
-            do! Command.Execute httpSend command
+            do! Command.Execute sendFirebaseMulticastMessages command
         }
 
-    let PostSensorData httpSend deviceGroupId (sensorData: SensorData) =
-        async {
+    let PostSensorData sendFirebaseMulticastMessages deviceGroupId (sensorData: SensorData) =
+        task {
             let changeSensorStates =
-                sensorData
-                |> Command.ToChangeSensorStateCommands(DeviceGroupId deviceGroupId)
+                sensorData |> Command.ToChangeSensorStateCommands(DeviceGroupId deviceGroupId)
 
             for changeSensorState in changeSensorStates do
                 let command = Command.ChangeSensorState changeSensorState
-                do! Command.Execute httpSend command
+                do! Command.Execute sendFirebaseMulticastMessages command
         }

@@ -1,6 +1,7 @@
 namespace YogRobot
 
 module internal Event =
+    open System.Threading.Tasks
 
     type SubscribedToPushNotifications =
         { DeviceGroupId: DeviceGroupId
@@ -56,8 +57,8 @@ module internal Event =
             | SavedSensorKey _ -> ()
         }
 
-    let Send httpSend (event: Event) : Async<unit> =
-        async {
+    let Send sendFirebaseMulticastMessages (event: Event) : Task<unit> =
+        task {
             match event with
             | SubscribedToPushNotifications event ->
                 do!
@@ -71,7 +72,7 @@ module internal Event =
                 let! sensorHistory = Action.GetSensorHistory sensorStateUpdate
                 do! Action.StoreSensorState sensorState
                 do! Action.StoreSensorHistory sensorState sensorHistory
-                do! Action.SendNotifications httpSend sensorState
+                do! Action.SendNotifications sendFirebaseMulticastMessages sensorState
 
             | SensorNameChanged event ->
                 do!

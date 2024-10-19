@@ -1,6 +1,7 @@
 namespace YogRobot
 
 module internal Action =
+    open System.Threading.Tasks
 
     let private isChanged (sensorState: SensorState) : bool =
         sensorState.LastUpdated = sensorState.LastActive
@@ -55,8 +56,8 @@ module internal Action =
                 do! SensorHistoryStorage.UpsertSensorHistory storableSensorHistory
         }
 
-    let SendNotifications httpSend (sensorState: SensorState) : Async<unit> =
-        async {
+    let SendNotifications sendFirebaseMulticastMessages (sensorState: SensorState) : Task<unit> =
+        task {
             if sensorState |> shouldBeNotified then
-                do! Notification.Send httpSend sensorState
+                do! Notification.Send sendFirebaseMulticastMessages sensorState
         }

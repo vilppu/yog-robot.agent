@@ -1,5 +1,9 @@
 namespace YogRobot
 
+open FirebaseAdmin.Messaging
+open System.Collections.Generic
+open System.Text.Json
+
 module internal Notification =
     open System
 
@@ -16,8 +20,8 @@ module internal Notification =
 
     type private PushNotificationReason = { SensorState: SensorState }
 
-    let private sendFirebasePushNotifications httpSend reason =
-        async {
+    let private sendFirebasePushNotifications sendFirebaseMulticastMessages reason =
+        task {
             let measurement = DataTransferObject.Measurement reason.SensorState.Measurement
             let sensorName = reason.SensorState.SensorName
 
@@ -40,14 +44,16 @@ module internal Notification =
                   measuredValue = pushNotification.MeasuredValue
                   timestamp = pushNotification.Timestamp }
 
-            let pushNotificationRequestData: FirebaseObjects.FirebasePushNotificationRequestData =
-                { deviceNotification = notification }
+            let notification =
+                dict [ ("deviceNotification", JsonSerializer.Serialize(notification)) ]
 
-            let pushNotification: FirebaseObjects.FirebasePushNotification =
-                { data = pushNotificationRequestData
-                  registration_ids = subscriptions }
+            let pushNotification: MulticastMessage = new MulticastMessage()
 
-            let! subsriptionChanges = Firebase.SendFirebaseMessages httpSend subscriptions pushNotification
+            pushNotification.Data <- new Dictionary<string, string>(notification)
+            pushNotification.Tokens <- subscriptions
+
+            let! subsriptionChanges =
+                Firebase.SendFirebaseMessages sendFirebaseMulticastMessages subscriptions pushNotification
 
             do!
                 PushNotificationSubscriptionStorage.RemoveRegistrations
@@ -60,16 +66,16 @@ module internal Notification =
                     subsriptionChanges.SubscriptionsToBeAdded
         }
 
-    let private sendPushNotifications httpSend reason =
-        async { do! sendFirebasePushNotifications httpSend reason }
+    let private sendPushNotifications sendFirebaseMulticastMessages reason =
+        task { do! sendFirebasePushNotifications sendFirebaseMulticastMessages reason }
 
-    let Send httpSend (sensorState: SensorState) =
-        async {
+    let Send sendFirebaseMulticastMessages (sensorState: SensorState) =
+        task {
             let reason: PushNotificationReason = { SensorState = sensorState }
 
-            sendPushNotifications httpSend reason
+            let send = fun () -> sendPushNotifications sendFirebaseMulticastMessages reason
             // Do not wait for push notifications to be sent to notification provider.
             // This is to ensure that IoT hub does not need to wait for request to complete
             // for too long.
-            |> Async.Start
+            System.Threading.Tasks.Task.Run<unit>(send) |> ignore
         }

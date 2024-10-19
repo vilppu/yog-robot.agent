@@ -1,6 +1,7 @@
 ﻿namespace YogRobot
 
 open Microsoft.AspNetCore.Authentication.JwtBearer
+open FirebaseAdmin.Messaging
 
 [<AutoOpen>]
 module SelfHost =
@@ -36,7 +37,7 @@ module SelfHost =
                 app: IApplicationBuilder,
                 env: IWebHostEnvironment,
                 loggerFactory: ILoggerFactory,
-                httpSend: HttpRequestMessage -> Async<HttpResponseMessage>
+                sendFirebaseMulticastMessages: MulticastMessage -> Task<BatchResponse>
             ) =
 
             app
@@ -84,7 +85,7 @@ module SelfHost =
 
                 new Action<AuthorizationPolicyBuilder>(builder)
 
-            services.AddAuthorization (fun options ->
+            services.AddAuthorization(fun options ->
                 options.AddPolicy(Roles.Administrator, configureAdminPolicy)
                 options.AddPolicy(Roles.User, configureUserPolicy)
                 options.AddPolicy(Roles.Sensor, configureSensorPolicy))
@@ -108,23 +109,17 @@ module SelfHost =
                 .AddJwtBearer(fun options -> options.TokenValidationParameters <- tokenValidationParameters)
             |> ignore
 
-            services.AddSingleton<IAuthorizationHandler, PermissionHandler>()
-            |> ignore
+            services.AddSingleton<IAuthorizationHandler, PermissionHandler>() |> ignore
 
-    let CreateHttpServer (httpSend: HttpRequestMessage -> Async<HttpResponseMessage>) : Task =
+    let CreateHttpServer (sendFirebaseMulticastMessages: MulticastMessage -> Task<BatchResponse>) : Task =
 
         let url = GetUrl()
 
-        let host =
-            url.Scheme
-            + Uri.SchemeDelimiter
-            + url.Host
-            + ":"
-            + url.Port.ToString()
+        let host = url.Scheme + Uri.SchemeDelimiter + url.Host + ":" + url.Port.ToString()
 
         let host =
             WebHostBuilder()
-                .ConfigureServices(fun services -> services.AddSingleton(httpSend) |> ignore)
+                .ConfigureServices(fun services -> services.AddSingleton(sendFirebaseMulticastMessages) |> ignore)
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>()

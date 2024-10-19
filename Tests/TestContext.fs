@@ -1,5 +1,8 @@
 ﻿namespace YogRobot
 
+open FirebaseAdmin.Messaging
+open System.Collections.Generic
+
 [<AutoOpen>]
 module TestContext =
     open System
@@ -19,7 +22,7 @@ module TestContext =
     let TestDeviceGroupId = "TestDeviceGroup"
     let AnotherTestDeviceGroupId = "AnotherTestDeviceGroupId"
 
-    let SetupEmptyEnvironmentUsing httpSend =
+    let SetupEmptyEnvironmentUsing sendFirebaseMulticastMessages =
         Environment.SetEnvironmentVariable("YOG_BOT_BASE_URL", "http://127.0.0.1:18888/yog-robot/")
         Environment.SetEnvironmentVariable("YOG_MONGODB_DATABASE", "YogRobot_Test")
         Environment.SetEnvironmentVariable("YOG_MASTER_KEY", TheMasterKey)
@@ -32,31 +35,26 @@ module TestContext =
         SensorHistoryStorage.Drop()
 
         if serverTask |> isNull then
-            serverTask <- CreateHttpServer httpSend
+            serverTask <- CreateHttpServer sendFirebaseMulticastMessages
 
-    let SentHttpRequests = Collections.Generic.List<HttpRequestMessage>()
-    let SentHttpRequestContents = Collections.Generic.List<string>()
+    let SentFirebaseMessages = List<MulticastMessage>()
 
     let SetupEmptyEnvironment () =
-        SentHttpRequests.Clear()
-        SentHttpRequestContents.Clear()
+        SentFirebaseMessages.Clear()
 
-        let httpSend (request: HttpRequestMessage) : Async<HttpResponseMessage> =
-            async {
-                let requestContent =
-                    request.Content.ReadAsStringAsync()
-                    |> Async.AwaitTask
-                    |> Async.RunSynchronously
+        let sendFirebaseMulticastMessages (message: MulticastMessage) : Task<BatchResponse> =
+            task {
 
-                SentHttpRequests.Add request
-                SentHttpRequestContents.Add requestContent
+                SentFirebaseMessages.Add message
 
                 let response = new HttpResponseMessage()
                 response.Content <- new StringContent("")
-                return response
+                let responsed: IReadOnlyList<SendResponse> = list.Empty
+                let batchResponse: BatchResponse = null
+                return batchResponse
             }
 
-        SetupEmptyEnvironmentUsing httpSend
+        SetupEmptyEnvironmentUsing sendFirebaseMulticastMessages
 
     type Context() =
         do SetupEmptyEnvironment()
@@ -95,9 +93,7 @@ module TestContext =
             Application.RegisterDeviceGroupKey context.AnotherDeviceGroupId
             |> Async.RunSynchronously
 
-        context.SensorKeyToken <-
-            Application.RegisterSensorKey context.DeviceGroupId
-            |> Async.RunSynchronously
+        context.SensorKeyToken <- Application.RegisterSensorKey context.DeviceGroupId |> Async.RunSynchronously
 
         context.AnotherSensorKey <-
             Application.RegisterSensorKey context.AnotherDeviceGroupId

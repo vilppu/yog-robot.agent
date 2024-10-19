@@ -39,7 +39,7 @@ module Authorization =
         |> List.map (fun header -> header.Value |> Seq.toList |> Seq.head)
 
     let private validMasterKeyHeaderIsPresent request =
-        async {
+        task {
             let headers = request |> FindHeader "yog-robot-key"
 
             match headers with
@@ -48,7 +48,7 @@ module Authorization =
         }
 
     let private validDeviceGroupKeyHeaderIsPresent request =
-        async {
+        task {
             let key = request |> FindHeader "yog-robot-device-group-key"
             let deviceGroupIds = request |> FindHeader "yog-robot-device-group-id"
 
@@ -67,7 +67,7 @@ module Authorization =
         }
 
     let private validSensorDataKeyHeaderIsPresent request =
-        async {
+        task {
             let key = request |> FindHeader "yog-robot-sensor-data-key"
             let deviceGroupIdHeader = request |> FindHeader "yog-robot-device-group-id"
             let botIdIdHeader = request |> FindHeader "yog-robot-bot-id"
@@ -88,26 +88,25 @@ module Authorization =
         }
 
     let MasterKeyIsMissing request =
-        async {
+        task {
             let! isPresent = validMasterKeyHeaderIsPresent request
             return not (isPresent)
         }
 
     let DeviceGroupKeyIsMissing request =
-        async {
+        task {
             let! isPresent = validDeviceGroupKeyHeaderIsPresent request
             return not (isPresent)
         }
 
     let SensorKeyIsMissing request =
-        async {
+        task {
             let! isPresent = validSensorDataKeyHeaderIsPresent request
             return not (isPresent)
         }
 
     let GetDeviceGroupId (user: ClaimsPrincipal) =
-        user.Claims.Single(fun claim -> claim.Type = "DeviceGroupId")
-            .Value
+        user.Claims.Single(fun claim -> claim.Type = "DeviceGroupId").Value
 
     let FindDeviceGroupId request =
         let deviceGroupIdHeader = request |> FindHeader "yog-robot-device-group-id"

@@ -1,5 +1,8 @@
 ﻿namespace YogRobot
 
+open FirebaseAdmin
+open Google.Apis.Auth.OAuth2
+
 module Program =
     open System
     open SelfHost
@@ -12,7 +15,12 @@ module Program =
     [<EntryPoint>]
     let main argv =
         try
-            let server = CreateHttpServer Http.Send
+
+            let firebaseOptions = new AppOptions()
+            firebaseOptions.Credential <- GoogleCredential.GetApplicationDefault()
+            FirebaseApp.Create(firebaseOptions) |> ignore
+
+            let server = CreateHttpServer Firebase.Send
             server.Wait()
             0
         with

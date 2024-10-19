@@ -1,12 +1,15 @@
 namespace YogRobot
 
-module Http =
-    open System.Net.Http
+open FirebaseAdmin.Messaging
 
-    let private httpClient = new HttpClient()
+module Firebase =
+    open System.Threading.Tasks
 
-    let Send (request: HttpRequestMessage) : Async<HttpResponseMessage> =
-        async {
-            let! response = httpClient.SendAsync request |> Async.AwaitTask
+    let Send (message: MulticastMessage) : Task<BatchResponse> =
+        task {
+            let! response =
+                (FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(message))
+                |> Async.AwaitTask
+
             return response
         }

@@ -4,15 +4,7 @@ module PushNotificationTests =
     open Xunit
 
     let WaitForBackgroundProcessingToComplete () =
-        System.Threading.Tasks.Task.Delay(100)
-        |> Async.AwaitTask
-
-    let sentNotifications () =
-        SentHttpRequestContents
-        |> Seq.map (fun request ->
-            request
-            |> Json.Deserialize<FirebaseObjects.FirebasePushNotification>)
-        |> Seq.toList
+        System.Threading.Tasks.Task.Delay(100) |> Async.AwaitTask
 
     [<Fact>]
     let NotifyAboutContact () =
@@ -23,16 +15,13 @@ module PushNotificationTests =
 
             context |> SetupToReceivePushNotifications
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement opened)
+            context |> WriteMeasurementSynchronously(Fake.Measurement opened)
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement closed)
+            context |> WriteMeasurementSynchronously(Fake.Measurement closed)
 
             do! WaitForBackgroundProcessingToComplete()
 
-            Assert.Equal(2, SentHttpRequests.Count)
-            Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
+            Assert.Equal(2, SentFirebaseMessages.Count)
         }
 
     [<Fact>]
@@ -43,15 +32,13 @@ module PushNotificationTests =
 
             context |> SetupToReceivePushNotifications
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement opened)
+            context |> WriteMeasurementSynchronously(Fake.Measurement opened)
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement opened)
+            context |> WriteMeasurementSynchronously(Fake.Measurement opened)
 
             do! WaitForBackgroundProcessingToComplete()
 
-            Assert.Equal(1, SentHttpRequests.Count)
+            Assert.Equal(1, SentFirebaseMessages.Count)
         }
 
     [<Fact>]
@@ -63,19 +50,15 @@ module PushNotificationTests =
 
             context |> SetupToReceivePushNotifications
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement present)
+            context |> WriteMeasurementSynchronously(Fake.Measurement present)
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement notPresent)
+            context |> WriteMeasurementSynchronously(Fake.Measurement notPresent)
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement present)
+            context |> WriteMeasurementSynchronously(Fake.Measurement present)
 
             do! WaitForBackgroundProcessingToComplete()
 
-            Assert.Equal(3, SentHttpRequests.Count)
-            Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
+            Assert.Equal(3, SentFirebaseMessages.Count)
         }
 
     [<Fact>]
@@ -86,15 +69,13 @@ module PushNotificationTests =
 
             context |> SetupToReceivePushNotifications
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement present)
+            context |> WriteMeasurementSynchronously(Fake.Measurement present)
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement present)
+            context |> WriteMeasurementSynchronously(Fake.Measurement present)
 
             do! WaitForBackgroundProcessingToComplete()
 
-            Assert.Equal(1, SentHttpRequests.Count)
+            Assert.Equal(1, SentFirebaseMessages.Count)
         }
 
     [<Fact>]
@@ -106,19 +87,15 @@ module PushNotificationTests =
 
             context |> SetupToReceivePushNotifications
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement motion)
+            context |> WriteMeasurementSynchronously(Fake.Measurement motion)
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement noMotion)
+            context |> WriteMeasurementSynchronously(Fake.Measurement noMotion)
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement motion)
+            context |> WriteMeasurementSynchronously(Fake.Measurement motion)
 
             do! WaitForBackgroundProcessingToComplete()
 
-            Assert.Equal(2, SentHttpRequests.Count)
-            Assert.Equal("https://fcm.googleapis.com/fcm/send", SentHttpRequests.[0].RequestUri.ToString())
+            Assert.Equal(2, SentFirebaseMessages.Count)
         }
 
     [<Fact>]
@@ -129,12 +106,11 @@ module PushNotificationTests =
 
             context |> SetupToReceivePushNotifications
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement noMotion)
+            context |> WriteMeasurementSynchronously(Fake.Measurement noMotion)
 
             do! WaitForBackgroundProcessingToComplete()
 
-            Assert.Equal(0, SentHttpRequests.Count)
+            Assert.Equal(0, SentFirebaseMessages.Count)
         }
 
     [<Fact>]
@@ -145,15 +121,13 @@ module PushNotificationTests =
 
             context |> SetupToReceivePushNotifications
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement motion)
+            context |> WriteMeasurementSynchronously(Fake.Measurement motion)
 
-            context
-            |> WriteMeasurementSynchronously(Fake.Measurement motion)
+            context |> WriteMeasurementSynchronously(Fake.Measurement motion)
 
             do! WaitForBackgroundProcessingToComplete()
 
-            Assert.Equal(1, SentHttpRequests.Count)
+            Assert.Equal(1, SentFirebaseMessages.Count)
         }
 
     [<Fact>]
@@ -175,11 +149,10 @@ module PushNotificationTests =
 
             do! WaitForBackgroundProcessingToComplete()
 
-            Assert.Equal(
-                expectedName,
-                sentNotifications().[1]
-                    .data
-                    .deviceNotification
-                    .sensorName
-            )
+            let notification =
+                System.Text.Json.JsonSerializer.Deserialize<FirebaseObjects.FirebaseDeviceNotificationContent>(
+                    SentFirebaseMessages[1].Data["deviceNotification"]
+                )
+
+            Assert.Equal(expectedName, notification.sensorName)
         }

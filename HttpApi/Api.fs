@@ -1,14 +1,16 @@
 ﻿namespace YogRobot
 
 open System.Net.Http
+open System.Threading.Tasks
 open Microsoft.AspNetCore.Authorization
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
 open DataTransferObject
 open Microsoft.AspNetCore.Cors
+open FirebaseAdmin.Messaging
 
 [<Route("api")>]
-type ApiController(httpSend: HttpRequestMessage -> Async<HttpResponseMessage>) =
+type ApiController(sendFirebaseMulticastMessages: MulticastMessage -> Task<BatchResponse>) =
     inherit Controller()
     member private this.DeviceGroupId = GetDeviceGroupId this.User
 
@@ -19,7 +21,7 @@ type ApiController(httpSend: HttpRequestMessage -> Async<HttpResponseMessage>) =
     [<Route("tokens/master")>]
     [<HttpGet>]
     member this.GetMasterAccessToken() =
-        async {
+        task {
             let! keyIsMissing = MasterKeyIsMissing this.Request
 
             if keyIsMissing then
@@ -31,7 +33,7 @@ type ApiController(httpSend: HttpRequestMessage -> Async<HttpResponseMessage>) =
     [<Route("tokens/device-group")>]
     [<HttpGet>]
     member this.GetDeviceGroupAccessToken() =
-        async {
+        task {
             let! keyIsMissing = DeviceGroupKeyIsMissing this.Request
 
             if keyIsMissing then
@@ -44,7 +46,7 @@ type ApiController(httpSend: HttpRequestMessage -> Async<HttpResponseMessage>) =
     [<Route("tokens/sensor")>]
     [<HttpGet>]
     member this.GetSensorAccessToken() =
-        async {
+        task {
             let! keyIsMissing = SensorKeyIsMissing this.Request
 
             if keyIsMissing then
@@ -57,57 +59,57 @@ type ApiController(httpSend: HttpRequestMessage -> Async<HttpResponseMessage>) =
     [<Route("keys/device-group-keys/{deviceGroupId}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.Administrator)>]
-    member this.PostDeviceGroupKey(deviceGroupId: string) : Async<JsonResult> =
-        async {
+    member this.PostDeviceGroupKey(deviceGroupId: string) : Task<JsonResult> =
+        task {
             let token = Application.GenerateSecureToken()
-            let! key = Application.PostDeviceGroupKey httpSend deviceGroupId token
+            let! key = Application.PostDeviceGroupKey sendFirebaseMulticastMessages deviceGroupId token
             return this.Json(key)
         }
 
     [<Route("keys/sensor-keys/{deviceGroupId}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.Administrator)>]
-    member this.PostSensorKey(deviceGroupId: string) : Async<JsonResult> =
-        async {
+    member this.PostSensorKey(deviceGroupId: string) : Task<JsonResult> =
+        task {
             let token = Application.GenerateSecureToken()
-            let! key = Application.PostSensorKey httpSend deviceGroupId token
+            let! key = Application.PostSensorKey sendFirebaseMulticastMessages deviceGroupId token
             return this.Json(key)
         }
 
     [<Route("sensor/{sensorId}/name/{sensorName}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.User)>]
-    member this.PostSensorName (sensorId: string) (sensorName: string) : Async<unit> =
-        async { do! Application.PostSensorName httpSend this.DeviceGroupId sensorId sensorName }
+    member this.PostSensorName (sensorId: string) (sensorName: string) : Task<unit> =
+        task { do! Application.PostSensorName sendFirebaseMulticastMessages this.DeviceGroupId sensorId sensorName }
 
     [<Route("sensors")>]
     [<HttpGet>]
     [<Authorize(Policy = Roles.User)>]
-    member this.GetSensorState() : Async<DataTransferObject.SensorState list> =
-        async { return! Application.GetSensorState this.DeviceGroupId }
+    member this.GetSensorState() : Task<DataTransferObject.SensorState list> =
+        task { return! Application.GetSensorState this.DeviceGroupId }
 
     [<Route("sensor/{sensorId}/history/")>]
     [<HttpGet>]
     [<Authorize(Policy = Roles.User)>]
-    member this.GetSensorHistory(sensorId: string) : Async<DataTransferObject.SensorHistory> =
-        async { return! Application.GetSensorHistory this.DeviceGroupId sensorId }
+    member this.GetSensorHistory(sensorId: string) : Task<DataTransferObject.SensorHistory> =
+        task { return! Application.GetSensorHistory this.DeviceGroupId sensorId }
 
     [<Route("push-notifications/subscribe/{token}")>]
     [<HttpPost>]
     [<Authorize(Policy = Roles.User)>]
-    member this.SubscribeToPushNotifications(token: string) : Async<unit> =
-        async { return! Application.SubscribeToPushNotifications httpSend this.DeviceGroupId token }
+    member this.SubscribeToPushNotifications(token: string) : Task<unit> =
+        task { return! Application.SubscribeToPushNotifications sendFirebaseMulticastMessages this.DeviceGroupId token }
 
     [<Route("sensor-data")>]
     [<HttpPost>]
     member this.PostSensorData([<FromBody>] sensorData: SensorData) =
-        async {
+        task {
             let! keyIsMissing = SensorKeyIsMissing this.Request
 
             if keyIsMissing then
                 return this.StatusCode(StatusCodes.Status401Unauthorized)
             else
                 let deviceGroupId = FindDeviceGroupId this.Request
-                return! Application.PostSensorData httpSend deviceGroupId sensorData
+                do! Application.PostSensorData sendFirebaseMulticastMessages deviceGroupId sensorData
                 return this.StatusCode(StatusCodes.Status201Created)
         }

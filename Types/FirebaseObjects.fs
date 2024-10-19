@@ -17,7 +17,7 @@ module FirebaseObjects =
     [<CLIMutable>]
     type FirebasePushNotification =
         { data: FirebasePushNotificationRequestData
-          registration_ids: string seq }
+          tokens: string seq }
 
     [<CLIMutable>]
     type FirebaseResult =

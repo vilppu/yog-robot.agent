@@ -2,6 +2,7 @@ namespace YogRobot
 
 module internal Command =
     open DataTransferObject
+    open System.Threading.Tasks
 
     type SubscribeToPushNotifications =
         { DeviceGroupId: DeviceGroupId
@@ -33,7 +34,7 @@ module internal Command =
         | SaveSensorKey of SaveSensorKey
 
     let private subscribedToPushNotificationsEvent (command: SubscribeToPushNotifications) =
-        async {
+        task {
             let event: Event.SubscribedToPushNotifications =
                 { DeviceGroupId = command.DeviceGroupId
                   Subscription = command.Subscription }
@@ -42,7 +43,7 @@ module internal Command =
         }
 
     let private sensorStateChangedEvent (command: ChangeSensorState) =
-        async {
+        task {
             let event: Event.SensorStateChanged =
                 { SensorId = command.SensorId
                   DeviceGroupId = command.DeviceGroupId
@@ -72,7 +73,7 @@ module internal Command =
         Event.SavedSensorKey event
 
     let private createEventFromCommand (command: Command) =
-        async {
+        task {
             match command with
             | SubscribeToPushNotifications subscribeToPushNotifications ->
                 return! subscribedToPushNotificationsEvent subscribeToPushNotifications
@@ -93,11 +94,11 @@ module internal Command =
         (timestamp: System.DateTime)
         : Option<ChangeSensorState> =
 
-        let measurementOption = DataTransferObject.SensorDatumToMeasurement datum
+        let measurementOption = SensorDatumToMeasurement datum
 
         match measurementOption with
         | Some measurement ->
-            let property = datum |> DataTransferObject.MeasuredPropertyName
+            let property = datum |> MeasuredPropertyName
             let deviceId = DeviceId sensorData.sensorId
 
             let command: ChangeSensorState =
@@ -123,12 +124,12 @@ module internal Command =
         let sensorData = ToGatewayEvent sensorData
 
         match sensorData with
-        | GatewayEvent.SensorDataEvent sensorData -> toChangeSensorStateCommands deviceGroupId sensorData timestamp
+        | SensorDataEvent sensorData -> toChangeSensorStateCommands deviceGroupId sensorData timestamp
         | _ -> []
 
-    let Execute httpSend (command: Command) =
-        async {
+    let Execute sendFirebaseMulticastMessages (command: Command) =
+        task {
             let! event = createEventFromCommand command
             do! Event.Store event
-            do! Event.Send httpSend event
+            do! Event.Send sendFirebaseMulticastMessages event
         }

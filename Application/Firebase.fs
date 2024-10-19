@@ -1,13 +1,12 @@
 namespace YogRobot
 
+open System.Threading.Tasks
+open FirebaseAdmin.Messaging
+
 module Firebase =
     open System
     open System.Collections.Generic
     open System.Net.Http
-    open System.Text.Json
-
-    let StoredFirebaseKey () =
-        Environment.GetEnvironmentVariable("YOG_FCM_KEY")
 
     type SubscriptionChanges =
         { SubscriptionsToBeRemoved: string list
@@ -17,95 +16,60 @@ module Firebase =
         { SubscriptionsToBeRemoved = []
           SubscriptionsToBeAdded = [] }
 
-    let private shouldBeRemoved (result: FirebaseObjects.FirebaseResult * String) =
-        let (firebaseResult, subscription) = result
+    let private shouldBeRemoved (result: SendResponse * String) =
+        let (firebaseResult, _) = result
 
-        not (String.IsNullOrWhiteSpace(firebaseResult.registration_id))
-        || firebaseResult.error = "InvalidRegistration"
+        not (String.IsNullOrWhiteSpace(firebaseResult.MessageId))
+        || (firebaseResult.Exception.Message = "MissingRegistration")
+        || (firebaseResult.Exception.Message = "InvalidRegistration")
+        || (firebaseResult.Exception.Message = "NotRegistered")
 
     let private getSubscriptionChanges
         (subscriptions: string seq)
-        (firebaseResponse: FirebaseObjects.FirebaseResponse)
-        : Async<SubscriptionChanges> =
+        (firebaseResponse: BatchResponse)
+        : SubscriptionChanges =
+        let firebaseResults = firebaseResponse.Responses |> Seq.toList
 
-        async {
-            let firebaseResults = firebaseResponse.results |> Seq.toList
+        let results = subscriptions |> Seq.toList |> List.zip firebaseResults
 
-            let results =
-                subscriptions
-                |> Seq.toList
-                |> List.zip firebaseResults
+        let subscriptionsToBeRemoved =
+            results
+            |> List.filter shouldBeRemoved
+            |> List.map (fun result ->
+                let (_, subscription) = result
+                subscription)
 
-            let subscriptionsToBeRemoved =
-                results
-                |> List.filter shouldBeRemoved
-                |> List.map (fun result ->
-                    let (firebaseResult, subscription) = result
-                    subscription)
+        let subscriptionsToBeAdded =
+            subscriptions |> Seq.filter (String.IsNullOrWhiteSpace >> not) |> Seq.toList
 
-            let subscriptionsToBeAdded =
-                firebaseResults
-                |> List.map (fun result -> result.registration_id)
-                |> List.filter (String.IsNullOrWhiteSpace >> not)
+        { SubscriptionsToBeRemoved = subscriptionsToBeRemoved
+          SubscriptionsToBeAdded = subscriptionsToBeAdded }
 
-            return
-                { SubscriptionsToBeRemoved = subscriptionsToBeRemoved
-                  SubscriptionsToBeAdded = subscriptionsToBeAdded }
-        }
 
     let private sendMessages
-        (httpSend: HttpRequestMessage -> Async<HttpResponseMessage>)
+        (sendFirebaseMulticastMessages: MulticastMessage -> Task<BatchResponse>)
         (subscriptions: List<string>)
-        (pushNotification: FirebaseObjects.FirebasePushNotification)
-        : Async<SubscriptionChanges> =
+        (pushNotification: MulticastMessage)
+        : Task<SubscriptionChanges> =
 
-        async {
-            let storedFirebaseKey = StoredFirebaseKey()
-            let url = "https://fcm.googleapis.com/fcm/send"
-            let token = "key=" + storedFirebaseKey
+        task {
+            let! firebaseResponse = sendFirebaseMulticastMessages (pushNotification)
 
-            let json = JsonSerializer.Serialize pushNotification
-            use requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
-            use content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
-
-            requestMessage.Content <- content
-
-            requestMessage.Headers.TryAddWithoutValidation("Authorization", token)
-            |> ignore
-
-            let! response = httpSend requestMessage
-
-            let! responseJson =
-                response.Content.ReadAsStringAsync()
-                |> Async.AwaitTask
-
-            let jsonSerializerOptions = System.Text.Json.JsonSerializerOptions()
-
-            jsonSerializerOptions.PropertyNameCaseInsensitive <- true
-
-            let firebaseResponse =
-                JsonSerializer.Deserialize<FirebaseObjects.FirebaseResponse>(responseJson, jsonSerializerOptions)
-
-            if not (firebaseResponse :> obj |> isNull) then
-                return! getSubscriptionChanges subscriptions firebaseResponse
+            if not (firebaseResponse |> isNull) then
+                return getSubscriptionChanges subscriptions firebaseResponse
             else
                 return noSubscriptionChanges
 
         }
 
     let SendFirebaseMessages
-        httpSend
+        sendFirebaseMulticastMessages
         (subscriptions: List<string>)
-        (pushNotification: FirebaseObjects.FirebasePushNotification)
+        (pushNotification: MulticastMessage)
         =
-        async {
-            let storedFirebaseKey = StoredFirebaseKey()
-
-            if not (String.IsNullOrWhiteSpace(storedFirebaseKey)) then
-                if subscriptions.Count > 0 then
-                    return! sendMessages httpSend subscriptions pushNotification
-                else
-                    return noSubscriptionChanges
+        task {
+            if subscriptions.Count > 0 then
+                return! sendMessages sendFirebaseMulticastMessages subscriptions pushNotification
             else
                 return noSubscriptionChanges
         }
