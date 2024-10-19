@@ -1,0 +1,22 @@
+language: csharp
+dist: trusty
+sudo: required
+mono: none
+dotnet: 2.0.3
+solution: YogRobot.Agent.sln
+services:
+  - mongodb
+script: ./build.sh
+deploy:
+  provider: releases
+  api_key: $GitHubReleasesKey
+  file:
+    - yog-robot.agent.zip
+  skip_cleanup: true
+  on:
+    all_branches: true
+    tags: true
+# git commit -m ""
+# git tag version
+# git push --tags
+# git push
