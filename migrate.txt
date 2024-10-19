@@ -1,7 +1,0 @@
-db.BotKeys.renameCollection("DeviceGroupKeys")
-db.MeasurementEvents.renameCollection("SensorEvents")
-db.SensorEvents.updateMany( {}, { $rename: { "SystemId": "DeviceGroupId" } } )
-db.SensorEvents.updateMany( {}, { $rename: { "BotId": "DeviceGroupId" } } )
-db.MasterKeys.updateMany( {}, { $rename: { "BotId": "DeviceGroupId" } } )
-db.DeviceGroupKeys.updateMany( {}, { $rename: { "BotId": "DeviceGroupId" } } )
-db.SensorKeys.updateMany( {}, { $rename: { "BotId": "DeviceGroupId" } } )

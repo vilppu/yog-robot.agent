@@ -16,7 +16,7 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: build
-      run: dotnet publish ./HttpApi -c Release -o Published
+      run: dotnet publish ./HttpApi -c Release -r linux-x64 -o Published
 
     - name: zip
       run: zip -r yog-robot.agent.zip ./Published

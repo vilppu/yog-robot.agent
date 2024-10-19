@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Tests", "Tests\Tests.fsproj", "{52E6FF21-0440-419A-A199-B50F1C32D0E5}"
 EndProject
@@ -11,15 +11,14 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Application", "Application\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8478F720-8822-40FF-83EB-1BA3312775FD}"
 	ProjectSection(SolutionItems) = preProject
-		.travis.yml = .travis.yml
-		build.sh = build.sh
+		.github\workflows\build.yml = .github\workflows\build.yml
 		global.json = global.json
 		readme.md = readme.md
 	EndProjectSection
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Types", "Types\Types.fsproj", "{84FDBE2B-DB97-4722-9112-91260D655EB5}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Storage", "Storage\Storage.fsproj", "{AA9524D8-69FD-49D2-82EA-DAEB2F9BC166}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Storage", "Storage\Storage.fsproj", "{AA9524D8-69FD-49D2-82EA-DAEB2F9BC166}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
