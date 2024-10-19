@@ -18,9 +18,15 @@ jobs:
         dotnet-version: 8.0.x
     #- run: dotnet restore ./Tests
     #- run: dotnet test ./Tests/Tests.fsproj -c Release -p:ParallelizeTestCollections=false
-    - run: dotnet publish ./HttpApi -c Release -r linux-x64 -o Published
-    - run: zip -r yog-robot.agent.zip ./Published
-    - uses: actions/create-release@v1
+    - name: build
+      run: dotnet publish ./HttpApi -c Release -r linux-x64 -o Published
+
+    - name: zip
+      run: zip -r yog-robot.agent.zip ./Published
+    
+    - name: release 
+      id: release
+      uses: actions/create-release@v1
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -28,4 +34,13 @@ jobs:
         release_name: ${{ github.ref }}
         draft: false
         prerelease: false
-      
+
+    - name: upload binaries
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.release.outputs.upload_url }}
+        asset_path: ./Published/yog-robot.agent.zip
+        asset_name: yog-robot.agent.zip
+        asset_content_type: application/zip
