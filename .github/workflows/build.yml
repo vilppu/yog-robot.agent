@@ -1,10 +1,12 @@
 on:
   push:
     branches: [ "main" ]
+    tags:
+      - 'v*'
 
 jobs:
   
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +22,6 @@ jobs:
     - run: dotnet publish ./HttpApi -c Release -r linux-x64 -o Published
     - run: zip -r yog-robot.agent.zip ./Published
     - uses: actions/create-release@v1
-      if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
