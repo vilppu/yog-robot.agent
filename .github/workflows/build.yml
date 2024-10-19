@@ -17,7 +17,7 @@ jobs:
         dotnet-version: 8.0.x
     #- run: dotnet restore ./Tests
     #- run: dotnet test ./Tests/Tests.fsproj -c Release -p:ParallelizeTestCollections=false
-    - run: dotnet publish ./HttpApi -c Release -r debian.8-x64 -o Published
+    - run: dotnet publish ./HttpApi -c Release -r linux-x64 -o Published
     - run: zip -r yog-robot.agent.zip ./HttpApi/Published
     - uses: actions/create-release@v1
       if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
