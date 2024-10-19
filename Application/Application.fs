@@ -3,13 +3,10 @@
 module Application =
     open System
     open DataTransferObject
-    open System.Security.Cryptography
     open System.Threading.Tasks
 
     let GenerateSecureToken () =
-        let randomNumberGenerator = RandomNumberGenerator.Create()
-        let tokenBytes = Array.zeroCreate<byte> 16
-        randomNumberGenerator.GetBytes tokenBytes
+        let tokenBytes = Guid.NewGuid().ToByteArray()
         let tokenWithDashes = BitConverter.ToString tokenBytes
         tokenWithDashes.Replace("-", "")
 
