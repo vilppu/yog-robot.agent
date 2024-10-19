@@ -10,16 +10,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: supercharge/mongodb-github-action@1.10.0
-      with:
-        mongodb-version: '5.0'
+
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
-    #- run: dotnet restore ./Tests
-    #- run: dotnet test ./Tests/Tests.fsproj -c Release -p:ParallelizeTestCollections=false
+
     - name: build
-      run: dotnet publish ./HttpApi -c Release -r linux-x64 -o Published
+      run: dotnet publish ./HttpApi -c Release -o Published
 
     - name: zip
       run: zip -r yog-robot.agent.zip ./Published
