@@ -2,17 +2,16 @@
 
 open Microsoft.AspNetCore.Authentication.JwtBearer
 open FirebaseAdmin.Messaging
+open Microsoft.AspNetCore
 
 [<AutoOpen>]
 module SelfHost =
     open System
     open System.IO
-    open System.Net.Http
     open System.Threading.Tasks
     open Microsoft.AspNetCore.Authorization
     open Microsoft.AspNetCore.Builder
     open Microsoft.AspNetCore.Hosting
-    open Microsoft.AspNetCore.Mvc
     open Microsoft.Extensions.DependencyInjection
     open Microsoft.Extensions.Logging
     open Microsoft.IdentityModel.Tokens
@@ -118,7 +117,8 @@ module SelfHost =
         let host = url.Scheme + Uri.SchemeDelimiter + url.Host + ":" + url.Port.ToString()
 
         let host =
-            WebHostBuilder()
+            WebHost
+                .CreateDefaultBuilder()
                 .ConfigureServices(fun services -> services.AddSingleton(sendFirebaseMulticastMessages) |> ignore)
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
