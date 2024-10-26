@@ -58,6 +58,8 @@ module internal Action =
 
     let SendNotifications sendFirebaseMulticastMessages (sensorState: SensorState) : Task<unit> =
         task {
+            printfn "%b" (sensorState |> shouldBeNotified)
+
             if sensorState |> shouldBeNotified then
                 do! Notification.Send sendFirebaseMulticastMessages sensorState
         }
