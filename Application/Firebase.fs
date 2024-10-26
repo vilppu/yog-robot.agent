@@ -42,6 +42,9 @@ module Firebase =
         let subscriptionsToBeAdded =
             subscriptions |> Seq.filter (String.IsNullOrWhiteSpace >> not) |> Seq.toList
 
+        printfn "subscriptionsToBeAdded %A" (subscriptionsToBeRemoved)
+        printfn "subscriptionsToBeRemoved %A" (subscriptionsToBeRemoved)
+
         { SubscriptionsToBeRemoved = subscriptionsToBeRemoved
           SubscriptionsToBeAdded = subscriptionsToBeAdded }
 
@@ -54,6 +57,8 @@ module Firebase =
 
         task {
             let! firebaseResponse = sendFirebaseMulticastMessages (pushNotification)
+
+            printfn "firebaseResponse %s" (System.Text.Json.JsonSerializer.Serialize(firebaseResponse))
 
             if not (firebaseResponse |> isNull) then
                 return getSubscriptionChanges subscriptions firebaseResponse
@@ -69,6 +74,7 @@ module Firebase =
         =
         task {
             if subscriptions.Count > 0 then
+                printfn "SendFirebaseMessages to %i subscriptions" (subscriptions.Count)
                 return! sendMessages sendFirebaseMulticastMessages subscriptions pushNotification
             else
                 return noSubscriptionChanges

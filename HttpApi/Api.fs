@@ -104,8 +104,6 @@ type ApiController(sendFirebaseMulticastMessages: MulticastMessage -> Task<Batch
     [<HttpPost>]
     member this.PostSensorData([<FromBody>] sensorData: SensorData) =
         task {
-            printfn "Sensor data posted"
-
             let! keyIsMissing = SensorKeyIsMissing this.Request
 
             if keyIsMissing then
