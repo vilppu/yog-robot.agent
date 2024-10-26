@@ -16,10 +16,6 @@ module Firebase =
         { SubscriptionsToBeRemoved = []
           SubscriptionsToBeAdded = [] }
 
-    let private shouldBeRemoved (result: SendResponse * String) =
-        let (firebaseResult, _) = result
-        not firebaseResult.IsSuccess
-
     let private getSubscriptionChanges
         (subscriptions: string seq)
         (firebaseResponse: BatchResponse)
@@ -30,13 +26,14 @@ module Firebase =
 
         let subscriptionsToBeRemoved =
             results
-            |> List.filter shouldBeRemoved
+            |> List.filter (fun result ->
+                let (firebaseResult, _) = result
+                not firebaseResult.IsSuccess)
             |> List.map (fun result ->
                 let (_, subscription) = result
                 subscription)
 
-        let subscriptionsToBeAdded =
-            subscriptions |> Seq.filter (String.IsNullOrWhiteSpace >> not) |> Seq.toList
+        let subscriptionsToBeAdded = List.empty
 
         printfn "subscriptionsToBeAdded %A" (subscriptionsToBeAdded)
         printfn "subscriptionsToBeRemoved %A" (subscriptionsToBeRemoved)
