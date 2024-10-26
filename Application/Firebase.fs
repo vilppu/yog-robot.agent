@@ -58,7 +58,10 @@ module Firebase =
         task {
             let! firebaseResponse = sendFirebaseMulticastMessages (pushNotification)
 
-            printfn "firebaseResponse %s" (System.Text.Json.JsonSerializer.Serialize(firebaseResponse))
+            let r = firebaseResponse.Responses |> Seq.map (fun r -> (r.IsSuccess, r.MessageId))
+            let json = System.Text.Json.JsonSerializer.Serialize(r)
+
+            printfn $"firebaseResponse {json} {firebaseResponse.SuccessCount} {firebaseResponse.FailureCount}"
 
             if not (firebaseResponse |> isNull) then
                 return getSubscriptionChanges subscriptions firebaseResponse
