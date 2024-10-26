@@ -33,10 +33,20 @@ module Firebase =
                 let (_, subscription) = result
                 subscription)
 
+        let errors =
+            results
+            |> List.filter (fun result ->
+                let (firebaseResult, _) = result
+                not firebaseResult.IsSuccess)
+            |> List.map (fun result ->
+                let (firebaseResult, _) = result
+                firebaseResult.Exception.Message)
+
         let subscriptionsToBeAdded = List.empty
 
         printfn "subscriptionsToBeAdded %A" (subscriptionsToBeAdded)
         printfn "subscriptionsToBeRemoved %A" (subscriptionsToBeRemoved)
+        printfn "errors %A" (errors)
 
         { SubscriptionsToBeRemoved = subscriptionsToBeRemoved
           SubscriptionsToBeAdded = subscriptionsToBeAdded }
