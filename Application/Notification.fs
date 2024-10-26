@@ -69,7 +69,6 @@ module internal Notification =
     let private sendPushNotifications sendFirebaseMulticastMessages reason =
         task {
             try
-                printfn "Sending notification"
                 do! sendFirebasePushNotifications sendFirebaseMulticastMessages reason
             with ex ->
                 eprintfn "%s" (ex.ToString())
