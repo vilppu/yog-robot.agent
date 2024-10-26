@@ -18,11 +18,7 @@ module Firebase =
 
     let private shouldBeRemoved (result: SendResponse * String) =
         let (firebaseResult, _) = result
-
-        not (String.IsNullOrWhiteSpace(firebaseResult.MessageId))
-        || (firebaseResult.Exception.Message = "MissingRegistration")
-        || (firebaseResult.Exception.Message = "InvalidRegistration")
-        || (firebaseResult.Exception.Message = "NotRegistered")
+        not firebaseResult.IsSuccess
 
     let private getSubscriptionChanges
         (subscriptions: string seq)
@@ -42,7 +38,7 @@ module Firebase =
         let subscriptionsToBeAdded =
             subscriptions |> Seq.filter (String.IsNullOrWhiteSpace >> not) |> Seq.toList
 
-        printfn "subscriptionsToBeAdded %A" (subscriptionsToBeRemoved)
+        printfn "subscriptionsToBeAdded %A" (subscriptionsToBeAdded)
         printfn "subscriptionsToBeRemoved %A" (subscriptionsToBeRemoved)
 
         { SubscriptionsToBeRemoved = subscriptionsToBeRemoved
