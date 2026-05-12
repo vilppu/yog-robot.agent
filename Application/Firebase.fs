@@ -10,11 +10,23 @@ module Firebase =
 
     type SubscriptionChanges =
         { SubscriptionsToBeRemoved: string list
-          SubscriptionsToBeAdded: string list }
+          SubscriptionsToBeAdded: string list
+          Errors: string list }
 
     let noSubscriptionChanges =
         { SubscriptionsToBeRemoved = []
-          SubscriptionsToBeAdded = [] }
+          SubscriptionsToBeAdded = []
+          Errors = [] }
+
+    let private shouldRemoveSubscription (firebaseResult: SendResponse) =
+        if firebaseResult.Exception |> isNull then
+            false
+        else
+            let messagingErrorCode = firebaseResult.Exception.MessagingErrorCode
+
+            messagingErrorCode.HasValue
+            && (messagingErrorCode.Value = MessagingErrorCode.Unregistered
+                || messagingErrorCode.Value = MessagingErrorCode.SenderIdMismatch)
 
     let private getSubscriptionChanges
         (subscriptions: string seq)
@@ -28,7 +40,7 @@ module Firebase =
             results
             |> List.filter (fun result ->
                 let (firebaseResult, _) = result
-                not firebaseResult.IsSuccess)
+                shouldRemoveSubscription firebaseResult)
             |> List.map (fun result ->
                 let (_, subscription) = result
                 subscription)
@@ -45,7 +57,8 @@ module Firebase =
         let subscriptionsToBeAdded = List.empty
 
         { SubscriptionsToBeRemoved = subscriptionsToBeRemoved
-          SubscriptionsToBeAdded = subscriptionsToBeAdded }
+          SubscriptionsToBeAdded = subscriptionsToBeAdded
+          Errors = errors }
 
 
     let private sendMessages

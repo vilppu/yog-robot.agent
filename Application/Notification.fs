@@ -55,6 +55,9 @@ module internal Notification =
             let! subsriptionChanges =
                 Firebase.SendFirebaseMessages sendFirebaseMulticastMessages subscriptions pushNotification
 
+            for error in subsriptionChanges.Errors do
+                eprintfn "%s" error
+
             do!
                 PushNotificationSubscriptionStorage.RemoveRegistrations
                     deviceGroupId.AsString
