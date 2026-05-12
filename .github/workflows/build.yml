@@ -13,7 +13,7 @@ jobs:
 
     - uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
 
     - name: build
       run: dotnet publish ./HttpApi -c Release -r linux-x64 -o Published

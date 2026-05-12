@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>Types</AssemblyName>
     <PackageId>Types</PackageId>
@@ -15,7 +15,7 @@
     <Compile Include="Sensors.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="8.0.401" />
+    <PackageReference Update="FSharp.Core" Version="10.1.203" />
   </ItemGroup>
 
 </Project>
